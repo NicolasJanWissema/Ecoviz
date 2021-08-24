@@ -11,6 +11,12 @@ public class Plant {
     public Plant() {
 
     }
+    public Plant(float[] position, int ID, float height, float canopyRadius){
+        this.position=position;
+        this.speciesID = ID;
+        this.height = height;
+        this.canopyRadius = canopyRadius;
+    }
 
     // Getter & Setters
     public float[] getPostion() {
