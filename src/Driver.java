@@ -22,6 +22,7 @@ public class Driver{
 
     public static void main(String[] args) {
         readFiles("Data/S6000-6000-256");
+        terrain.deriveImage();
     }
 
     private static void readFiles(String filename) {
