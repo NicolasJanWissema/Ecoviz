@@ -1,7 +1,9 @@
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.SubScene;
 import javafx.stage.Stage;
 import javafx.scene.image.*;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
 import javafx.scene.Parent;
@@ -12,9 +14,15 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Scanner;
 import java.io.File;
+
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
+import javafx.scene.control.Label;
+import javafx.scene.control.Button;
  
 public class GUI extends Application {
-
+    @FXML
     // regular grid of height values
 	WritableImage img; // greyscale image for displaying the terrain top-down
     Group root;
@@ -25,16 +33,19 @@ public class GUI extends Application {
     private SpeciesInfo[] speciesInfo;
     private FireSim fireSim;
     private Plant[][] displayed;
+    public Group pane;
+    public Label label;
+    public Button button;
 
     float [][] height; // regular grid of height values
     int dimx, dimy; // data dimensions
     public static void main(String[] args) {
-        GUI gui = new GUI();
+        //Controller controller = new Controller(gui);
         launch(args);
     }
 
     public GUI() {
-        readFiles("Data/S4500-4500-1024");
+        readFiles("Data/S6000-6000-256");
         dimx = terrain.dimx;
         dimy = terrain.dimy;
     }
@@ -43,15 +54,26 @@ public class GUI extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // Parent root = FXMLLoader.load(getClass().getResource("gui.fxml"));   
-        root = new Group() ;
+        Parent root = FXMLLoader.load(getClass().getResource("gui.fxml"));   
+        //root = new Group() ;
         primaryStage.setTitle("EcoViz");
+        long startTime = System.nanoTime();
         deriveImage();
+        long endTime = System.nanoTime();
+        System.out.println("TIME: " + ((endTime-startTime)/1000000));
         ImageView imageView = new ImageView(img);
-        root.getChildren().add(imageView);
+        //root.getChildren().add(imageView);
+        //pane.getChildren().add(imageView);
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
+
         
+    }
+
+    public void hanndleButtonClick() {
+        label.setText("BUTTON PRESSED");
+        ImageView imageView = new ImageView(deriveImage());
+        pane.getChildren().add(imageView);
     }
 
     public void addPlants() {
@@ -70,7 +92,7 @@ public class GUI extends Application {
         root.getChildren().addAll(circle);
     }
 
-    void deriveImage() {
+    public WritableImage deriveImage() {
         System.out.println(dimx + " " +dimy);
 		img = new WritableImage(dimx, dimy);
         PixelWriter pw = img.getPixelWriter();
@@ -94,6 +116,7 @@ public class GUI extends Application {
                 pw.setColor(x, y, col);
 				 
 			}
+        return img;
 	}
 
 
