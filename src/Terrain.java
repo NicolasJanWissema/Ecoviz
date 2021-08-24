@@ -28,8 +28,7 @@ public class Terrain {
     public void setHeight(int x, int y, float height){
         this.height[x][y] = height;
     }
-    void deriveImage()
-    {
+    void deriveImage() {
         img = new BufferedImage(dimx, dimy, BufferedImage.TYPE_INT_ARGB);
         float maxh = -10000.0f, minh = 10000.0f;
 
@@ -59,6 +58,10 @@ public class Terrain {
 
     public float[][] getHeight() {
         return height;
+    }
+
+    public float getHeight(int x, int y) {
+        return height[x][y];
     }
 
     public void setHeight(float[][] height) {
