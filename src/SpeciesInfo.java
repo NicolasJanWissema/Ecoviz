@@ -16,6 +16,12 @@ public class SpeciesInfo {
     }
 
     // Sets
+    public void setHeight(float minHeight, float maxHeight){
+        height = new float[]{minHeight,maxHeight};
+    }
+    public void setAvgCanopyRad(float avgCanopyRad){
+        this.avgCanopyRad=avgCanopyRad;
+    }
     public float[] getHeight() {
         return height;
     }

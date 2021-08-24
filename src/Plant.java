@@ -11,11 +11,11 @@ public class Plant {
     public Plant() {
 
     }
-    public Plant(float[] position, int ID, float height, float canopyRadius){
+    public Plant(int speciesID, float[] position,float height, float canopyRadius){
         this.position=position;
-        this.speciesID = ID;
         this.height = height;
         this.canopyRadius = canopyRadius;
+        this.speciesID=speciesID;
     }
 
     // Getter & Setters
