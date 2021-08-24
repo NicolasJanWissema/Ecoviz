@@ -9,7 +9,7 @@ public class Driver{
     // Global Variables
     private static Plants plants;
     private GUI gui;
-    private Terrain terrain;
+    private static Terrain terrain;
     private static SpeciesInfo[] speciesInfo;
     private FireSim fireSime;
     private Plant[][] displayed;
@@ -21,12 +21,13 @@ public class Driver{
     ArrayList<Integer> permute;	// permuted list of integers in range [0, dimx*dimy)
 
     public static void main(String[] args) {
-        readFiles("Data/S4500-4500-1024");
+        readFiles("Data/S6000-6000-256");
     }
 
     private static void readFiles(String filename) {
         try{
-            Scanner sc = new Scanner(new File(filename+".spc.txt"));
+            Scanner sc;
+            sc = new Scanner(new File(filename+".spc.txt"));
             ArrayList<SpeciesInfo> speciesInfoArrayList = new ArrayList<>();
 
             while(sc.hasNext()){
@@ -36,8 +37,16 @@ public class Driver{
             speciesInfoArrayList.toArray(speciesInfo);
             plants = new Plants(speciesInfo.length);
 
+            //read elevation file
             sc = new Scanner(new File(filename+".elv"));
+            terrain = new Terrain(sc.nextInt(),sc.nextInt(),sc.nextFloat(),sc.nextFloat());
+            for (int x=0; x<terrain.getDimensions()[0]; x++){
+                for(int y=0; y< terrain.getDimensions()[1]; y++){
+                    terrain.setHeight(x,y,sc.nextFloat());
+                }
+            }
 
+            //reading canopy plant file
             System.out.println("canopy:");
             sc = new Scanner(new File(filename+"_canopy.pdb"));
             int speciesNum = sc.nextInt();
@@ -53,6 +62,7 @@ public class Driver{
                 }
             }
 
+            //reading undergrowth plant file
             System.out.println("undergrowth:");
             sc = new Scanner(new File(filename+"_undergrowth.pdb"));
             speciesNum = sc.nextInt();
