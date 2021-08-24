@@ -1,7 +1,7 @@
 public class Plant {
 
     // Global Variables
-    private float[] postion;
+    private float[] position;
     private int speciesID;
     private float height;
     private float canopyRadius;
@@ -19,8 +19,8 @@ public class Plant {
     }
 
     // Getter & Setters
-    public float[] getPostion() {
-        return postion;
+    public float[] getPosition() {
+        return position;
     }
 
     public int getSpeciesID() {
