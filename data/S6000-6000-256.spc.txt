@@ -1,0 +1,16 @@
+0 “Redwood Sorrel” “Oxalis oregano”
+1 “California Sagebrush” “Artemesia californica”
+2 “Chamise / Greasewood” “Adenostoma fasciculatum”
+3 “Western Swordfern” “Polystichum munitum”
+4 “Whiteleaf Manzanita” “Arctostaphylos manzanita”
+5 “Toyon” “Heteromeles arbutifolia”
+6 “Pacific Poison Oak” “Toxicodendron diversilobum”
+7 “Tanoak” “Notholithocarpus densiflorus”
+8 “California/Coast Live Oak” “Quercus agrifolia”
+9 “Oregon White Oak” “Quercus garryana”
+10 “California black oak” “Quercus kelloggii”
+11 “California Laurel” “Umbellularia californica”
+12 “Pacific Madrone” “Arbutus menziesii”
+13 “Gray Pine / Foothills Pine” “Pinus sabiniana”
+14 “Franco Douglas-Fir” “Pseudotsuga menziesii”
+15 “Redwood” “Sequoia sempervirens”
