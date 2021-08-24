@@ -8,13 +8,22 @@ public class Plants {
     //Constructors
     Plants(int numSpecies){
         undergrowth = new Plant[numSpecies][0];
+        canopy = new Plant[numSpecies][0];
     }
     Plants(){}
 
     //Data generating methods
-    public void addPlantToCanopy(Plant newPlant){
+    public void addSpeciesNumToCanopy(int speciesID,int speciesNum){
+        canopy[speciesID]=new Plant[speciesNum];
     }
-    public void addPlantToUndergrowth(Plant newPlant){
+    public void addSpeciesNumToUndergrowth(int speciesID,int speciesNum){
+        undergrowth[speciesID]=new Plant[speciesNum];
+    }
+    public void addPlantToCanopy(int speciesPos, Plant newPlant){
+        canopy[newPlant.getSpeciesID()][speciesPos]=newPlant;
+    }
+    public void addPlantToUndergrowth(int speciesPos, Plant newPlant){
+        undergrowth[newPlant.getSpeciesID()][speciesPos]=newPlant;
     }
 
     //Filtering Methods, assuming data generation has been completed.
