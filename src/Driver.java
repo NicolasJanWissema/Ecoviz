@@ -11,7 +11,7 @@ public class Driver{
     private GUI gui;
     private static Terrain terrain;
     private static SpeciesInfo[] speciesInfo;
-    private FireSim fireSime;
+    private FireSim fireSim;
     private Plant[][] displayed;
 
     float [][] height; // regular grid of height values
