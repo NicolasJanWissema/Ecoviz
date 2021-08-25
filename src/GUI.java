@@ -43,9 +43,9 @@ public class GUI extends Application {
         launch(args);
     }
 
-    public GUI() {
+    public void start() {
         long startTime = System.nanoTime();
-        readFiles("Data/S6000-6000-256");
+        readFiles("Data/S4500-4500-1024");
         long endTime = System.nanoTime();
         System.out.println("TIME TO READ FILES: " + ((endTime-startTime)/1000000));
         dimx = terrain.dimx;
@@ -54,6 +54,8 @@ public class GUI extends Application {
 
     @FXML
     public void initialize() {
+        System.out.println("INTISLIZE");
+        start();
         terrainView.setImage(terrain.deriveImage());
         //plantView.setImage(plants.getPlantImage(dimx,dimy, terrain.getGridSpacing()));
         plantView.setImage(plants.getPlantImageCircle(dimx,dimy, terrain.getGridSpacing()));
@@ -63,6 +65,7 @@ public class GUI extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        System.out.println("START");
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("gui.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
 

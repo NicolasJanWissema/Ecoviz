@@ -88,7 +88,7 @@ public class Plants {
                 int x = (int)(unfiltered[i][j].getPosition()[0]/gridSpacing);
                 int y = (int)(unfiltered[i][j].getPosition()[1]/gridSpacing);
                 if (x<dimx && y<dimy){
-                    pw.setColor(x, y, new Color(0,1,0,0.2));
+                    pw.setColor(x, y, plantColors[i]);
                 }
             }
         }
@@ -104,24 +104,27 @@ public class Plants {
         //System.out.println("TIME TO DRAW ONE CIRCLE: " + ((endTime-startTime)/1000000));
         if (unfiltered==null){
             generateUnfiltered();
+            //filterUndergrowth();
         }
+        //long startTime = System.nanoTime();
         for(int i=0; i<unfiltered.length;i++){
             for (int j=0;j<unfiltered[i].length;j++){
                 int x = (int)(unfiltered[i][j].getPosition()[0]/gridSpacing);
                 int y = (int)(unfiltered[i][j].getPosition()[1]/gridSpacing);
                 if (x<dimx && y<dimy){
-                    circleBres(x, y, (int)(unfiltered[i][j].getCanopyRadius()/gridSpacing));
+                    circleBres(x, y, (int)(unfiltered[i][j].getCanopyRadius()/gridSpacing), plantColors[i]);
                 }
             }
         }
+        //long endTime = System.nanoTime();
+        //System.out.println("TIME TO DRAW ONE CIRCLE: " + ((endTime-startTime)/1000000));
         return wImage;
-
     }
 
-    public void circleBres(int xc, int yc, int r){
+    public void circleBres(int xc, int yc, int r, Color col){
         int x = 0, y = r;
         int d = 3 - 2 * r;
-        drawCircle(xc, yc, x, y);
+        drawCircle(xc, yc, x, y,col);
         while (y >= x) {
             x++;
             if (d > 0) {
@@ -130,22 +133,24 @@ public class Plants {
             } else {
                 d = d + 4 * x + 6;
             }
-            drawCircle(xc, yc, x, y);
+            drawCircle(xc, yc, x, y, col);
         }
     }
 
-    public void drawCircle(int xc, int yc, int x, int y) {
-        drawLine(xc-x, xc+x, yc+y);
-        drawLine(xc-x, xc+x, yc-y);
-        drawLine(xc-y, xc+y, yc+x);
-        drawLine(xc-y, xc+y, yc-x);
+    public void drawCircle(int xc, int yc, int x, int y, Color col) {
+        drawLine(xc-x, xc+x, yc+y, col);
+        drawLine(xc-x, xc+x, yc-y, col);
+        drawLine(xc-y, xc+y, yc+x, col);
+        drawLine(xc-y, xc+y, yc-x, col);
     }
 
-    public void drawLine(int x0, int x1, int y) {
+    public void drawLine(int x0, int x1, int y, Color col) {
         PixelWriter pw = wImage.getPixelWriter();
         if (y < dimy && y >= 0) {
-            for (int i = x0; i <= x1 && i < dimx && i >= 0; i++ ) {
-                pw.setColor(i, y, Color.GREEN);
+            for (int i = x0; i <= x1; i++ ) {
+                if (i < dimx && i >= 0) {
+                    pw.setColor(i, y, col);
+                } 
             }
         }
 
@@ -157,12 +162,12 @@ public class Plants {
         Random random = new Random();
         for (int i=0; i<numSpecies; i++){
             double deviation = random.nextGaussian()/3;
-            if (deviation>1){
+            if (Math.abs(deviation)>1){
                 i--;
             }
             else{
                 //System.out.println(deviation);
-                plantColors[i] = new Color(Math.max(0,deviation),Math.abs(1-Math.abs(deviation)),Math.max(0,-deviation),1);
+                plantColors[i] = new Color(Math.max(0,deviation),Math.abs(1-1.2*Math.abs(deviation)),Math.max(0,-deviation),1);
             }
         }
     }
