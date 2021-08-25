@@ -3,6 +3,7 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 
 import java.awt.*;
+import java.util.Random;
 
 public class Plants {
 
@@ -10,11 +11,13 @@ public class Plants {
     private Plant[][] undergrowth;
     private Plant[][] canopy;
     private Plant[][] unfiltered;
+    private Color[] plantColors;
 
     //Constructors
     Plants(int numSpecies){
         undergrowth = new Plant[numSpecies][0];
         canopy = new Plant[numSpecies][0];
+        generateColors(numSpecies);
     }
     Plants(){}
 
@@ -83,10 +86,26 @@ public class Plants {
                 int x = (int)(unfiltered[i][j].getPosition()[0]/gridSpacing);
                 int y = (int)(unfiltered[i][j].getPosition()[1]/gridSpacing);
                 if (x<dimx && y<dimy){
-                    pw.setColor(x, y, new Color(0,1,0,0.2));
+                    pw.setColor(x, y, plantColors[i]);
                 }
             }
         }
         return (img);
+    }
+
+    //Generate colors with a gaussian distribution around green.
+    private void generateColors(int numSpecies){
+        plantColors = new Color[numSpecies];
+        Random random = new Random();
+        for (int i=0; i<numSpecies; i++){
+            double deviation = random.nextGaussian()/3;
+            if (deviation>1){
+                i--;
+            }
+            else{
+                //System.out.println(deviation);
+                plantColors[i] = new Color(Math.max(0,deviation),Math.abs(1-Math.abs(deviation)),Math.max(0,-deviation),1);
+            }
+        }
     }
 }
