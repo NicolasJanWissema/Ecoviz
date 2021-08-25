@@ -1,16 +1,15 @@
-import java.awt.Color;
-import java.awt.image.BufferedImage;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
+import javafx.scene.paint.Color;
 
 public class Terrain {
 
     // Global Varibles
     private float[][] height;
     int dimx, dimy;
-    private Color terrainColor;
     private float gridSpacing;
     private float latitude;
-
-    public BufferedImage img;
+    public WritableImage img;
 
     //Constructor
     public Terrain(int dimX , int dimY, float gridSpacing, float latitude){
@@ -28,10 +27,11 @@ public class Terrain {
     public void setHeight(int x, int y, float height){
         this.height[x][y] = height;
     }
-    void deriveImage()
-    {
-        img = new BufferedImage(dimx, dimy, BufferedImage.TYPE_INT_ARGB);
+
+    public WritableImage deriveImage() {
         float maxh = -10000.0f, minh = 10000.0f;
+        WritableImage img = new WritableImage(dimx, dimy);
+        PixelWriter pw = img.getPixelWriter();
 
         // determine range of heights
         for(int x=0; x < dimx; x++)
@@ -47,13 +47,15 @@ public class Terrain {
             for(int y=0; y < dimy; y++) {
                 // find normalized height value in range
                 float val = (height[x][y] - minh) / (maxh - minh);
-                Color col = new Color(val, val, val, 1.0f);
-                img.setRGB(x, y, col.getRGB());
+                Color color = new Color(val,val,val,1.0f);
+                pw.setColor(x, y, color);
             }
+
+        return img;
     }
 
     // get greyscale image
-    public BufferedImage getImage() {
+    public WritableImage getImage() {
         return img;
     }
 
@@ -61,12 +63,12 @@ public class Terrain {
         return height;
     }
 
-    public void setHeight(float[][] height) {
-        this.height = height;
+    public float getHeight(int x, int y) {
+        return height[x][y];
     }
 
-    public Color getTerrainColor() {
-        return terrainColor;
+    public void setHeight(float[][] height) {
+        this.height = height;
     }
 
     public float getGridSpacing() {
