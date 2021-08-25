@@ -1,6 +1,7 @@
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.SubScene;
+import javafx.scene.canvas.Canvas;
 import javafx.stage.Stage;
 import javafx.scene.image.*;
 import javafx.fxml.FXML;
@@ -16,6 +17,8 @@ import java.util.Scanner;
 import java.io.File;
 
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.control.Label;
@@ -36,6 +39,7 @@ public class GUI extends Application {
     public ImageView plantView;
     public Label label;
     public Button button;
+    public AnchorPane anchorPane;
 
     int dimx, dimy; // data dimensions
 
@@ -45,7 +49,7 @@ public class GUI extends Application {
 
     public void start() {
         long startTime = System.nanoTime();
-        readFiles("Data/S4500-4500-1024");
+        readFiles("Data/S2000-2000-512");
         long endTime = System.nanoTime();
         System.out.println("TIME TO READ FILES: " + ((endTime-startTime)/1000000));
         dimx = terrain.dimx;
@@ -54,7 +58,6 @@ public class GUI extends Application {
 
     @FXML
     public void initialize() {
-        System.out.println("INTISLIZE");
         start();
         terrainView.setImage(terrain.deriveImage());
         //plantView.setImage(plants.getPlantImage(dimx,dimy, terrain.getGridSpacing()));
@@ -65,10 +68,9 @@ public class GUI extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        System.out.println("START");
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("gui.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-
+        primaryStage.setResizable(false);
         primaryStage.setTitle("EcoViz");
         primaryStage.setScene(scene);
         primaryStage.show();
