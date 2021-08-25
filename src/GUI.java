@@ -55,7 +55,8 @@ public class GUI extends Application {
     @FXML
     public void initialize() {
         terrainView.setImage(terrain.deriveImage());
-        plantView.setImage(plants.getPlantImage(dimx,dimy, terrain.getGridSpacing()));
+        //plantView.setImage(plants.getPlantImage(dimx,dimy, terrain.getGridSpacing()));
+        plantView.setImage(plants.getPlantImageCircle(dimx,dimy, terrain.getGridSpacing()));
     }
 
 
