@@ -73,7 +73,7 @@ public class Plants {
     public WritableImage getPlantImage(int dimx, int dimy, float gridSpacing){
         WritableImage img = new WritableImage(dimx, dimy);
         PixelWriter pw = img.getPixelWriter();
-        System.out.println("Generating plant map image.");
+        //System.out.println("Generating plant map image.");
         if (unfiltered==null){
             generateUnfiltered();
         }

@@ -24,7 +24,6 @@ import javafx.scene.control.Button;
 public class GUI extends Application {
     @FXML
     // regular grid of height values
-	WritableImage img; // greyscale image for displaying the terrain top-down
     Group root;
 
     // Main Class Globals
@@ -32,43 +31,47 @@ public class GUI extends Application {
     private Terrain terrain;
     private SpeciesInfo[] speciesInfo;
     private FireSim fireSim;
-    private Plant[][] displayed;
     public Group pane;
     public ImageView terrainView;
     public ImageView plantView;
     public Label label;
     public Button button;
 
-    float [][] height; // regular grid of height values
     int dimx, dimy; // data dimensions
+
     public static void main(String[] args) {
-        //Controller controller = new Controller(gui);
         launch(args);
     }
 
     public GUI() {
+        long startTime = System.nanoTime();
         readFiles("Data/S6000-6000-256");
+        long endTime = System.nanoTime();
+        System.out.println("TIME TO READ FILES: " + ((endTime-startTime)/1000000));
         dimx = terrain.dimx;
         dimy = terrain.dimy;
+    }
+
+    @FXML
+    public void initialize() {
+        terrainView.setImage(terrain.deriveImage());
+        plantView.setImage(plants.getPlantImage(dimx,dimy, terrain.getGridSpacing()));
     }
 
 
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("gui.fxml"));   
-        //root = new Group() ;
-        primaryStage.setTitle("EcoViz");
-        long startTime = System.nanoTime();
-        long endTime = System.nanoTime();
-        System.out.println("TIME: " + ((endTime-startTime)/1000000));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("gui.fxml"));
+        Scene scene = new Scene(fxmlLoader.load());
 
-        primaryStage.setScene(new Scene(root));
+        primaryStage.setTitle("EcoViz");
+        primaryStage.setScene(scene);
         primaryStage.show();
     }
 
     public void hanndleButtonClick() {
-        terrainView.setImage(terrain.deriveImage());
+
         if (!terrainView.visibleProperty().get()){
             terrainView.visibleProperty().set(true);
         }
@@ -77,7 +80,7 @@ public class GUI extends Application {
         }
     }
     public void showPlants(){
-        plantView.setImage(plants.getPlantImage(dimx,dimy, terrain.getGridSpacing()));
+
         if (!plantView.visibleProperty().get()){
             plantView.visibleProperty().set(true);
         }
@@ -131,13 +134,13 @@ public class GUI extends Application {
             }
 
             //reading canopy plant file
-            System.out.println("canopy:");
+            //System.out.println("canopy:");
             sc = new Scanner(new File(filename+"_canopy.pdb"));
             sc.useLocale(Locale.US);
             int speciesNum = sc.nextInt();
             for(int i=0; i<speciesNum; i++){
                 int speciesID = sc.nextInt();
-                System.out.println(speciesID);
+                //System.out.println(speciesID);
                 speciesInfo[speciesID].setHeight(sc.nextFloat(),sc.nextFloat());
                 speciesInfo[speciesID].setAvgCanopyRad(sc.nextFloat());
                 int plantNum = sc.nextInt();
@@ -148,13 +151,13 @@ public class GUI extends Application {
             }
 
             //reading undergrowth plant file
-            System.out.println("undergrowth:");
+            //System.out.println("undergrowth:");
             sc = new Scanner(new File(filename+"_undergrowth.pdb"));
             sc.useLocale(Locale.US);
             speciesNum = sc.nextInt();
             for(int i=0; i<speciesNum; i++){
                 int speciesID = sc.nextInt();
-                System.out.println(speciesID);
+                //System.out.println(speciesID);
                 speciesInfo[speciesID].setHeight(sc.nextFloat(),sc.nextFloat());
                 speciesInfo[speciesID].setAvgCanopyRad(sc.nextFloat());
                 int plantNum = sc.nextInt();
