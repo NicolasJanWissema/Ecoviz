@@ -34,6 +34,8 @@ public class GUI extends Application {
     private FireSim fireSim;
     private Plant[][] displayed;
     public Group pane;
+    public ImageView terrainView;
+    public ImageView plantView;
     public Label label;
     public Button button;
 
@@ -58,22 +60,30 @@ public class GUI extends Application {
         //root = new Group() ;
         primaryStage.setTitle("EcoViz");
         long startTime = System.nanoTime();
-        deriveImage();
         long endTime = System.nanoTime();
         System.out.println("TIME: " + ((endTime-startTime)/1000000));
-        ImageView imageView = new ImageView(img);
-        //root.getChildren().add(imageView);
-        //pane.getChildren().add(imageView);
+
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
-
-        
     }
 
     public void hanndleButtonClick() {
-        label.setText("BUTTON PRESSED");
-        ImageView imageView = new ImageView(deriveImage());
-        pane.getChildren().add(imageView);
+        terrainView.setImage(terrain.deriveImage());
+        if (!terrainView.visibleProperty().get()){
+            terrainView.visibleProperty().set(true);
+        }
+        else{
+            terrainView.visibleProperty().set(false);
+        }
+    }
+    public void showPlants(){
+        plantView.setImage(plants.getPlantImage(dimx,dimy, terrain.getGridSpacing()));
+        if (!plantView.visibleProperty().get()){
+            plantView.visibleProperty().set(true);
+        }
+        else{
+            plantView.visibleProperty().set(false);
+        }
     }
 
     public void addPlants() {
@@ -92,33 +102,6 @@ public class GUI extends Application {
         root.getChildren().addAll(circle);
     }
 
-    public WritableImage deriveImage() {
-        System.out.println(dimx + " " +dimy);
-		img = new WritableImage(dimx, dimy);
-        PixelWriter pw = img.getPixelWriter();
-		float maxh = -10000.0f, minh = 10000.0f;
-		
-		// determine range of heights
-		for(int x=0; x < dimx; x++)
-			for(int y=0; y < dimy; y++) {
-				float h = terrain.getHeight(x, y);
-				if(h > maxh)
-					maxh = h;
-				if(h < minh)
-					minh = h;
-			}
-		
-		for(int x=0; x < dimx; x++)
-			for(int y=0; y < dimy; y++) {
-				 // find normalized height value in range
-				float val = (terrain.getHeight(x, y) - minh) / (maxh - minh);
-				Color col = new Color(val, val, val, 1.0f);
-                pw.setColor(x, y, col);
-				 
-			}
-        return img;
-	}
-
 
     private void readFiles(String filename) {
         try{
@@ -126,7 +109,6 @@ public class GUI extends Application {
             sc = new Scanner(new File(filename+".spc.txt"));
             sc.useLocale(Locale.US);
             ArrayList<SpeciesInfo> speciesInfoArrayList = new ArrayList<>();
-
             while(sc.hasNext()){
                 speciesInfoArrayList.add(new SpeciesInfo(sc.nextLine()));
             }

@@ -1,3 +1,9 @@
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
+import javafx.scene.paint.Color;
+
+import java.awt.*;
+
 public class Plants {
 
     // Global
@@ -48,5 +54,39 @@ public class Plants {
     public Plant[][] filterUndergrowth(){
         unfiltered=canopy;
         return (unfiltered);
+    }
+    public void generateUnfiltered(){
+        unfiltered=new Plant[canopy.length][0];
+        for (int i=0; i< unfiltered.length; i++){
+            unfiltered[i] = new Plant[canopy[i].length+ undergrowth[i].length];
+
+            for (int j=0; j< canopy[i].length; j++){
+                unfiltered[i][j]=canopy[i][j];
+            }
+            for (int j= canopy[i].length; j< unfiltered[i].length; j++){
+                unfiltered[i][j]=undergrowth[i][j-canopy[i].length];
+            }
+        }
+    }
+
+    //Generate coloured map for plants
+    public WritableImage getPlantImage(int dimx, int dimy, float gridSpacing){
+        WritableImage img = new WritableImage(dimx, dimy);
+        PixelWriter pw = img.getPixelWriter();
+        System.out.println("Generating plant map image.");
+        if (unfiltered==null){
+            generateUnfiltered();
+        }
+
+        for(int i=0; i<unfiltered.length;i++){
+            for (int j=0;j<unfiltered[i].length;j++){
+                int x = (int)(unfiltered[i][j].getPosition()[0]/gridSpacing);
+                int y = (int)(unfiltered[i][j].getPosition()[1]/gridSpacing);
+                if (x<dimx && y<dimy){
+                    pw.setColor(x, y, new Color(0,1,0,0.2));
+                }
+            }
+        }
+        return (img);
     }
 }
