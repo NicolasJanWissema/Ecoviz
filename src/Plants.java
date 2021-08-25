@@ -12,6 +12,8 @@ public class Plants {
     private Plant[][] canopy;
     private Plant[][] unfiltered;
     private Color[] plantColors;
+    private WritableImage wImage;
+    private int dimx,dimy;
 
     //Constructors
     Plants(int numSpecies){
@@ -86,11 +88,67 @@ public class Plants {
                 int x = (int)(unfiltered[i][j].getPosition()[0]/gridSpacing);
                 int y = (int)(unfiltered[i][j].getPosition()[1]/gridSpacing);
                 if (x<dimx && y<dimy){
-                    pw.setColor(x, y, plantColors[i]);
+                    pw.setColor(x, y, new Color(0,1,0,0.2));
                 }
             }
         }
         return (img);
+    }
+
+    public WritableImage getPlantImageCircle(int dimx, int dimy, float gridSpacing) {
+        wImage = new WritableImage(dimx, dimy);
+        this.dimx = dimx;
+        this.dimy = dimy;
+        //long startTime = System.nanoTime();
+        //long endTime = System.nanoTime();
+        //System.out.println("TIME TO DRAW ONE CIRCLE: " + ((endTime-startTime)/1000000));
+        if (unfiltered==null){
+            generateUnfiltered();
+        }
+        for(int i=0; i<unfiltered.length;i++){
+            for (int j=0;j<unfiltered[i].length;j++){
+                int x = (int)(unfiltered[i][j].getPosition()[0]/gridSpacing);
+                int y = (int)(unfiltered[i][j].getPosition()[1]/gridSpacing);
+                if (x<dimx && y<dimy){
+                    circleBres(x, y, (int)(unfiltered[i][j].getCanopyRadius()/gridSpacing));
+                }
+            }
+        }
+        return wImage;
+
+    }
+
+    public void circleBres(int xc, int yc, int r){
+        int x = 0, y = r;
+        int d = 3 - 2 * r;
+        drawCircle(xc, yc, x, y);
+        while (y >= x) {
+            x++;
+            if (d > 0) {
+                y--;
+                d = d + 4 * (x -y) + 10;
+            } else {
+                d = d + 4 * x + 6;
+            }
+            drawCircle(xc, yc, x, y);
+        }
+    }
+
+    public void drawCircle(int xc, int yc, int x, int y) {
+        drawLine(xc-x, xc+x, yc+y);
+        drawLine(xc-x, xc+x, yc-y);
+        drawLine(xc-y, xc+y, yc+x);
+        drawLine(xc-y, xc+y, yc-x);
+    }
+
+    public void drawLine(int x0, int x1, int y) {
+        PixelWriter pw = wImage.getPixelWriter();
+        if (y < dimy && y >= 0) {
+            for (int i = x0; i <= x1 && i < dimx && i >= 0; i++ ) {
+                pw.setColor(i, y, Color.GREEN);
+            }
+        }
+
     }
 
     //Generate colors with a gaussian distribution around green.
