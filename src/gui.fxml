@@ -9,6 +9,7 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
@@ -36,11 +37,11 @@
       </MenuBar>
    </top>
    <bottom>
-      <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <ButtonBar prefHeight="40.0" prefWidth="200.0">
         <buttons>
+            <Label fx:id="label" text="Label" />
             <Button mnemonicParsing="false" onAction="#showPlants" text="Show/Hide Plants" />
             <Button fx:id="button" mnemonicParsing="false" onAction="#hanndleButtonClick" text="Show/Hide Terrain" />
-            <Label fx:id="label" text="Label" />
         </buttons>
       </ButtonBar>
    </bottom>
@@ -54,13 +55,15 @@
       </AnchorPane>
    </center>
    <right>
-      <ScrollPane prefHeight="200.0" prefWidth="200.0" vbarPolicy="ALWAYS" BorderPane.alignment="CENTER">
+      <ScrollPane prefHeight="512.0" prefWidth="215.0" vbarPolicy="ALWAYS" BorderPane.alignment="CENTER_RIGHT">
          <content>
-            <VBox prefHeight="335.0" prefWidth="174.0">
+            <VBox alignment="TOP_CENTER">
                <children>
+                  <Canvas height="200.0" width="200.0" />
                   <Slider fx:id="canopySlider" max="1.0" value="1.0" />
                   <Slider fx:id="undergrowthSlider" max="1.0" prefWidth="1.0" value="1.0" />
                   <Slider fx:id="zoomSlider" max="1.0" prefHeight="14.0" prefWidth="104.0" value="1.0" />
+                  <TextArea prefHeight="200.0" prefWidth="200.0" text="asdasdasd" />
                </children>
             </VBox>
          </content>
