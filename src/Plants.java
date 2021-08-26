@@ -1,3 +1,5 @@
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
@@ -60,6 +62,7 @@ public class Plants {
         unfiltered=canopy;
         return (unfiltered);
     }
+
     public void generateUnfiltered(){
         unfiltered=new Plant[canopy.length][0];
         for (int i=0; i< unfiltered.length; i++){
@@ -117,9 +120,38 @@ public class Plants {
             }
         }
         //long endTime = System.nanoTime();
-        //System.out.println("TIME TO DRAW ONE CIRCLE: " + ((endTime-startTime)/1000000));
+        //System.out.println("TIME TO DRAW CIRCLE: " + ((endTime-startTime)/1000000));
         return wImage;
     }
+
+    public void getPlantImageCanvas(int dimx, int dimy, float gridSpacing, Canvas canvas) {
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        this.dimx = dimx;
+        this.dimy = dimy;
+        //long startTime = System.nanoTime();
+        //long endTime = System.nanoTime();
+        //System.out.println("TIME TO DRAW ONE CIRCLE: " + ((endTime-startTime)/1000000));
+        if (unfiltered==null){
+            generateUnfiltered();
+            //filterUndergrowth();
+        }
+        //long startTime = System.nanoTime();
+        for(int i=0; i<unfiltered.length;i++){
+            for (int j=0;j<unfiltered[i].length;j++){
+                int x = (int)(unfiltered[i][j].getPosition()[0]/gridSpacing);
+                int y = (int)(unfiltered[i][j].getPosition()[1]/gridSpacing);
+                if (x<dimx && y<dimy){
+                    gc.setFill(plantColors[i]);
+                    double rad = (double) (unfiltered[i][j].getCanopyRadius()/gridSpacing);
+                    gc.fillOval((double) x-rad, (double) y-rad, (double)rad*2, rad*2);
+                }
+            }
+        }
+        //long endTime = System.nanoTime();
+        //System.out.println("TIME TO DRAW CIRCLE: " + ((endTime-startTime)/1000000));
+    }
+
+    
 
     public void circleBres(int xc, int yc, int r, Color col){
         int x = 0, y = r;
