@@ -1,9 +1,15 @@
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Slider;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -14,7 +20,6 @@ import java.util.Locale;
 import java.util.Scanner;
 import java.io.File;
 
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
 
@@ -38,6 +43,8 @@ public class GUI extends Application {
     public Slider undergrowthSlider;
     public Slider canopySlider;
     public Slider zoomSlider;
+    public VBox filterPlaceholder;
+    public CheckBox[] filterBoxes;
 
 
     int dimx, dimy; // data dimensions
@@ -59,10 +66,31 @@ public class GUI extends Application {
     public void initialize() {
         dataGen();
 
+        anchorPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
         terrain.deriveImageCanvas(terrainCanvas);
         plants.getUndergrowthImageCanvas(dimx, dimy,  terrain.getGridSpacing(), undergrowthCanvas);
         plants.getCanopyImageCanvas(dimx, dimy,  terrain.getGridSpacing(), canopyCanvas);
         System.out.println(speciesInfo.length);
+
+        //Generate filter buttons
+        filterBoxes = new CheckBox[speciesInfo.length];
+        for(int i=0; i<filterBoxes.length; i++){
+            filterBoxes[i]= new CheckBox(speciesInfo[i].getCommmonName());
+            filterBoxes[i].selectedProperty().set(true);
+
+            filterBoxes[i].selectedProperty().addListener(new ChangeListener<Boolean>() {
+                @Override
+                public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                    if (observable.getValue().booleanValue()){
+                        System.out.println("On");
+                    }
+                    else {
+                        System.out.println("Off");
+                    }
+                }
+            });
+            filterPlaceholder.getChildren().add(filterBoxes[i]);
+        }
 
         undergrowthSlider.valueProperty().addListener(new ChangeListener<Number>() {
             @Override
@@ -78,7 +106,31 @@ public class GUI extends Application {
             }
         });
 
+        anchorPane.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+            }
+        });
 
+        anchorPane.setCursor(Cursor.OPEN_HAND);
+        anchorPane.setOnMouseMoved(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                label.setText(event.getSceneX()+", "+event.getSceneY());
+            }
+        });
+        anchorPane.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                anchorPane.setCursor(Cursor.CLOSED_HAND);
+            }
+        });
+        anchorPane.setOnMouseReleased(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                anchorPane.setCursor(Cursor.OPEN_HAND);
+            }
+        });
 
     }
 
@@ -93,7 +145,7 @@ public class GUI extends Application {
         primaryStage.show();
     }
 
-    public void hanndleButtonClick() {
+    public void handleButtonClick() {
         if (!terrainCanvas.visibleProperty().get()){
             terrainCanvas.visibleProperty().set(true);
         }
