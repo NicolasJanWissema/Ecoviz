@@ -1,6 +1,8 @@
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 
 public class Terrain {
 
@@ -52,6 +54,31 @@ public class Terrain {
             }
 
         return img;
+    }
+
+    public void deriveImageCanvas(Canvas img) {
+        float maxh = -10000.0f, minh = 10000.0f;
+        GraphicsContext gc = img.getGraphicsContext2D();
+        PixelWriter pw = gc.getPixelWriter();
+
+        // determine range of heights
+        for(int x=0; x < dimx; x++)
+            for(int y=0; y < dimy; y++) {
+                float h = height[x][y];
+                if(h > maxh)
+                    maxh = h;
+                if(h < minh)
+                    minh = h;
+            }
+
+        for(int x=0; x < dimx; x++)
+            for(int y=0; y < dimy; y++) {
+                // find normalized height value in range
+                float val = (height[x][y] - minh) / (maxh - minh);
+                Color color = new Color(val,val,val,1.0f);
+                pw.setColor(x, y, color);
+            }
+
     }
 
     // get greyscale image

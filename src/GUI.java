@@ -2,6 +2,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.SubScene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.stage.Stage;
 import javafx.scene.image.*;
 import javafx.fxml.FXML;
@@ -40,6 +41,8 @@ public class GUI extends Application {
     public Label label;
     public Button button;
     public AnchorPane anchorPane;
+    public Canvas terrainCanvas;
+    public Canvas plantCanvas;
 
     int dimx, dimy; // data dimensions
 
@@ -59,9 +62,12 @@ public class GUI extends Application {
     @FXML
     public void initialize() {
         start();
-        terrainView.setImage(terrain.deriveImage());
+        //terrainView.setImage(terrain.deriveImage());
         //plantView.setImage(plants.getPlantImage(dimx,dimy, terrain.getGridSpacing()));
-        plantView.setImage(plants.getPlantImageCircle(dimx,dimy, terrain.getGridSpacing()));
+        //plantView.setImage(plants.getPlantImageCircle(dimx,dimy, terrain.getGridSpacing()));
+        terrain.deriveImageCanvas(terrainCanvas);
+        plants.getPlantImageCanvas(dimx, dimy,  terrain.getGridSpacing(), plantCanvas);;
+        System.out.println(speciesInfo.length);
     }
 
 
@@ -77,7 +83,6 @@ public class GUI extends Application {
     }
 
     public void hanndleButtonClick() {
-
         if (!terrainView.visibleProperty().get()){
             terrainView.visibleProperty().set(true);
         }
@@ -86,20 +91,12 @@ public class GUI extends Application {
         }
     }
     public void showPlants(){
-
         if (!plantView.visibleProperty().get()){
             plantView.visibleProperty().set(true);
         }
         else{
             plantView.visibleProperty().set(false);
         }
-    }
-
-    public void addPlants() {
-        // for (int i = 0; i < plants.length; i++) {
-        //     //float[] pos = plants[i].getPostion();
-        //     //addPlant(pos[0],pos[1],plants[i].getHeight());
-        // }
     }
 
     public void addPlant(float x, float y, float rad) {
