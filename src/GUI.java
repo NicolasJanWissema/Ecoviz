@@ -1,16 +1,13 @@
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
-import javafx.scene.SubScene;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Slider;
 import javafx.stage.Stage;
-import javafx.scene.image.*;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
-import javafx.scene.Parent;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -18,13 +15,10 @@ import java.util.Scanner;
 import java.io.File;
 
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
- 
+
+
 public class GUI extends Application {
     @FXML
     // regular grid of height values
@@ -35,14 +29,16 @@ public class GUI extends Application {
     private Terrain terrain;
     private SpeciesInfo[] speciesInfo;
     private FireSim fireSim;
-    public Group pane;
-    public ImageView terrainView;
-    public ImageView plantView;
     public Label label;
     public Button button;
     public AnchorPane anchorPane;
     public Canvas terrainCanvas;
-    public Canvas plantCanvas;
+    public Canvas undergrowthCanvas;
+    public Canvas canopyCanvas;
+    public Slider undergrowthSlider;
+    public Slider canopySlider;
+    public Slider zoomSlider;
+
 
     int dimx, dimy; // data dimensions
 
@@ -50,7 +46,7 @@ public class GUI extends Application {
         launch(args);
     }
 
-    public void start() {
+    public void dataGen() {
         long startTime = System.nanoTime();
         readFiles("Data/S2000-2000-512");
         long endTime = System.nanoTime();
@@ -61,15 +57,30 @@ public class GUI extends Application {
 
     @FXML
     public void initialize() {
-        start();
-        //terrainView.setImage(terrain.deriveImage());
-        //plantView.setImage(plants.getPlantImage(dimx,dimy, terrain.getGridSpacing()));
-        //plantView.setImage(plants.getPlantImageCircle(dimx,dimy, terrain.getGridSpacing()));
-        terrain.deriveImageCanvas(terrainCanvas);
-        plants.getPlantImageCanvas(dimx, dimy,  terrain.getGridSpacing(), plantCanvas);;
-        System.out.println(speciesInfo.length);
-    }
+        dataGen();
 
+        terrain.deriveImageCanvas(terrainCanvas);
+        plants.getUndergrowthImageCanvas(dimx, dimy,  terrain.getGridSpacing(), undergrowthCanvas);
+        plants.getCanopyImageCanvas(dimx, dimy,  terrain.getGridSpacing(), canopyCanvas);
+        System.out.println(speciesInfo.length);
+
+        undergrowthSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                undergrowthCanvas.opacityProperty().set(undergrowthSlider.getValue());
+            }
+        });
+
+        canopySlider.valueProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                canopyCanvas.opacityProperty().set(canopySlider.getValue());
+            }
+        });
+
+
+
+    }
 
 
     @Override
@@ -83,29 +94,20 @@ public class GUI extends Application {
     }
 
     public void hanndleButtonClick() {
-        if (!terrainView.visibleProperty().get()){
-            terrainView.visibleProperty().set(true);
+        if (!terrainCanvas.visibleProperty().get()){
+            terrainCanvas.visibleProperty().set(true);
         }
         else{
-            terrainView.visibleProperty().set(false);
+            terrainCanvas.visibleProperty().set(false);
         }
     }
     public void showPlants(){
-        if (!plantView.visibleProperty().get()){
-            plantView.visibleProperty().set(true);
+        if (!undergrowthCanvas.visibleProperty().get()){
+            undergrowthCanvas.visibleProperty().set(true);
         }
         else{
-            plantView.visibleProperty().set(false);
+            undergrowthCanvas.visibleProperty().set(false);
         }
-    }
-
-    public void addPlant(float x, float y, float rad) {
-        Circle circle = new Circle();
-        circle.setCenterX(x);
-        circle.setCenterY(y);
-        circle.setRadius(rad);
-        circle.setFill(Color.GREEN);
-        root.getChildren().addAll(circle);
     }
 
 

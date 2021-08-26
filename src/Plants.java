@@ -9,12 +9,12 @@ import java.util.Random;
 
 public class Plants {
 
-    // Global
+    // private variables
     private Plant[][] undergrowth;
     private Plant[][] canopy;
-    private Plant[][] unfiltered;
+    private Plant[][] unfilteredCanopy;
+    private Plant[][] unfilteredUndergrowth;
     private Color[] plantColors;
-    private WritableImage wImage;
     private int dimx,dimy;
 
     //Constructors
@@ -39,110 +39,58 @@ public class Plants {
         undergrowth[newPlant.getSpeciesID()][speciesPos]=newPlant;
     }
 
-    //Filtering Methods, assuming data generation has been completed.
-    public Plant[][] filterPlant(float[] position){
-        for(int i=0; i<unfiltered.length;i++){
-            for (int j=0;j<unfiltered[i].length;j++){
-                if (unfiltered[i][j].getPosition()==position){
-                    unfiltered[i][j]=null;
+
+    //Filter specific canopy plant. Not currently implemented or useful.
+    public void filterCanopyPlant(float[] position){
+        for(int i=0; i<unfilteredCanopy.length;i++){
+            for (int j=0;j<unfilteredCanopy[i].length;j++){
+                if (unfilteredCanopy[i][j].getPosition()==position){
+                    unfilteredCanopy[i][j]=null;
                 }
             }
         }
-        return (unfiltered);
     }
-    public Plant[][] filterSpecies(int speciesID){
-        unfiltered[speciesID]=new Plant[0];
-        return (unfiltered);
-    }
-    public Plant[][] filterCanopy(){
-        unfiltered=undergrowth;
-        return (unfiltered);
-    }
-    public Plant[][] filterUndergrowth(){
-        unfiltered=canopy;
-        return (unfiltered);
-    }
-
-    public void generateUnfiltered(){
-        unfiltered=new Plant[canopy.length][0];
-        for (int i=0; i< unfiltered.length; i++){
-            unfiltered[i] = new Plant[canopy[i].length+ undergrowth[i].length];
-
-            for (int j=0; j< canopy[i].length; j++){
-                unfiltered[i][j]=canopy[i][j];
-            }
-            for (int j= canopy[i].length; j< unfiltered[i].length; j++){
-                unfiltered[i][j]=undergrowth[i][j-canopy[i].length];
-            }
-        }
-    }
-
-    //Generate coloured map for plants
-    public WritableImage getPlantImage(int dimx, int dimy, float gridSpacing){
-        WritableImage img = new WritableImage(dimx, dimy);
-        PixelWriter pw = img.getPixelWriter();
-        //System.out.println("Generating plant map image.");
-        if (unfiltered==null){
-            generateUnfiltered();
-        }
-
-        for(int i=0; i<unfiltered.length;i++){
-            for (int j=0;j<unfiltered[i].length;j++){
-                int x = (int)(unfiltered[i][j].getPosition()[0]/gridSpacing);
-                int y = (int)(unfiltered[i][j].getPosition()[1]/gridSpacing);
-                if (x<dimx && y<dimy){
-                    pw.setColor(x, y, plantColors[i]);
+    //Filter specific undergrowth plant. Not currently implemented or useful.
+    public void filterUndergrowthPlant(float[] position){
+        for(int i=0; i<unfilteredUndergrowth.length;i++){
+            for (int j=0;j<unfilteredUndergrowth[i].length;j++){
+                if (unfilteredUndergrowth[i][j].getPosition()==position){
+                    unfilteredUndergrowth[i][j]=null;
                 }
             }
         }
-        return (img);
     }
 
-    public WritableImage getPlantImageCircle(int dimx, int dimy, float gridSpacing) {
-        wImage = new WritableImage(dimx, dimy);
-        this.dimx = dimx;
-        this.dimy = dimy;
-        //long startTime = System.nanoTime();
-        //long endTime = System.nanoTime();
-        //System.out.println("TIME TO DRAW ONE CIRCLE: " + ((endTime-startTime)/1000000));
-        if (unfiltered==null){
-            generateUnfiltered();
-            //filterUndergrowth();
-        }
-        //long startTime = System.nanoTime();
-        for(int i=0; i<unfiltered.length;i++){
-            for (int j=0;j<unfiltered[i].length;j++){
-                int x = (int)(unfiltered[i][j].getPosition()[0]/gridSpacing);
-                int y = (int)(unfiltered[i][j].getPosition()[1]/gridSpacing);
-                if (x<dimx && y<dimy){
-                    circleBres(x, y, (int)(unfiltered[i][j].getCanopyRadius()/gridSpacing), plantColors[i]);
-                }
-            }
-        }
-        //long endTime = System.nanoTime();
-        //System.out.println("TIME TO DRAW CIRCLE: " + ((endTime-startTime)/1000000));
-        return wImage;
+    //filter specific species from images.
+    public void filterSpecies(int speciesID){
+        unfilteredUndergrowth[speciesID]=null;
+        unfilteredCanopy[speciesID]=null;
+    }
+    //unfilter specific species from images.
+    public void unFilterSpecies(int speciesID){
+        unfilteredUndergrowth[speciesID]=undergrowth[speciesID];
+        unfilteredCanopy[speciesID]=canopy[speciesID];
     }
 
-    public void getPlantImageCanvas(int dimx, int dimy, float gridSpacing, Canvas canvas) {
+    public void getCanopyImageCanvas(int dimx, int dimy, float gridSpacing, Canvas canvas) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         this.dimx = dimx;
         this.dimy = dimy;
         //long startTime = System.nanoTime();
         //long endTime = System.nanoTime();
         //System.out.println("TIME TO DRAW ONE CIRCLE: " + ((endTime-startTime)/1000000));
-        if (unfiltered==null){
-            generateUnfiltered();
+        if (unfilteredCanopy==null){
+            unfilteredCanopy=canopy;
             //filterUndergrowth();
         }
         //long startTime = System.nanoTime();
-        for(int i=0; i<unfiltered.length;i++){
-            for (int j=0;j<unfiltered[i].length;j++){
-                int x = (int)(unfiltered[i][j].getPosition()[0]/gridSpacing);
-                int y = (int)(unfiltered[i][j].getPosition()[1]/gridSpacing);
+        for(int i=0; i<unfilteredCanopy.length;i++){
+            for (int j=0;j<unfilteredCanopy[i].length;j++){
+                int x = (int)(unfilteredCanopy[i][j].getPosition()[0]/gridSpacing);
+                int y = (int)(unfilteredCanopy[i][j].getPosition()[1]/gridSpacing);
                 if (x<dimx && y<dimy){
                     gc.setFill(plantColors[i]);
-                    double rad = (double) (unfiltered[i][j].getCanopyRadius()/gridSpacing);
+                    double rad = (double) (unfilteredCanopy[i][j].getCanopyRadius()/gridSpacing);
                     gc.fillOval((double) x-rad, (double) y-rad, (double)rad*2, rad*2);
                 }
             }
@@ -151,41 +99,32 @@ public class Plants {
         //System.out.println("TIME TO DRAW CIRCLE: " + ((endTime-startTime)/1000000));
     }
 
-    
 
-    public void circleBres(int xc, int yc, int r, Color col){
-        int x = 0, y = r;
-        int d = 3 - 2 * r;
-        drawCircle(xc, yc, x, y,col);
-        while (y >= x) {
-            x++;
-            if (d > 0) {
-                y--;
-                d = d + 4 * (x -y) + 10;
-            } else {
-                d = d + 4 * x + 6;
-            }
-            drawCircle(xc, yc, x, y, col);
+    public void getUndergrowthImageCanvas(int dimx, int dimy, float gridSpacing, Canvas canvas) {
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        this.dimx = dimx;
+        this.dimy = dimy;
+        //long startTime = System.nanoTime();
+        //long endTime = System.nanoTime();
+        //System.out.println("TIME TO DRAW ONE CIRCLE: " + ((endTime-startTime)/1000000));
+        if (unfilteredUndergrowth==null){
+            unfilteredUndergrowth=undergrowth;
+            //filterUndergrowth();
         }
-    }
-
-    public void drawCircle(int xc, int yc, int x, int y, Color col) {
-        drawLine(xc-x, xc+x, yc+y, col);
-        drawLine(xc-x, xc+x, yc-y, col);
-        drawLine(xc-y, xc+y, yc+x, col);
-        drawLine(xc-y, xc+y, yc-x, col);
-    }
-
-    public void drawLine(int x0, int x1, int y, Color col) {
-        PixelWriter pw = wImage.getPixelWriter();
-        if (y < dimy && y >= 0) {
-            for (int i = x0; i <= x1; i++ ) {
-                if (i < dimx && i >= 0) {
-                    pw.setColor(i, y, col);
-                } 
+        //long startTime = System.nanoTime();
+        for(int i=0; i<unfilteredUndergrowth.length;i++){
+            for (int j=0;j<unfilteredUndergrowth[i].length;j++){
+                int x = (int)(unfilteredUndergrowth[i][j].getPosition()[0]/gridSpacing);
+                int y = (int)(unfilteredUndergrowth[i][j].getPosition()[1]/gridSpacing);
+                if (x<dimx && y<dimy){
+                    gc.setFill(plantColors[i]);
+                    double rad = (double) (unfilteredUndergrowth[i][j].getCanopyRadius()/gridSpacing);
+                    gc.fillOval((double) x-rad, (double) y-rad, (double)rad*2, rad*2);
+                }
             }
         }
-
+        //long endTime = System.nanoTime();
+        //System.out.println("TIME TO DRAW CIRCLE: " + ((endTime-startTime)/1000000));
     }
 
     //Generate colors with a gaussian distribution around green.
