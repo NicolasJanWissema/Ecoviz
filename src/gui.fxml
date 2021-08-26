@@ -7,6 +7,7 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
@@ -43,15 +44,6 @@
         </buttons>
       </ButtonBar>
    </bottom>
-   <right>
-      <VBox prefHeight="335.0" prefWidth="21.0" BorderPane.alignment="CENTER">
-         <children>
-            <Slider fx:id="undergrowthSlider" max="1.0" orientation="VERTICAL" prefWidth="1.0" value="1.0" />
-            <Slider fx:id="canopySlider" max="1.0" orientation="VERTICAL" value="1.0" />
-            <Slider fx:id="zoomSlider" max="1.0" orientation="VERTICAL" value="1.0" />
-         </children>
-      </VBox>
-   </right>
    <center>
       <AnchorPane fx:id="anchorPane" prefHeight="512.0" prefWidth="512.0" BorderPane.alignment="CENTER">
          <children>
@@ -61,4 +53,17 @@
          </children>
       </AnchorPane>
    </center>
+   <right>
+      <ScrollPane prefHeight="200.0" prefWidth="200.0" vbarPolicy="ALWAYS" BorderPane.alignment="CENTER">
+         <content>
+            <VBox prefHeight="335.0" prefWidth="174.0">
+               <children>
+                  <Slider fx:id="canopySlider" max="1.0" value="1.0" />
+                  <Slider fx:id="undergrowthSlider" max="1.0" prefWidth="1.0" value="1.0" />
+                  <Slider fx:id="zoomSlider" max="1.0" prefHeight="14.0" prefWidth="104.0" value="1.0" />
+               </children>
+            </VBox>
+         </content>
+      </ScrollPane>
+   </right>
 </BorderPane>
