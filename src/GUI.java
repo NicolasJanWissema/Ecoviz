@@ -82,9 +82,23 @@ public class GUI extends Application {
                 @Override
                 public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                     if (observable.getValue().booleanValue()){
+                        for (int j= 0; j < filterBoxes.length; j++) {
+                            if (filterBoxes[j].isSelected()) {
+                                plants.unFilterSpecies(j);
+                            }
+                        }
+                        plants.getUndergrowthImageCanvas(dimx, dimy,  terrain.getGridSpacing(), undergrowthCanvas);
+                        plants.getCanopyImageCanvas(dimx, dimy,  terrain.getGridSpacing(), canopyCanvas);
                         System.out.println("On");
                     }
                     else {
+                        for (int j= 0; j < filterBoxes.length; j++) {
+                            if (!filterBoxes[j].isSelected()) {
+                                plants.filterSpecies(j);
+                            }
+                        }
+                        plants.getUndergrowthImageCanvas(dimx, dimy,  terrain.getGridSpacing(), undergrowthCanvas);
+                        plants.getCanopyImageCanvas(dimx, dimy,  terrain.getGridSpacing(), canopyCanvas);
                         System.out.println("Off");
                     }
                 }
