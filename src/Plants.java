@@ -63,8 +63,10 @@ public class Plants {
 
     //filter specific species from images.
     public void filterSpecies(int speciesID){
-        unfilteredUndergrowth[speciesID]=null;
-        unfilteredCanopy[speciesID]=null;
+        float[] temp = {dimx,dimy};
+        Plant[] emptyArray = { new Plant(0, temp ,0, 0)};
+        unfilteredUndergrowth[speciesID]= emptyArray;
+        unfilteredCanopy[speciesID]=emptyArray;
     }
     //unfilter specific species from images.
     public void unFilterSpecies(int speciesID){
@@ -74,13 +76,14 @@ public class Plants {
 
     public void getCanopyImageCanvas(int dimx, int dimy, float gridSpacing, Canvas canvas) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         this.dimx = dimx;
         this.dimy = dimy;
         //long startTime = System.nanoTime();
         //long endTime = System.nanoTime();
         //System.out.println("TIME TO DRAW ONE CIRCLE: " + ((endTime-startTime)/1000000));
         if (unfilteredCanopy==null){
-            unfilteredCanopy=canopy;
+            unfilteredCanopy=canopy.clone();
             //filterUndergrowth();
         }
         //long startTime = System.nanoTime();
@@ -102,13 +105,14 @@ public class Plants {
 
     public void getUndergrowthImageCanvas(int dimx, int dimy, float gridSpacing, Canvas canvas) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         this.dimx = dimx;
         this.dimy = dimy;
         //long startTime = System.nanoTime();
         //long endTime = System.nanoTime();
         //System.out.println("TIME TO DRAW ONE CIRCLE: " + ((endTime-startTime)/1000000));
         if (unfilteredUndergrowth==null){
-            unfilteredUndergrowth=undergrowth;
+            unfilteredUndergrowth=undergrowth.clone();
             //filterUndergrowth();
         }
         //long startTime = System.nanoTime();
