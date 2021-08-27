@@ -57,7 +57,7 @@ public class GUI extends Application {
         long startTime = System.nanoTime();
         readFiles("Data/S2000-2000-512");
         long endTime = System.nanoTime();
-        System.out.println("TIME TO READ FILES: " + ((endTime-startTime)/1000000));
+        //System.out.println("TIME TO READ FILES: " + ((endTime-startTime)/1000000));
         dimx = terrain.dimx;
         dimy = terrain.dimy;
     }
@@ -70,7 +70,7 @@ public class GUI extends Application {
         terrain.deriveImageCanvas(terrainCanvas);
         plants.getUndergrowthImageCanvas(dimx, dimy,  terrain.getGridSpacing(), undergrowthCanvas);
         plants.getCanopyImageCanvas(dimx, dimy,  terrain.getGridSpacing(), canopyCanvas);
-        System.out.println(speciesInfo.length);
+        //System.out.println(speciesInfo.length);
 
         //Generate filter buttons
         filterBoxes = new CheckBox[speciesInfo.length];
@@ -89,7 +89,7 @@ public class GUI extends Application {
                         }
                         plants.getUndergrowthImageCanvas(dimx, dimy,  terrain.getGridSpacing(), undergrowthCanvas);
                         plants.getCanopyImageCanvas(dimx, dimy,  terrain.getGridSpacing(), canopyCanvas);
-                        System.out.println("On");
+                        //System.out.println("On");
                     }
                     else {
                         for (int j= 0; j < filterBoxes.length; j++) {
@@ -99,7 +99,7 @@ public class GUI extends Application {
                         }
                         plants.getUndergrowthImageCanvas(dimx, dimy,  terrain.getGridSpacing(), undergrowthCanvas);
                         plants.getCanopyImageCanvas(dimx, dimy,  terrain.getGridSpacing(), canopyCanvas);
-                        System.out.println("Off");
+                        //System.out.println("Off");
                     }
                 }
             });
