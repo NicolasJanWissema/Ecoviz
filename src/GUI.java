@@ -20,6 +20,7 @@ import java.util.Locale;
 import java.util.Scanner;
 import java.io.File;
 
+
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
 
@@ -46,12 +47,22 @@ public class GUI extends Application {
     public VBox filterPlaceholder;
     public CheckBox[] filterBoxes;
 
+    // Panning and Zooming Variables
+    float fOffsetX = 0.0f;
+    float fOffsetY = 0.0f;
+    // int nScreenX = 0;
+    // int nScreenY = 0;
+    // float fWorldX = 0;
+    // float fWorldY = 0;
+    float fStartPanX = 0;
+    float fStartPanY = 0;
 
     int dimx, dimy; // data dimensions
 
     public static void main(String[] args) {
         launch(args);
     }
+
 
     public void dataGen() {
         long startTime = System.nanoTime();
@@ -62,6 +73,7 @@ public class GUI extends Application {
         dimy = terrain.dimy;
     }
 
+    
     @FXML
     public void initialize() {
         dataGen();
@@ -106,6 +118,31 @@ public class GUI extends Application {
             filterPlaceholder.getChildren().add(filterBoxes[i]);
         }
 
+        anchorPane.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                System.out.println("MOUSE PRESSED");
+                anchorPane.setCursor(Cursor.CLOSED_HAND);
+                fStartPanX = (float) event.getSceneX();
+                fStartPanY = (float) event.getSceneY();
+            }
+        });
+
+        anchorPane.setOnMouseDragged(new EventHandler<MouseEvent>(){
+            @Override
+            public void handle(MouseEvent event) {
+                float mouseX = (float) event.getSceneX();
+                float mouseY = (float) event.getSceneY();
+                fOffsetX -= (mouseX - fStartPanX);
+                fOffsetY -= (mouseY - fStartPanY);
+                System.out.println(fOffsetX + " - " + fOffsetY);
+                fStartPanX = mouseX;
+                fStartPanY = mouseY;
+                terrain.deriveImageCanvasOffset(terrainCanvas, fOffsetX, fOffsetY);
+
+            }
+            
+        });
         undergrowthSlider.valueProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
@@ -120,11 +157,11 @@ public class GUI extends Application {
             }
         });
 
-        anchorPane.setOnMouseDragged(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-            }
-        });
+        // anchorPane.setOnMouseDragged(new EventHandler<MouseEvent>() {
+        //     @Override
+        //     public void handle(MouseEvent event) {
+        //     }
+        // });
 
         anchorPane.setCursor(Cursor.OPEN_HAND);
         anchorPane.setOnMouseMoved(new EventHandler<MouseEvent>() {
@@ -133,12 +170,12 @@ public class GUI extends Application {
                 label.setText(event.getSceneX()+", "+event.getSceneY());
             }
         });
-        anchorPane.setOnMousePressed(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                anchorPane.setCursor(Cursor.CLOSED_HAND);
-            }
-        });
+        // anchorPane.setOnMousePressed(new EventHandler<MouseEvent>() {
+        //     @Override
+        //     public void handle(MouseEvent event) {
+        //         anchorPane.setCursor(Cursor.CLOSED_HAND);
+        //     }
+        // });
         anchorPane.setOnMouseReleased(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
