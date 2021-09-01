@@ -5,6 +5,7 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 
 import java.awt.*;
+import java.util.Arrays;
 import java.util.Random;
 
 public class Plants {
@@ -74,7 +75,7 @@ public class Plants {
         unfilteredCanopy[speciesID]=canopy[speciesID];
     }
 
-    public void getCanopyImageCanvas(int dimx, int dimy, float gridSpacing, Canvas canvas) {
+    public void getCanopyImageCanvas(int dimx, int dimy, float gridSpacing, GUI.ResizableCanvas canvas) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         this.dimx = dimx;
@@ -103,11 +104,11 @@ public class Plants {
     }
 
 
-    public void getUndergrowthImageCanvas(int dimx, int dimy, float gridSpacing, Canvas canvas) {
+    public void getUndergrowthImageCanvas(int dimx, int dimy, float gridSpacing, GUI.ResizableCanvas canvas) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        this.dimx = dimx;
-        this.dimy = dimy;
+        //this.dimx = dimx;
+        //this.dimy = dimy;
         //long startTime = System.nanoTime();
         //long endTime = System.nanoTime();
         //System.out.println("TIME TO DRAW ONE CIRCLE: " + ((endTime-startTime)/1000000));
@@ -131,19 +132,30 @@ public class Plants {
         //System.out.println("TIME TO DRAW CIRCLE: " + ((endTime-startTime)/1000000));
     }
 
+
+
+
+
     //Generate colors with a gaussian distribution around green.
     private void generateColors(int numSpecies){
+        int gaussMultiple=100;
         plantColors = new Color[numSpecies];
         Random random = new Random();
-        for (int i=0; i<numSpecies; i++){
-            double deviation = random.nextGaussian()/3;
-            if (Math.abs(deviation)>1){
+        double[] gaussian = new double[numSpecies*gaussMultiple];
+        for (int i=0; i<gaussian.length;i++){
+            double check = random.nextGaussian()/3;
+            if (Math.abs(check)>1){
                 i--;
             }
-            else{
-                //System.out.println(deviation);
-                plantColors[i] = new Color(Math.max(0,deviation),Math.abs(1-1.2*Math.abs(deviation)),Math.max(0,-deviation),1);
+            else {
+                //System.out.println(check);
+                gaussian[i]=check;
             }
+        }
+        Arrays.sort(gaussian);
+        for (int i=0; i<numSpecies; i++){
+            //System.out.println(gaussian[i*gaussMultiple]);
+            plantColors[i] = new Color(Math.max(0,gaussian[i*gaussMultiple]),1-Math.abs(gaussian[i*gaussMultiple]),Math.max(0,-gaussian[i*gaussMultiple]),1);
         }
     }
 }

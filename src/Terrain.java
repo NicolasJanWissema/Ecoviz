@@ -30,7 +30,7 @@ public class Terrain {
         this.height[x][y] = height;
     }
 
-    public void deriveImageCanvas(Canvas img) {
+    public void deriveImageCanvas(GUI.ResizableCanvas img) {
         float maxh = -10000.0f, minh = 10000.0f;
         GraphicsContext gc = img.getGraphicsContext2D();
         PixelWriter pw = gc.getPixelWriter();

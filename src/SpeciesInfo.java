@@ -1,3 +1,7 @@
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.scene.control.CheckBox;
+
 public class SpeciesInfo {
 
     // Global Variables
@@ -5,6 +9,7 @@ public class SpeciesInfo {
     private float avgCanopyRad;
     private String commmonName;
     private String lantinName;
+    public CheckBox filterBox;
 
     public SpeciesInfo(String commmonName, String lantinName){
         this.commmonName=commmonName;

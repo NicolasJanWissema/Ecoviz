@@ -5,6 +5,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Slider;
 import javafx.scene.input.MouseEvent;
@@ -36,18 +37,35 @@ public class GUI extends Application {
     private FireSim fireSim;
     public Label label;
     public Button button;
-    public AnchorPane anchorPane;
-    public Canvas terrainCanvas;
-    public Canvas undergrowthCanvas;
-    public Canvas canopyCanvas;
+    public StackPane anchorPane;
+    public ResizableCanvas terrainCanvas;
+    public ResizableCanvas undergrowthCanvas;
+    public ResizableCanvas canopyCanvas;
     public Slider undergrowthSlider;
     public Slider canopySlider;
     public Slider zoomSlider;
     public VBox filterPlaceholder;
     public CheckBox[] filterBoxes;
 
+    int dimx, dimy; // data dimension density
 
-    int dimx, dimy; // data dimensions
+    class ResizableCanvas extends Canvas {
+
+        @Override
+        public boolean isResizable() {
+            return true;
+        }
+
+        @Override
+        public double prefWidth(double height) {
+            return getWidth();
+        }
+
+        @Override
+        public double prefHeight(double width) {
+            return getHeight();
+        }
+    }
 
     public static void main(String[] args) {
         launch(args);
@@ -67,6 +85,13 @@ public class GUI extends Application {
         dataGen();
 
         anchorPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+        anchorPane.setPrefWidth(dimx);
+        anchorPane.setPrefHeight(dimy);
+        terrainCanvas = new ResizableCanvas();
+        undergrowthCanvas = new ResizableCanvas();
+        canopyCanvas = new ResizableCanvas();
+
+        anchorPane.getChildren().addAll(terrainCanvas, undergrowthCanvas, canopyCanvas);
         terrain.deriveImageCanvas(terrainCanvas);
         plants.getUndergrowthImageCanvas(dimx, dimy,  terrain.getGridSpacing(), undergrowthCanvas);
         plants.getCanopyImageCanvas(dimx, dimy,  terrain.getGridSpacing(), canopyCanvas);
@@ -146,6 +171,41 @@ public class GUI extends Application {
             }
         });
 
+        ChangeListener<Number> stageSizeListener = new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                //System.out.println("Height: " + anchorPane.getHeight() + " Width: " + anchorPane.getWidth());
+                float ratioX = ((float)anchorPane.getWidth())/(terrain.getDimensions()[0]* terrain.getGridSpacing());
+                System.out.println(ratioX);
+                float ratioY = ((float)anchorPane.getHeight())/(terrain.getDimensions()[1]* terrain.getGridSpacing());
+                if (ratioY < ratioX){
+                    undergrowthCanvas.setHeight(anchorPane.getHeight());
+                    undergrowthCanvas.setWidth(anchorPane.getHeight());
+                    canopyCanvas.setHeight(anchorPane.getHeight());
+                    canopyCanvas.setWidth(anchorPane.getHeight());
+                    terrainCanvas.setHeight(anchorPane.getHeight());
+                    terrainCanvas.setWidth(anchorPane.getHeight());
+                    plants.getUndergrowthImageCanvas( (int)(dimx*ratioY), (int)(dimy),  terrain.getGridSpacing()/ratioY, undergrowthCanvas);
+                    plants.getCanopyImageCanvas((int)(dimx*ratioY), (int)(dimy),  terrain.getGridSpacing()/ratioY, canopyCanvas);
+                }
+                else if(ratioY > ratioX){
+                    undergrowthCanvas.setHeight(anchorPane.getWidth());
+                    undergrowthCanvas.setWidth(anchorPane.getWidth());
+                    canopyCanvas.setHeight(anchorPane.getWidth());
+                    canopyCanvas.setWidth(anchorPane.getWidth());
+                    terrainCanvas.setHeight(anchorPane.getWidth());
+                    terrainCanvas.setWidth(anchorPane.getWidth());
+                    plants.getUndergrowthImageCanvas( (int)(undergrowthCanvas.getWidth()), (int)(dimy),  terrain.getGridSpacing()/ratioX, undergrowthCanvas);
+                    plants.getCanopyImageCanvas((int)(undergrowthCanvas.getWidth()), (int)(dimy),  terrain.getGridSpacing()/ratioX, canopyCanvas);
+                }
+                else{
+                    //System.out.println("Equal");
+                }
+            }
+        };
+        anchorPane.widthProperty().addListener(stageSizeListener);
+        anchorPane.heightProperty().addListener(stageSizeListener);
+
     }
 
 
@@ -153,7 +213,8 @@ public class GUI extends Application {
     public void start(Stage primaryStage) throws Exception {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("gui.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-        primaryStage.setResizable(false);
+        //primaryStage.setResizable(false);
+
         primaryStage.setTitle("EcoViz");
         primaryStage.setScene(scene);
         primaryStage.show();
