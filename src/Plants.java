@@ -2,6 +2,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 
 import java.awt.*;
@@ -15,8 +16,74 @@ public class Plants {
     private Plant[][] canopy;
     private Plant[][] unfilteredCanopy;
     private Plant[][] unfilteredUndergrowth;
+    private PlantCanvas canopyCanvas;
+    private PlantCanvas undergrowthCanvas;
     private Color[] plantColors;
     private int dimx,dimy;
+    private float xDimension, yDimension;
+
+    class PlantCanvas extends Canvas {
+        private Plant[][] unfilteredPlants;
+
+        public PlantCanvas(Plant[][] unfilteredPlants){
+            this.unfilteredPlants=unfilteredPlants;
+
+            // Redraw canvas when size changes.
+            widthProperty().addListener(evt -> drawCanvas());
+            heightProperty().addListener(evt -> drawCanvas());
+        }
+
+        private void draw() {
+            double width = getWidth();
+            double height = getHeight();
+
+            GraphicsContext gc = getGraphicsContext2D();
+            gc.clearRect(0, 0, width, height);
+
+            gc.setStroke(Color.RED);
+            gc.strokeLine(0, 0, width, height);
+            gc.strokeLine(0, height, width, 0);
+        }
+        public void drawCanvas() {
+            GraphicsContext gc = getGraphicsContext2D();
+            gc.clearRect(0, 0, getWidth(), getHeight());
+
+            if (unfilteredPlants==null){
+                unfilteredPlants=canopy.clone();
+                //filterUndergrowth();
+            }
+            //long startTime = System.nanoTime();
+            for(int i=0; i<unfilteredPlants.length;i++){
+                gc.setFill(plantColors[i]);
+                //gc.setStroke(plantColors[i]);
+                for (int j=0;j<unfilteredPlants[i].length;j++){
+                    float x = (float) (unfilteredPlants[i][j].getPosition()[0]*getWidth()/xDimension);
+                    float y = (float)(unfilteredPlants[i][j].getPosition()[1]*getHeight()/yDimension);
+
+                    double rad = (double) (unfilteredPlants[i][j].getCanopyRadius()*getWidth()/xDimension);
+                    gc.fillOval((double) x-rad, (double) y-rad, (double)rad*2, rad*2);
+                    //gc.strokeOval((double) x-rad, (double) y-rad, (double)rad*2, rad*2);
+                }
+            }
+            //long endTime = System.nanoTime();
+            //System.out.println("TIME TO DRAW CIRCLE: " + ((endTime-startTime)/1000000));
+        }
+
+        @Override
+        public boolean isResizable() {
+            return true;
+        }
+
+        @Override
+        public double prefWidth(double height) {
+            return getWidth();
+        }
+
+        @Override
+        public double prefHeight(double width) {
+            return getHeight();
+        }
+    }
 
     //Constructors
     Plants(int numSpecies){
@@ -25,6 +92,19 @@ public class Plants {
         generateColors(numSpecies);
     }
     Plants(){}
+
+    public void addPlantCanvas(StackPane stackPane, float xDimension, float yDimension){
+        this.xDimension = xDimension;
+        this.yDimension = yDimension;
+        canopyCanvas = new PlantCanvas(unfilteredCanopy);
+        undergrowthCanvas = new PlantCanvas(unfilteredUndergrowth);
+        canopyCanvas.widthProperty().bind(stackPane.widthProperty());
+        canopyCanvas.heightProperty().bind(stackPane.heightProperty());
+        undergrowthCanvas.widthProperty().bind(stackPane.widthProperty());
+        undergrowthCanvas.heightProperty().bind(stackPane.heightProperty());
+
+        stackPane.getChildren().addAll(undergrowthCanvas,canopyCanvas);
+    }
 
     //Data generating methods
     public void addSpeciesNumToCanopy(int speciesID,int speciesNum){
@@ -75,7 +155,7 @@ public class Plants {
         unfilteredCanopy[speciesID]=canopy[speciesID];
     }
 
-    public void getCanopyImageCanvas(int dimx, int dimy, float gridSpacing, GUI.ResizableCanvas canvas) {
+    public void getCanopyImageCanvas(int dimx, int dimy, float gridSpacing, Canvas canvas) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         this.dimx = dimx;
@@ -104,7 +184,7 @@ public class Plants {
     }
 
 
-    public void getUndergrowthImageCanvas(int dimx, int dimy, float gridSpacing, GUI.ResizableCanvas canvas) {
+    public void getUndergrowthImageCanvas(int dimx, int dimy, float gridSpacing, Canvas canvas) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         //this.dimx = dimx;

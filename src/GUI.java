@@ -6,8 +6,7 @@ import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Slider;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -20,9 +19,6 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Scanner;
 import java.io.File;
-
-import javafx.scene.control.Label;
-import javafx.scene.control.Button;
 
 
 public class GUI extends Application {
@@ -37,35 +33,22 @@ public class GUI extends Application {
     private FireSim fireSim;
     public Label label;
     public Button button;
-    public StackPane anchorPane;
-    public ResizableCanvas terrainCanvas;
-    public ResizableCanvas undergrowthCanvas;
-    public ResizableCanvas canopyCanvas;
+    public StackPane stackPane;
+    public Canvas terrainCanvas;
+    public Canvas undergrowthCanvas;
+    public Canvas canopyCanvas;
     public Slider undergrowthSlider;
     public Slider canopySlider;
     public Slider zoomSlider;
     public VBox filterPlaceholder;
     public CheckBox[] filterBoxes;
+    public BorderPane borderPane;
+    public SplitPane sidePane;
+    public AnchorPane bottomPane;
+    public MenuBar menuBar;
 
-    int dimx, dimy; // data dimension density
-
-    class ResizableCanvas extends Canvas {
-
-        @Override
-        public boolean isResizable() {
-            return true;
-        }
-
-        @Override
-        public double prefWidth(double height) {
-            return getWidth();
-        }
-
-        @Override
-        public double prefHeight(double width) {
-            return getHeight();
-        }
-    }
+    float xDimension, yDimension; // data dimension density
+    int dimx, dimy;
 
     public static void main(String[] args) {
         launch(args);
@@ -73,9 +56,11 @@ public class GUI extends Application {
 
     public void dataGen() {
         long startTime = System.nanoTime();
-        readFiles("Data/S2000-2000-512");
+        readFiles("Data/S6000-6000-256");
         long endTime = System.nanoTime();
         //System.out.println("TIME TO READ FILES: " + ((endTime-startTime)/1000000));
+        xDimension = terrain.getXDimension();
+        yDimension = terrain.getYDimension();
         dimx = terrain.dimx;
         dimy = terrain.dimy;
     }
@@ -84,17 +69,17 @@ public class GUI extends Application {
     public void initialize() {
         dataGen();
 
-        anchorPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-        anchorPane.setPrefWidth(dimx);
-        anchorPane.setPrefHeight(dimy);
-        terrainCanvas = new ResizableCanvas();
-        undergrowthCanvas = new ResizableCanvas();
-        canopyCanvas = new ResizableCanvas();
+        //anchorPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+        terrainCanvas = new Canvas(stackPane.getWidth(),stackPane.getHeight());
+        undergrowthCanvas = new Canvas(stackPane.getWidth(),stackPane.getHeight());
+        canopyCanvas = new Canvas(stackPane.getWidth(),stackPane.getHeight());
 
-        anchorPane.getChildren().addAll(terrainCanvas, undergrowthCanvas, canopyCanvas);
+        stackPane.getChildren().addAll(terrainCanvas, undergrowthCanvas, canopyCanvas);
         terrain.deriveImageCanvas(terrainCanvas);
         plants.getUndergrowthImageCanvas(dimx, dimy,  terrain.getGridSpacing(), undergrowthCanvas);
         plants.getCanopyImageCanvas(dimx, dimy,  terrain.getGridSpacing(), canopyCanvas);
+
+        plants.addPlantCanvas(stackPane, terrain.getXDimension(), terrain.getYDimension());
         //System.out.println(speciesInfo.length);
 
         //Generate filter buttons
@@ -145,67 +130,42 @@ public class GUI extends Application {
             }
         });
 
-        anchorPane.setOnMouseDragged(new EventHandler<MouseEvent>() {
+        stackPane.setOnMouseDragged(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
             }
         });
 
-        anchorPane.setCursor(Cursor.OPEN_HAND);
-        anchorPane.setOnMouseMoved(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                label.setText(event.getSceneX()+", "+event.getSceneY());
-            }
-        });
-        anchorPane.setOnMousePressed(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                anchorPane.setCursor(Cursor.CLOSED_HAND);
-            }
-        });
-        anchorPane.setOnMouseReleased(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                anchorPane.setCursor(Cursor.OPEN_HAND);
-            }
-        });
-
-        ChangeListener<Number> stageSizeListener = new ChangeListener<Number>() {
+        borderPane.widthProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                //System.out.println("Height: " + anchorPane.getHeight() + " Width: " + anchorPane.getWidth());
-                float ratioX = ((float)anchorPane.getWidth())/(terrain.getDimensions()[0]* terrain.getGridSpacing());
-                System.out.println(ratioX);
-                float ratioY = ((float)anchorPane.getHeight())/(terrain.getDimensions()[1]* terrain.getGridSpacing());
-                if (ratioY < ratioX){
-                    undergrowthCanvas.setHeight(anchorPane.getHeight());
-                    undergrowthCanvas.setWidth(anchorPane.getHeight());
-                    canopyCanvas.setHeight(anchorPane.getHeight());
-                    canopyCanvas.setWidth(anchorPane.getHeight());
-                    terrainCanvas.setHeight(anchorPane.getHeight());
-                    terrainCanvas.setWidth(anchorPane.getHeight());
-                    plants.getUndergrowthImageCanvas( (int)(dimx*ratioY), (int)(dimy),  terrain.getGridSpacing()/ratioY, undergrowthCanvas);
-                    plants.getCanopyImageCanvas((int)(dimx*ratioY), (int)(dimy),  terrain.getGridSpacing()/ratioY, canopyCanvas);
-                }
-                else if(ratioY > ratioX){
-                    undergrowthCanvas.setHeight(anchorPane.getWidth());
-                    undergrowthCanvas.setWidth(anchorPane.getWidth());
-                    canopyCanvas.setHeight(anchorPane.getWidth());
-                    canopyCanvas.setWidth(anchorPane.getWidth());
-                    terrainCanvas.setHeight(anchorPane.getWidth());
-                    terrainCanvas.setWidth(anchorPane.getWidth());
-                    plants.getUndergrowthImageCanvas( (int)(undergrowthCanvas.getWidth()), (int)(dimy),  terrain.getGridSpacing()/ratioX, undergrowthCanvas);
-                    plants.getCanopyImageCanvas((int)(undergrowthCanvas.getWidth()), (int)(dimy),  terrain.getGridSpacing()/ratioX, canopyCanvas);
-                }
-                else{
-                    //System.out.println("Equal");
+                borderPane.setPrefWidth((double)newValue);
+
+                double newX = (double)newValue-sidePane.getWidth();
+                double newY = borderPane.getHeight()-bottomPane.getHeight()-menuBar.getHeight();
+
+                //stackPane.setPrefWidth(newX);
+                if ((newX/xDimension) <  (newY/yDimension) ){
+                    stackPane.setPrefWidth(newX);
+                    stackPane.setPrefHeight((yDimension*newX)/xDimension);
                 }
             }
-        };
-        anchorPane.widthProperty().addListener(stageSizeListener);
-        anchorPane.heightProperty().addListener(stageSizeListener);
+        });
+        borderPane.heightProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                borderPane.setPrefHeight((double) newValue);
 
+                double newY = (double)newValue-bottomPane.getHeight()-menuBar.getHeight();
+                double newX = borderPane.getWidth()-sidePane.getWidth();
+                //stackPane.setPrefHeight(newY);
+                if ((newY/yDimension) < (newX/xDimension) ){
+
+                    stackPane.setPrefHeight(newY);
+                    stackPane.setPrefWidth((xDimension*newY)/yDimension);
+                }
+            }
+        });
     }
 
 

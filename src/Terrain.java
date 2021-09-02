@@ -23,14 +23,9 @@ public class Terrain {
     }
 
     // Get & Sets
-    public int[] getDimensions(){
-        return( new int[]{height.length, height[0].length});
-    }
-    public void setHeight(int x, int y, float height){
-        this.height[x][y] = height;
-    }
 
-    public void deriveImageCanvas(GUI.ResizableCanvas img) {
+
+    public void deriveImageCanvas(Canvas img) {
         float maxh = -10000.0f, minh = 10000.0f;
         GraphicsContext gc = img.getGraphicsContext2D();
         PixelWriter pw = gc.getPixelWriter();
@@ -56,8 +51,19 @@ public class Terrain {
     }
 
     // get greyscale image
-    public WritableImage getImage() {
-        return img;
+
+    public int[] getDimensions(){
+        return( new int[]{height.length, height[0].length});
+    }
+    public void setHeight(int x, int y, float height){
+        this.height[x][y] = height;
+    }
+
+    public float getYDimension(){
+        return (dimy*gridSpacing);
+    }
+    public float getXDimension(){
+        return (dimx*gridSpacing);
     }
 
     public float[][] getHeight() {
