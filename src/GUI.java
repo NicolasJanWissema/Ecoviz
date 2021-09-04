@@ -8,6 +8,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Slider;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -56,6 +57,9 @@ public class GUI extends Application {
     // float fWorldY = 0;
     float fStartPanX = 0;
     float fStartPanY = 0;
+
+    float scaleX = 1.0f;
+    float scaleY = 1.0f;
 
     int dimx, dimy; // data dimensions
 
@@ -133,13 +137,39 @@ public class GUI extends Application {
             public void handle(MouseEvent event) {
                 float mouseX = (float) event.getSceneX();
                 float mouseY = (float) event.getSceneY();
-                fOffsetX -= (mouseX - fStartPanX);
-                fOffsetY -= (mouseY - fStartPanY);
+                fOffsetX -= (mouseX - fStartPanX)/scaleX;
+                fOffsetY -= (mouseY - fStartPanY)/scaleY;
                 System.out.println(fOffsetX + " - " + fOffsetY);
                 fStartPanX = mouseX;
                 fStartPanY = mouseY;
                 terrain.deriveImageCanvasOffset(terrainCanvas, fOffsetX, fOffsetY);
 
+            }
+            
+        });
+
+        anchorPane.setOnScroll(new EventHandler<ScrollEvent>(){
+            @Override
+            public void handle(ScrollEvent event) {
+                System.out.println("Scroll Event Y: " + event.getDeltaY());
+                float mouseX = (float) event.getSceneX();
+                float mouseY = (float) event.getSceneY();
+                float[] beforeZoom = terrain.screenToWorld((int) mouseX, (int) mouseY);
+                if (event.getDeltaY()>0) {
+                    scaleX *= 1.1f;
+                    scaleY *= 1.1f;
+                } else {
+                    scaleX *= 0.9f;
+                    scaleY *= 0.9f;
+                }
+                terrain.scaleX = scaleX;
+                terrain.scaleY = scaleY;
+                float mouseX1 = (float) event.getSceneX();
+                float mouseY1 = (float) event.getSceneY();
+                float[] afterZoom = terrain.screenToWorld((int) mouseX1, (int) mouseY1);
+                fOffsetX += (beforeZoom[0] - afterZoom[0]);
+                fOffsetY += (beforeZoom[1] - afterZoom[1]);
+                terrain.deriveImageCanvasOffset(terrainCanvas, fOffsetX, fOffsetY);
             }
             
         });

@@ -18,6 +18,9 @@ public class Terrain {
     float fOffsetX = 0.0f;
     float fOffsetY = 0.0f;
 
+    float scaleX = 1.0f;
+    float scaleY = 1.0f;
+
     //Constructor
     public Terrain(int dimX , int dimY, float gridSpacing, float latitude){
         this.dimx = dimX;
@@ -28,15 +31,15 @@ public class Terrain {
     }
     
     public int[] worldToScreen(float fWorldX, float fWorldY) {
-        int nScreenX = (int) (fWorldX - fOffsetX);
-        int nScreenY = (int) (fWorldY - fOffsetY);
+        int nScreenX = (int) ((fWorldX - fOffsetX)*scaleX);
+        int nScreenY = (int) ((fWorldY - fOffsetY)*scaleY);
         int[] temp = {nScreenX,nScreenY};
         return temp;
     }
 
     public float[] screenToWorld(int nScreenX, int nScreenY) {
-        float fWorldX = (float) (nScreenX + fOffsetX);
-        float fWorldY = (float) (nScreenY + fOffsetY);
+        float fWorldX = (float) (nScreenX/scaleX + fOffsetX);
+        float fWorldY = (float) (nScreenY/scaleY + fOffsetY);
         float[] temp = {fWorldX,fWorldY};
         return temp;
 
@@ -73,11 +76,10 @@ public class Terrain {
                 // find normalized height value in range
                 float val = (height[x][y] - minh) / (maxh - minh);
                 Color color = new Color(val,val,val,1.0f);
-                int tempX = (int) (x - fOffsetX);
-                int tempY = (int) (y - fOffsetY);
-                //if (tempX >= 0 && tempX < dimx && tempY >= 0 && tempY < dimy) {
-                    pw.setColor(tempX, tempY, color);
-                //}
+                int[] pos = worldToScreen(x, y);
+                //pw.setColor(pos[0], pos[1], color);
+                gc.setFill(color);
+                gc.fillRect(pos[0], pos[1], scaleX+1, scaleX+1);
                 
             }
 
