@@ -8,6 +8,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Slider;
+import javafx.scene.control.SplitPane;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -25,6 +26,7 @@ import java.io.File;
 
 
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.Button;
 
 
@@ -53,6 +55,7 @@ public class GUI extends Application {
     public SplitPane sidePane;
     public AnchorPane bottomPane;
     public MenuBar menuBar;
+    public AnchorPane anchorPane;
 
     // Panning and Zooming Variables
     float fOffsetX = 0.0f;
@@ -68,6 +71,7 @@ public class GUI extends Application {
     float scaleY = 1.0f;
 
     int dimx, dimy; // data dimensions
+    float xDimension, yDimension;
 
     public static void main(String[] args) {
         launch(args);

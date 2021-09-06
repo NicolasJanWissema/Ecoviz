@@ -19,6 +19,15 @@ public class Controller {
     private float xDimension, yDimension;
 
 
+    // Panning and Zooming Variables
+    float fOffsetX = 0.0f;
+    float fOffsetY = 0.0f;
+    float fStartPanX = 0;
+    float fStartPanY = 0;
+    float scaleX = 1.0f;
+    float scaleY = 1.0f;
+
+
     //Constructor
     public Controller(File file){
         String filename = file.getAbsoluteFile().toString();
@@ -27,6 +36,22 @@ public class Controller {
         filename = filename.replaceAll("_canopy.pdb","");
         filename = filename.replaceAll("_undergrowth.pdb","");
         readFiles(filename);
+    }
+
+    public void setPan(float fStartPanX, float fStartPanY ) {
+        this.fStartPanX = fStartPanX;
+        this.fStartPanY = fStartPanY;
+    }
+
+    public void panning(float mouseX, float mouseY) {
+        fOffsetX -= (mouseX - fStartPanX)/scaleX;
+                fOffsetY -= (mouseY - fStartPanY)/scaleY;
+                //System.out.println(fOffsetX + " - " + fOffsetY);
+                fStartPanX = mouseX;
+                fStartPanY = mouseY;
+                deriveImageCanvasOffset(terrainCanvas, fOffsetX, fOffsetY);
+                getUndergrowthImageCanvas(dimx, dimy,  terrain.getGridSpacing(), undergrowthCanvas);
+                getCanopyImageCanvas(dimx, dimy,  terrain.getGridSpacing(), canopyCanvas);
     }
 
     private void readFiles(String filename) {
@@ -127,6 +152,21 @@ public class Controller {
 
     public float getyDimension() {
         return yDimension;
+    }
+
+    public int[] worldToScreen(float fWorldX, float fWorldY) {
+        int nScreenX = (int) ((fWorldX - fOffsetX)*scaleX);
+        int nScreenY = (int) ((fWorldY - fOffsetY)*scaleY);
+        int[] temp = {nScreenX,nScreenY};
+        return temp;
+    }
+
+    public float[] screenToWorld(int nScreenX, int nScreenY) {
+        float fWorldX = (float) (nScreenX/scaleX + fOffsetX);
+        float fWorldY = (float) (nScreenY/scaleY + fOffsetY);
+        float[] temp = {fWorldX,fWorldY};
+        return temp;
+
     }
 }
 

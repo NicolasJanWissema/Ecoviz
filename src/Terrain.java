@@ -48,6 +48,9 @@ public class Terrain {
         return temp;
 
     }
+    
+    class TerrainCanvas extends Canvas {
+        float maxh = -10000.0f, minh = 10000.0f;
 
         public TerrainCanvas(){
             for(int x=0; x < dimx; x++){

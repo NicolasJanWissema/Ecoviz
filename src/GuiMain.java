@@ -13,8 +13,11 @@ import javafx.stage.Stage;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Window;
-
+import javafx.event.EventHandler;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import java.io.File;
+import javafx.scene.Cursor;
 
 
 public class GuiMain extends Application {
@@ -67,6 +70,60 @@ public class GuiMain extends Application {
                     }
                 }
             }
+        });
+
+
+        canvasPane.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                //System.out.println("MOUSE PRESSED");
+                canvasPane.setCursor(Cursor.CLOSED_HAND);
+                controller.setPan((float) event.getSceneX(), (float) event.getSceneY());
+            }
+        });
+
+        canvasPane.setOnMouseDragged(new EventHandler<MouseEvent>(){
+            @Override
+            public void handle(MouseEvent event) {
+                float mouseX = (float) event.getSceneX();
+                float mouseY = (float) event.getSceneY();
+                fOffsetX -= (mouseX - fStartPanX)/scaleX;
+                fOffsetY -= (mouseY - fStartPanY)/scaleY;
+                //System.out.println(fOffsetX + " - " + fOffsetY);
+                fStartPanX = mouseX;
+                fStartPanY = mouseY;
+                deriveImageCanvasOffset(terrainCanvas, fOffsetX, fOffsetY);
+                getUndergrowthImageCanvas(dimx, dimy,  terrain.getGridSpacing(), undergrowthCanvas);
+                getCanopyImageCanvas(dimx, dimy,  terrain.getGridSpacing(), canopyCanvas);
+
+            }
+            
+        });
+
+        canvasPane.setOnScroll(new EventHandler<ScrollEvent>(){
+            @Override
+            public void handle(ScrollEvent event) {
+                //System.out.println("Scroll Event Y: " + event.getDeltaY());
+                float mouseX = (float) event.getSceneX();
+                float mouseY = (float) event.getSceneY();
+                float[] beforeZoom = screenToWorld((int) mouseX, (int) mouseY);
+                if (event.getDeltaY()>0) {
+                    scaleX *= 1.1f;
+                    scaleY *= 1.1f;
+                } else {
+                    scaleX *= 0.9f;
+                    scaleY *= 0.9f;
+                }
+                float mouseX1 = (float) event.getSceneX();
+                float mouseY1 = (float) event.getSceneY();
+                float[] afterZoom = screenToWorld((int) mouseX1, (int) mouseY1);
+                fOffsetX += (beforeZoom[0] - afterZoom[0]);
+                fOffsetY += (beforeZoom[1] - afterZoom[1]);
+                deriveImageCanvasOffset(terrainCanvas, fOffsetX, fOffsetY);
+                getUndergrowthImageCanvas(dimx, dimy,  terrain.getGridSpacing(), undergrowthCanvas);
+                getCanopyImageCanvas(dimx, dimy,  terrain.getGridSpacing(), canopyCanvas);
+            }
+            
         });
     }
 
