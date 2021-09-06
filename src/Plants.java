@@ -226,6 +226,14 @@ public class Plants {
         colorList.toArray(plantColors);
     }
 
+    public Plant[][] getUnfilteredUndergrowth() {
+        return unfilteredUndergrowth;
+    }
+
+    public Plant[][] getUnfilteredCanopy() {
+        return unfilteredCanopy;
+    }
+
     public Plant getUnfilteredUndergrowth(int x, int y) {
         return unfilteredUndergrowth[x][y];
     }

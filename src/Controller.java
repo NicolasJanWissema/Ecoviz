@@ -10,6 +10,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Scanner;
+import javafx.scene.effect.Blend;
+import javafx.scene.effect.BlendMode;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 
 public class Controller {
     //Variables
@@ -17,6 +22,9 @@ public class Controller {
     SpeciesInfo speciesInfo[];
     Terrain terrainData;
     private float xDimension, yDimension;
+    TerrainCanvas terrainCanvas;
+    PlantCanvas canopyCanvas;
+    PlantCanvas undergrowthCanvas;
 
 
     // Panning and Zooming Variables
@@ -45,13 +53,34 @@ public class Controller {
 
     public void panning(float mouseX, float mouseY) {
         fOffsetX -= (mouseX - fStartPanX)/scaleX;
-                fOffsetY -= (mouseY - fStartPanY)/scaleY;
-                //System.out.println(fOffsetX + " - " + fOffsetY);
-                fStartPanX = mouseX;
-                fStartPanY = mouseY;
-                deriveImageCanvasOffset(terrainCanvas, fOffsetX, fOffsetY);
-                getUndergrowthImageCanvas(dimx, dimy,  terrain.getGridSpacing(), undergrowthCanvas);
-                getCanopyImageCanvas(dimx, dimy,  terrain.getGridSpacing(), canopyCanvas);
+        fOffsetY -= (mouseY - fStartPanY)/scaleY;
+        //System.out.println(fOffsetX + " - " + fOffsetY);
+        fStartPanX = mouseX;
+        fStartPanY = mouseY;
+        terrainCanvas.drawCanvas();
+        undergrowthCanvas.drawCanvas();
+        canopyCanvas.drawCanvas();
+    }
+
+    public void zooming(ScrollEvent event) {
+        float mouseX = (float) event.getSceneX();
+        float mouseY = (float) event.getSceneY();
+        float[] beforeZoom = screenToWorld((int) mouseX, (int) mouseY);
+        if (event.getDeltaY()>0) {
+            scaleX *= 1.1f;
+            scaleY *= 1.1f;
+        } else {
+            scaleX *= 0.9f;
+            scaleY *= 0.9f;
+        }
+        float mouseX1 = (float) event.getSceneX();
+        float mouseY1 = (float) event.getSceneY();
+        float[] afterZoom = screenToWorld((int) mouseX1, (int) mouseY1);
+        fOffsetX += (beforeZoom[0] - afterZoom[0]);
+        fOffsetY += (beforeZoom[1] - afterZoom[1]);
+        terrainCanvas.drawCanvas();
+        undergrowthCanvas.drawCanvas();
+        canopyCanvas.drawCanvas();
     }
 
     private void readFiles(String filename) {
@@ -142,8 +171,8 @@ public class Controller {
     }
 
     public void addCanvases(StackPane stackPane){
-        terrainData.addTerrainCanvas(stackPane, xDimension, yDimension);
-        plantData.addPlantCanvas(stackPane, xDimension, yDimension);
+        addTerrainCanvas(stackPane, xDimension, yDimension);
+        addPlantCanvas(stackPane, xDimension, yDimension);
     }
 
     public float getxDimension() {
@@ -168,5 +197,130 @@ public class Controller {
         return temp;
 
     }
+
+    class TerrainCanvas extends Canvas {
+        float maxh = -10000.0f, minh = 10000.0f;
+        int[] dim = terrainData.getDimensions();
+        public TerrainCanvas(){
+            for(int x=0; x < dim[0]; x++){
+                for(int y=0; y < dim[1]; y++) {
+                    float h = terrainData.getHeight(x, y);
+                    if(h > maxh)
+                        maxh = h;
+                    if(h < minh)
+                        minh = h;
+                }
+            }
+            // Redraw canvas when size changes.
+            widthProperty().addListener(evt -> drawCanvas());
+            heightProperty().addListener(evt -> drawCanvas());
+            getGraphicsContext2D().setEffect(new Blend(BlendMode.DARKEN));
+        }
+
+        public void drawCanvas() {
+            GraphicsContext gc = getGraphicsContext2D();
+            gc.clearRect(0, 0, getWidth(), getHeight());
+            PixelWriter pw = gc.getPixelWriter();
+
+            //Redraw canvas
+            for(int x=0; x < dim[0]; x++){
+                for(int y=0; y < dim[1]; y++) {
+                    // find normalized height value in range
+                    float val = (terrainData.getHeight(x, y) - minh) / (maxh - minh);
+                    Color color = new Color(val,val,val,1.0f);
+                    int[] pos = worldToScreen(x, y);
+                    //pw.setColor((int)(x*getWidth()/xDimension), (int)(y*getHeight()/yDimension), color);
+                    pw.setColor((int)(pos[0]), (int)(pos[1]), color);
+                }
+            }
+            //long endTime = System.nanoTime();
+            //System.out.println("TIME TO DRAW CIRCLE: " + ((endTime-startTime)/1000000));
+        }
+
+        @Override
+        public boolean isResizable() {
+            return true;
+        }
+
+        @Override
+        public double prefWidth(double height) {
+            return getWidth();
+        }
+
+        @Override
+        public double prefHeight(double width) {
+            return getHeight();
+        }
+    }
+
+    class PlantCanvas extends Canvas {
+        private Plant[][] unfilteredPlants;
+
+        public PlantCanvas(Plant[][] unfilteredPlants){
+            this.unfilteredPlants=unfilteredPlants;
+
+            // Redraw canvas when size changes.
+            widthProperty().addListener(evt -> drawCanvas());
+            heightProperty().addListener(evt -> drawCanvas());
+        }
+        public void drawCanvas() {
+            GraphicsContext gc = getGraphicsContext2D();
+            gc.clearRect(0, 0, getWidth(), getHeight());
+
+            plantData.generateUnfiltered();
+            for(int i=0; i<unfilteredPlants.length;i++){
+                gc.setFill(plantData.getColor(i));
+                for (int j=0;j<unfilteredPlants[i].length;j++){
+                    // float x = (float) (unfilteredPlants[i][j].getPosition()[0]*getWidth()/xDimension);
+                    // float y = (float)(unfilteredPlants[i][j].getPosition()[1]*getHeight()/yDimension);
+                    int[] pos = worldToScreen(unfilteredPlants[i][j].getPosition()[0], unfilteredPlants[i][j].getPosition()[1]);
+                    //double rad = (double) (unfilteredPlants[i][j].getCanopyRadius()*getWidth()/xDimension);
+                    double rad = (double) (unfilteredPlants[i][j].getCanopyRadius()*scaleX);
+                    //gc.fillOval((double) x-rad, (double) y-rad, (double)rad*2, rad*2);
+                    gc.fillOval((double) pos[0]-rad, (double) pos[1]-rad, (double)rad*2, rad*2);
+                }
+            }
+            //long endTime = System.nanoTime();
+            //System.out.println("TIME TO DRAW CIRCLE: " + ((endTime-startTime)/1000000));
+        }
+
+        @Override
+        public boolean isResizable() {
+            return true;
+        }
+
+        @Override
+        public double prefWidth(double height) {
+            return getWidth();
+        }
+
+        @Override
+        public double prefHeight(double width) {
+            return getHeight();
+        }
+    }
+
+    public void addTerrainCanvas(StackPane stackPane, float xDimension, float yDimension){
+        terrainCanvas = new TerrainCanvas();
+        terrainCanvas.widthProperty().bind(stackPane.widthProperty());
+        terrainCanvas.heightProperty().bind(stackPane.heightProperty());
+        stackPane.getChildren().add(terrainCanvas);
+    }
+
+    public void addPlantCanvas(StackPane stackPane, float xDimension, float yDimension){
+        this.xDimension = xDimension;
+        this.yDimension = yDimension;
+        plantData.generateUnfiltered();
+        canopyCanvas = new PlantCanvas(plantData.getUnfilteredCanopy());
+        undergrowthCanvas = new PlantCanvas(plantData.getUnfilteredUndergrowth());
+        canopyCanvas.widthProperty().bind(stackPane.widthProperty());
+        canopyCanvas.heightProperty().bind(stackPane.heightProperty());
+        undergrowthCanvas.widthProperty().bind(stackPane.widthProperty());
+        undergrowthCanvas.heightProperty().bind(stackPane.heightProperty());
+
+        stackPane.getChildren().addAll(undergrowthCanvas,canopyCanvas);
+    }
+
+    
 }
 

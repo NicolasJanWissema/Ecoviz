@@ -85,16 +85,7 @@ public class GuiMain extends Application {
         canvasPane.setOnMouseDragged(new EventHandler<MouseEvent>(){
             @Override
             public void handle(MouseEvent event) {
-                float mouseX = (float) event.getSceneX();
-                float mouseY = (float) event.getSceneY();
-                fOffsetX -= (mouseX - fStartPanX)/scaleX;
-                fOffsetY -= (mouseY - fStartPanY)/scaleY;
-                //System.out.println(fOffsetX + " - " + fOffsetY);
-                fStartPanX = mouseX;
-                fStartPanY = mouseY;
-                deriveImageCanvasOffset(terrainCanvas, fOffsetX, fOffsetY);
-                getUndergrowthImageCanvas(dimx, dimy,  terrain.getGridSpacing(), undergrowthCanvas);
-                getCanopyImageCanvas(dimx, dimy,  terrain.getGridSpacing(), canopyCanvas);
+                controller.panning((float) event.getSceneX(), (float) event.getSceneY());
 
             }
             
@@ -104,24 +95,7 @@ public class GuiMain extends Application {
             @Override
             public void handle(ScrollEvent event) {
                 //System.out.println("Scroll Event Y: " + event.getDeltaY());
-                float mouseX = (float) event.getSceneX();
-                float mouseY = (float) event.getSceneY();
-                float[] beforeZoom = screenToWorld((int) mouseX, (int) mouseY);
-                if (event.getDeltaY()>0) {
-                    scaleX *= 1.1f;
-                    scaleY *= 1.1f;
-                } else {
-                    scaleX *= 0.9f;
-                    scaleY *= 0.9f;
-                }
-                float mouseX1 = (float) event.getSceneX();
-                float mouseY1 = (float) event.getSceneY();
-                float[] afterZoom = screenToWorld((int) mouseX1, (int) mouseY1);
-                fOffsetX += (beforeZoom[0] - afterZoom[0]);
-                fOffsetY += (beforeZoom[1] - afterZoom[1]);
-                deriveImageCanvasOffset(terrainCanvas, fOffsetX, fOffsetY);
-                getUndergrowthImageCanvas(dimx, dimy,  terrain.getGridSpacing(), undergrowthCanvas);
-                getCanopyImageCanvas(dimx, dimy,  terrain.getGridSpacing(), canopyCanvas);
+                controller.zooming(event);
             }
             
         });
