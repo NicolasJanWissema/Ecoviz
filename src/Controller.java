@@ -184,14 +184,18 @@ public class Controller {
     }
 
     public int[] worldToScreen(float fWorldX, float fWorldY) {
+        // int nScreenX = (int) ((fWorldX - fOffsetX)*(scaleX*terrainCanvas.getWidth()/xDimension));
         int nScreenX = (int) ((fWorldX - fOffsetX)*scaleX);
+        //int nScreenY = (int) ((fWorldY - fOffsetY)*(scaleY*terrainCanvas.getHeight()/yDimension));
         int nScreenY = (int) ((fWorldY - fOffsetY)*scaleY);
         int[] temp = {nScreenX,nScreenY};
         return temp;
     }
 
     public float[] screenToWorld(int nScreenX, int nScreenY) {
+        //float fWorldX = (float) (nScreenX/(scaleX*terrainCanvas.getWidth()/xDimension) + fOffsetX);
         float fWorldX = (float) (nScreenX/scaleX + fOffsetX);
+        //float fWorldY = (float) (nScreenY/(scaleY*terrainCanvas.getHeight()/yDimension) + fOffsetY);
         float fWorldY = (float) (nScreenY/scaleY + fOffsetY);
         float[] temp = {fWorldX,fWorldY};
         return temp;
@@ -214,7 +218,7 @@ public class Controller {
             // Redraw canvas when size changes.
             widthProperty().addListener(evt -> drawCanvas());
             heightProperty().addListener(evt -> drawCanvas());
-            getGraphicsContext2D().setEffect(new Blend(BlendMode.DARKEN));
+            //getGraphicsContext2D().setEffect(new Blend(BlendMode.DARKEN));
         }
 
         public void drawCanvas() {
@@ -229,7 +233,7 @@ public class Controller {
                     float val = (terrainData.getHeight(x, y) - minh) / (maxh - minh);
                     Color color = new Color(val,val,val,1.0f);
                     int[] pos = worldToScreen(x, y);
-                    //pw.setColor((int)(x*getWidth()/xDimension), (int)(y*getHeight()/yDimension), color);
+                   // pw.setColor((int)(x*getWidth()/xDimension), (int)(y*getHeight()/yDimension), color);
                     pw.setColor((int)(pos[0]), (int)(pos[1]), color);
                 }
             }
@@ -271,11 +275,11 @@ public class Controller {
             for(int i=0; i<unfilteredPlants.length;i++){
                 gc.setFill(plantData.getColor(i));
                 for (int j=0;j<unfilteredPlants[i].length;j++){
-                    // float x = (float) (unfilteredPlants[i][j].getPosition()[0]*getWidth()/xDimension);
-                    // float y = (float)(unfilteredPlants[i][j].getPosition()[1]*getHeight()/yDimension);
-                    int[] pos = worldToScreen(unfilteredPlants[i][j].getPosition()[0], unfilteredPlants[i][j].getPosition()[1]);
+                     //float x = (float) (unfilteredPlants[i][j].getPosition()[0]*getWidth()/xDimension);
+                     //float y = (float)(unfilteredPlants[i][j].getPosition()[1]*getHeight()/yDimension);
+                    int[] pos = worldToScreen(unfilteredPlants[i][j].getPosition()[0]/terrainData.getGridSpacing(), unfilteredPlants[i][j].getPosition()[1]/terrainData.getGridSpacing());
                     //double rad = (double) (unfilteredPlants[i][j].getCanopyRadius()*getWidth()/xDimension);
-                    double rad = (double) (unfilteredPlants[i][j].getCanopyRadius()*scaleX);
+                    double rad = (double) (unfilteredPlants[i][j].getCanopyRadius()/terrainData.getGridSpacing()*scaleX);
                     //gc.fillOval((double) x-rad, (double) y-rad, (double)rad*2, rad*2);
                     gc.fillOval((double) pos[0]-rad, (double) pos[1]-rad, (double)rad*2, rad*2);
                 }

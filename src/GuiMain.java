@@ -17,6 +17,8 @@ import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import java.io.File;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import javafx.scene.Cursor;
 
 
