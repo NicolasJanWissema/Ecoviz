@@ -131,6 +131,17 @@ public class Plants {
         //System.out.println("TIME TO DRAW CIRCLE: " + ((endTime-startTime)/1000000));
     }
 
+    public void generateUnfiltered() {
+        if (unfilteredCanopy==null){
+            unfilteredCanopy=canopy.clone();
+            //filterUndergrowth();
+        }
+        if (unfilteredUndergrowth==null){
+            unfilteredUndergrowth=undergrowth.clone();
+            //filterUndergrowth();
+        }
+    }
+
     //Generate colors with a gaussian distribution around green.
     private void generateColors(int numSpecies){
         plantColors = new Color[numSpecies];
@@ -145,5 +156,33 @@ public class Plants {
                 plantColors[i] = new Color(Math.max(0,deviation),Math.abs(1-1.2*Math.abs(deviation)),Math.max(0,-deviation),1);
             }
         }
+    }
+
+    public Plant getUnfilteredUndergrowth(int x, int y) {
+        return unfilteredUndergrowth[x][y];
+    }
+
+    public Plant getUnfilteredCanopy(int x, int y) {
+        return unfilteredCanopy[x][y];
+    }
+
+    public int getUndergrowthLength() {
+        return unfilteredUndergrowth.length;
+    }
+
+    public int getCanopyLength() {
+        return unfilteredCanopy.length;
+    }
+
+    public int getUndergrowthLength(int i) {
+        return unfilteredUndergrowth[i].length;
+    }
+
+    public int getCanopyLength(int i) {
+        return unfilteredCanopy[i].length;
+    }
+
+    public Color getColor(int i) {
+        return plantColors[i];
     }
 }
