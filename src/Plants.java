@@ -7,6 +7,8 @@ import javafx.scene.paint.Color;
 
 import java.awt.*;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 public class Plants {
@@ -32,18 +34,6 @@ public class Plants {
             widthProperty().addListener(evt -> drawCanvas());
             heightProperty().addListener(evt -> drawCanvas());
         }
-
-        private void draw() {
-            double width = getWidth();
-            double height = getHeight();
-
-            GraphicsContext gc = getGraphicsContext2D();
-            gc.clearRect(0, 0, width, height);
-
-            gc.setStroke(Color.RED);
-            gc.strokeLine(0, 0, width, height);
-            gc.strokeLine(0, height, width, 0);
-        }
         public void drawCanvas() {
             GraphicsContext gc = getGraphicsContext2D();
             gc.clearRect(0, 0, getWidth(), getHeight());
@@ -52,17 +42,14 @@ public class Plants {
                 unfilteredPlants=canopy.clone();
                 //filterUndergrowth();
             }
-            //long startTime = System.nanoTime();
             for(int i=0; i<unfilteredPlants.length;i++){
                 gc.setFill(plantColors[i]);
-                //gc.setStroke(plantColors[i]);
                 for (int j=0;j<unfilteredPlants[i].length;j++){
                     float x = (float) (unfilteredPlants[i][j].getPosition()[0]*getWidth()/xDimension);
                     float y = (float)(unfilteredPlants[i][j].getPosition()[1]*getHeight()/yDimension);
 
                     double rad = (double) (unfilteredPlants[i][j].getCanopyRadius()*getWidth()/xDimension);
                     gc.fillOval((double) x-rad, (double) y-rad, (double)rad*2, rad*2);
-                    //gc.strokeOval((double) x-rad, (double) y-rad, (double)rad*2, rad*2);
                 }
             }
             //long endTime = System.nanoTime();
@@ -160,9 +147,6 @@ public class Plants {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         this.dimx = dimx;
         this.dimy = dimy;
-        //long startTime = System.nanoTime();
-        //long endTime = System.nanoTime();
-        //System.out.println("TIME TO DRAW ONE CIRCLE: " + ((endTime-startTime)/1000000));
         if (unfilteredCanopy==null){
             unfilteredCanopy=canopy.clone();
             //filterUndergrowth();
@@ -187,11 +171,6 @@ public class Plants {
     public void getUndergrowthImageCanvas(int dimx, int dimy, float gridSpacing, Canvas canvas) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        //this.dimx = dimx;
-        //this.dimy = dimy;
-        //long startTime = System.nanoTime();
-        //long endTime = System.nanoTime();
-        //System.out.println("TIME TO DRAW ONE CIRCLE: " + ((endTime-startTime)/1000000));
         if (unfilteredUndergrowth==null){
             unfilteredUndergrowth=undergrowth.clone();
             //filterUndergrowth();
@@ -208,8 +187,6 @@ public class Plants {
                 }
             }
         }
-        //long endTime = System.nanoTime();
-        //System.out.println("TIME TO DRAW CIRCLE: " + ((endTime-startTime)/1000000));
     }
 
 
@@ -218,12 +195,12 @@ public class Plants {
 
     //Generate colors with a gaussian distribution around green.
     private void generateColors(int numSpecies){
-        int gaussMultiple=100;
+        int gaussMultiple=1000;
         plantColors = new Color[numSpecies];
         Random random = new Random();
         double[] gaussian = new double[numSpecies*gaussMultiple];
         for (int i=0; i<gaussian.length;i++){
-            double check = random.nextGaussian()/3;
+            double check = random.nextGaussian();
             if (Math.abs(check)>1){
                 i--;
             }
@@ -237,5 +214,8 @@ public class Plants {
             //System.out.println(gaussian[i*gaussMultiple]);
             plantColors[i] = new Color(Math.max(0,gaussian[i*gaussMultiple]),1-Math.abs(gaussian[i*gaussMultiple]),Math.max(0,-gaussian[i*gaussMultiple]),1);
         }
+        List<Color> colorList = Arrays.asList(plantColors);
+        Collections.shuffle(colorList);
+        colorList.toArray(plantColors);
     }
 }
