@@ -34,6 +34,8 @@ public class Controller {
     float fStartPanY = 0;
     float scaleX = 1.0f;
     float scaleY = 1.0f;
+    float sizeX = 0;
+    float sizeY = 0;
 
 
     //Constructor
@@ -52,8 +54,9 @@ public class Controller {
     }
 
     public void panning(float mouseX, float mouseY) {
-        fOffsetX -= (mouseX - fStartPanX)/scaleX;
-        fOffsetY -= (mouseY - fStartPanY)/scaleY;
+        updateSize();
+        fOffsetX -= (mouseX - fStartPanX)/(scaleX*sizeX);
+        fOffsetY -= (mouseY - fStartPanY)/(scaleY*sizeY);
         //System.out.println(fOffsetX + " - " + fOffsetY);
         fStartPanX = mouseX;
         fStartPanY = mouseY;
@@ -184,22 +187,29 @@ public class Controller {
     }
 
     public int[] worldToScreen(float fWorldX, float fWorldY) {
-        // int nScreenX = (int) ((fWorldX - fOffsetX)*(scaleX*terrainCanvas.getWidth()/xDimension));
-        int nScreenX = (int) ((fWorldX - fOffsetX)*scaleX);
-        //int nScreenY = (int) ((fWorldY - fOffsetY)*(scaleY*terrainCanvas.getHeight()/yDimension));
-        int nScreenY = (int) ((fWorldY - fOffsetY)*scaleY);
+        updateSize();
+        int nScreenX = (int) ((fWorldX - fOffsetX)*(scaleX*sizeX));
+        //int nScreenX = (int) ((fWorldX - fOffsetX)*scaleX);
+        int nScreenY = (int) ((fWorldY - fOffsetY)*(scaleY*sizeY));
+        //int nScreenY = (int) ((fWorldY - fOffsetY)*scaleY);
         int[] temp = {nScreenX,nScreenY};
         return temp;
     }
 
     public float[] screenToWorld(int nScreenX, int nScreenY) {
-        //float fWorldX = (float) (nScreenX/(scaleX*terrainCanvas.getWidth()/xDimension) + fOffsetX);
-        float fWorldX = (float) (nScreenX/scaleX + fOffsetX);
-        //float fWorldY = (float) (nScreenY/(scaleY*terrainCanvas.getHeight()/yDimension) + fOffsetY);
-        float fWorldY = (float) (nScreenY/scaleY + fOffsetY);
+        updateSize();
+        float fWorldX = (float) (nScreenX/(scaleX*sizeX) + fOffsetX);
+        //float fWorldX = (float) (nScreenX/scaleX + fOffsetX);
+        float fWorldY = (float) (nScreenY/(scaleY*sizeY) + fOffsetY);
+        //float fWorldY = (float) (nScreenY/scaleY + fOffsetY);
         float[] temp = {fWorldX,fWorldY};
         return temp;
 
+    }
+
+    public void updateSize() {
+        sizeX = (float) terrainCanvas.getWidth()/xDimension;
+        sizeY = (float) terrainCanvas.getHeight()/yDimension;
     }
 
     class TerrainCanvas extends Canvas {
