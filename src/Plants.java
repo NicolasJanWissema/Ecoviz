@@ -189,9 +189,16 @@ public class Plants {
         }
     }
 
-
-
-
+    public void generateUnfiltered() {
+        if (unfilteredCanopy==null){
+            unfilteredCanopy=canopy.clone();
+            //filterUndergrowth();
+        }
+        if (unfilteredUndergrowth==null){
+            unfilteredUndergrowth=undergrowth.clone();
+            //filterUndergrowth();
+        }
+    }
 
     //Generate colors with a gaussian distribution around green.
     private void generateColors(int numSpecies){
@@ -217,5 +224,33 @@ public class Plants {
         List<Color> colorList = Arrays.asList(plantColors);
         Collections.shuffle(colorList);
         colorList.toArray(plantColors);
+    }
+
+    public Plant getUnfilteredUndergrowth(int x, int y) {
+        return unfilteredUndergrowth[x][y];
+    }
+
+    public Plant getUnfilteredCanopy(int x, int y) {
+        return unfilteredCanopy[x][y];
+    }
+
+    public int getUndergrowthLength() {
+        return unfilteredUndergrowth.length;
+    }
+
+    public int getCanopyLength() {
+        return unfilteredCanopy.length;
+    }
+
+    public int getUndergrowthLength(int i) {
+        return unfilteredUndergrowth[i].length;
+    }
+
+    public int getCanopyLength(int i) {
+        return unfilteredCanopy[i].length;
+    }
+
+    public Color getColor(int i) {
+        return plantColors[i];
     }
 }

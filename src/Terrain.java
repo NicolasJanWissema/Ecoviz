@@ -7,6 +7,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 
+
 public class Terrain {
 
     // Global Varibles
@@ -17,6 +18,13 @@ public class Terrain {
     private TerrainCanvas terrainCanvas;
     private float xDimension, yDimension;
 
+    // Panning and zooming
+    float fOffsetX = 0.0f;
+    float fOffsetY = 0.0f;
+
+    float scaleX = 1.0f;
+    float scaleY = 1.0f;
+
     //Constructor
     public Terrain(int dimX , int dimY, float gridSpacing, float latitude){
         this.dimx = dimX;
@@ -25,8 +33,21 @@ public class Terrain {
         this.gridSpacing = gridSpacing;
         this.latitude = latitude;
     }
-    class TerrainCanvas extends Canvas {
-        float maxh = -10000.0f, minh = 10000.0f;
+    
+    public int[] worldToScreen(float fWorldX, float fWorldY) {
+        int nScreenX = (int) ((fWorldX - fOffsetX)*scaleX);
+        int nScreenY = (int) ((fWorldY - fOffsetY)*scaleY);
+        int[] temp = {nScreenX,nScreenY};
+        return temp;
+    }
+
+    public float[] screenToWorld(int nScreenX, int nScreenY) {
+        float fWorldX = (float) (nScreenX/scaleX + fOffsetX);
+        float fWorldY = (float) (nScreenY/scaleY + fOffsetY);
+        float[] temp = {fWorldX,fWorldY};
+        return temp;
+
+    }
 
         public TerrainCanvas(){
             for(int x=0; x < dimx; x++){
@@ -89,8 +110,37 @@ public class Terrain {
         stackPane.getChildren().add(terrainCanvas);
     }
 
-    // Get & Sets
+    public void deriveImageCanvasOffset(Canvas img, float fOffsetX, float fOffsetY) {
+        this.fOffsetX = fOffsetX;
+        this.fOffsetY = fOffsetY;
+        float maxh = -10000.0f, minh = 10000.0f;
+        GraphicsContext gc = img.getGraphicsContext2D();
+        gc.clearRect(0, 0, img.getWidth(), img.getHeight());
+        PixelWriter pw = gc.getPixelWriter();
 
+        // determine range of heights
+        for(int x=0; x < dimx; x++)
+            for(int y=0; y < dimy; y++) {
+                float h = height[x][y];
+                if(h > maxh)
+                    maxh = h;
+                if(h < minh)
+                    minh = h;
+            }
+
+        for(int x=0; x < dimx; x++)
+            for(int y=0; y < dimy; y++) {
+                // find normalized height value in range
+                float val = (height[x][y] - minh) / (maxh - minh);
+                Color color = new Color(val,val,val,1.0f);
+                int[] pos = worldToScreen(x, y);
+                //pw.setColor(pos[0], pos[1], color);
+                gc.setFill(color);
+                gc.fillRect(pos[0], pos[1], scaleX+1, scaleX+1);
+                
+            }
+
+    }
 
     public void deriveImageCanvas(Canvas img) {
         float maxh = -10000.0f, minh = 10000.0f;
