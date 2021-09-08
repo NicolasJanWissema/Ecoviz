@@ -1,6 +1,12 @@
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 import java.io.BufferedReader;
@@ -378,6 +384,42 @@ public class Controller {
         miniPane.getChildren().add(minimapCanvas);
     }
 
-    
+    public void addFilter(int speciesID, VBox filterBox){
+        HBox hBox = new HBox();
+        ColorPicker colorPicker = new ColorPicker(plantData.getColor(speciesID));
+        //colorPicker.setStyle(ColorPicker.STYLE_CLASS_BUTTON);
+        //colorPicker.styleProperty().setValue(ColorPicker.STYLE_CLASS_BUTTON);
+        colorPicker.valueProperty().addListener(new ChangeListener<Color>() {
+            @Override
+            public void changed(ObservableValue<? extends Color> observable, Color oldValue, Color newValue) {
+                plantData.setColor(speciesID,observable.getValue());
+                canopyCanvas.drawCanvas();
+                undergrowthCanvas.drawCanvas();
+            }
+        });
+
+        CheckBox checkBox = new CheckBox(speciesInfo[speciesID].getCommmonName());
+        checkBox.setSelected(true);
+        checkBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (observable.getValue()){
+                    plantData.unFilterSpecies(speciesID);
+                }
+                else {
+                    plantData.filterSpecies(speciesID);
+                }
+                canopyCanvas.drawCanvas();
+                undergrowthCanvas.drawCanvas();
+            }
+        });
+
+        hBox.getChildren().addAll(colorPicker,checkBox);
+        filterBox.getChildren().add(hBox);
+    }
+    public int getNumSpecies(){
+        return (speciesInfo.length);
+    }
+
 }
 

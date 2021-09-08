@@ -95,7 +95,7 @@ public class Plants {
         Random random = new Random();
         double[] gaussian = new double[numSpecies*gaussMultiple];
         for (int i=0; i<gaussian.length;i++){
-            double check = random.nextGaussian();
+            double check = random.nextGaussian()/2;
             if (Math.abs(check)>1){
                 i--;
             }
@@ -148,5 +148,9 @@ public class Plants {
 
     public Color getColor(int i) {
         return plantColors[i];
+    }
+
+    public void setColor(int speciesID, Color newColor){
+        plantColors[speciesID]=newColor;
     }
 }

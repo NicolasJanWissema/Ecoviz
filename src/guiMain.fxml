@@ -27,6 +27,7 @@
           <Menu mnemonicParsing="false" text="Edit">
             <items>
               <MenuItem mnemonicParsing="false" text="Delete" />
+                  <MenuItem mnemonicParsing="false" onAction="#openFilter" text="Filter" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Help">
@@ -45,7 +46,7 @@
       </AnchorPane>
    </bottom>
    <right>
-      <SplitPane fx:id="sidePane" dividerPositions="0.5" maxHeight="-Infinity" maxWidth="-Infinity" orientation="VERTICAL" scaleShape="false" BorderPane.alignment="CENTER_RIGHT">
+      <SplitPane fx:id="rightPane" dividerPositions="0.5" maxHeight="-Infinity" maxWidth="-Infinity" orientation="VERTICAL" scaleShape="false" BorderPane.alignment="CENTER_RIGHT">
          <items>
             <StackPane fx:id="miniMap" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0" />
             <ScrollPane prefHeight="512.0" prefWidth="215.0" vbarPolicy="ALWAYS">
@@ -62,7 +63,7 @@
                         <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Placeholder slider" />
                         <Slider max="1.0" prefHeight="14.0" prefWidth="104.0" value="1.0" />
                         <Separator prefWidth="200.0" />
-                        <VBox prefHeight="200.0" prefWidth="100.0" />
+                        <VBox fx:id="infoBox" prefHeight="200.0" prefWidth="100.0" />
                      </children>
                   </VBox>
                </content>

@@ -9,6 +9,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.fxml.FXML;
@@ -23,13 +24,16 @@ import javafx.scene.Cursor;
 
 public class GuiMain extends Application {
     @FXML
-    public Menu fileMenu;
+    //public Menu fileMenu;
     public StackPane canvasPane;
     public StackPane miniMap;
+
     public BorderPane borderPane;
-    public SplitPane sidePane;
-    public AnchorPane bottomPane;
     public MenuBar menuBar;
+    public SplitPane rightPane;
+    public AnchorPane bottomPane;
+    public VBox infoBox;
+
     public Slider canopySlider;
     public Slider undergrowthSlider;
 
@@ -47,7 +51,7 @@ public class GuiMain extends Application {
                 borderPane.setPrefWidth((double)newValue);
 
                 if (controller!=null){
-                    double newX = (double)newValue-sidePane.getWidth();
+                    double newX = (double)newValue-rightPane.getWidth();
                     double newY = borderPane.getHeight()-bottomPane.getHeight()-menuBar.getHeight();
                     float yDimension = controller.getyDimension();
                     float xDimension = controller.getxDimension();
@@ -65,7 +69,7 @@ public class GuiMain extends Application {
 
                 if (controller!=null){
                     double newY = (double)newValue-bottomPane.getHeight()-menuBar.getHeight();
-                    double newX = borderPane.getWidth()-sidePane.getWidth();
+                    double newX = borderPane.getWidth()-rightPane.getWidth();
                     float yDimension = controller.getyDimension();
                     float xDimension = controller.getxDimension();
                     if ((newY/yDimension) < (newX/xDimension) ){
@@ -149,7 +153,7 @@ public class GuiMain extends Application {
             controller.generateMinimap(miniMap);
 
             double newY = borderPane.getHeight()-bottomPane.getHeight()-menuBar.getHeight();
-            double newX = borderPane.getWidth()-sidePane.getWidth();
+            double newX = borderPane.getWidth()-rightPane.getWidth();
             float yDimension = controller.getyDimension();
             float xDimension = controller.getxDimension();
             if ((newY/yDimension) < (newX/xDimension) ){
@@ -165,12 +169,19 @@ public class GuiMain extends Application {
                 canvasPane.setPrefHeight(newY);
             }
 
+            for(int i=0; i<controller.getNumSpecies();i++){
+                controller.addFilter(i,infoBox);
+            }
         }
     }
 
     public void closeFile(){
         canvasPane.getChildren().clear();
         controller=null;
+    }
+
+    public void openFilter(){
+        System.out.println("Filter");
     }
 
 }
