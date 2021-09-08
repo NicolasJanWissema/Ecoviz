@@ -64,6 +64,24 @@ public class Plants {
             }
         }
     }
+    public Plant selectPlant(float posX, float posY){
+        Plant selectedPlant = new Plant(0,0,0,0,0,0);
+        for(int i=0; i<unfilteredUndergrowth.length;i++){
+            for (int j=0;j<unfilteredUndergrowth[i].length;j++){
+                if (unfilteredUndergrowth[i][j].distanceFrom(posX,posY)<selectedPlant.distanceFrom(posX,posY)){
+                    selectedPlant = unfilteredUndergrowth[i][j];
+                }
+            }
+        }
+        for(int i=0; i<unfilteredCanopy.length;i++){
+            for (int j=0;j<unfilteredCanopy[i].length;j++){
+                if (unfilteredCanopy[i][j].distanceFrom(posX,posY)<selectedPlant.distanceFrom(posX,posY)){
+                    selectedPlant = unfilteredCanopy[i][j];
+                }
+            }
+        }
+        return (selectedPlant);
+    }
 
     //filter specific species from images.
     public void filterSpecies(int speciesID){

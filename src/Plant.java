@@ -20,6 +20,9 @@ public class Plant {
         this.canopyRadius = canopyRadius;
         this.speciesID=speciesID;
     }
+    public float distanceFrom(float x,float y){
+        return (float)(Math.sqrt(Math.pow(xPos-x,2)+Math.pow(yPos-y,2)));
+    }
 
     // Getter & Setters
     public float[] getPosition() {

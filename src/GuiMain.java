@@ -1,11 +1,14 @@
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.Slider;
 import javafx.scene.control.SplitPane;
+import javafx.scene.input.KeyCharacterCombination;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
@@ -17,6 +20,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+
+import java.awt.*;
 import java.io.File;
 
 import javafx.scene.Cursor;
@@ -33,6 +38,7 @@ public class GuiMain extends Application {
     public SplitPane rightPane;
     public AnchorPane bottomPane;
     public VBox infoBox;
+    public Label positionLabel;
 
     public Slider canopySlider;
     public Slider undergrowthSlider;
@@ -103,17 +109,39 @@ public class GuiMain extends Application {
             public void handle(MouseEvent event) {
                 //System.out.println("MOUSE PRESSED");
                 canvasPane.setCursor(Cursor.CLOSED_HAND);
-                controller.setPan((float) event.getSceneX(), (float) event.getSceneY());
+                controller.setPan((float) event.getX(), (float) event.getY());
             }
         });
 
         canvasPane.setOnMouseDragged(new EventHandler<MouseEvent>(){
             @Override
             public void handle(MouseEvent event) {
-                controller.panning((float) event.getSceneX(), (float) event.getSceneY());
+                controller.panning((float) event.getX(), (float) event.getY());
 
             }
 
+        });
+        canvasPane.setOnMouseReleased(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                canvasPane.setCursor(Cursor.OPEN_HAND);
+            }
+        });
+        canvasPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if(controller!=null){
+                    System.out.println(event.getX()+", "+event.getY());
+                    controller.getPlant((float)event.getX(), (float)event.getY());
+                }
+            }
+        });
+        canvasPane.setOnMouseMoved(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                float pos[] = controller.screenToWorld((float)event.getX(),(float)event.getY());
+                positionLabel.setText(pos[0]+" , "+pos[1]);
+            }
         });
 
         canvasPane.setOnScroll(new EventHandler<ScrollEvent>(){
@@ -146,9 +174,8 @@ public class GuiMain extends Application {
             System.out.println("null");
         }
         else {
-            controller = null;
+            closeFile();
             controller = new Controller(selectedFile);
-            canvasPane.getChildren().clear();
             controller.addCanvases(canvasPane);
             controller.generateMinimap(miniMap);
 
@@ -168,20 +195,23 @@ public class GuiMain extends Application {
                 canvasPane.setPrefWidth(newX);
                 canvasPane.setPrefHeight(newY);
             }
-
-            for(int i=0; i<controller.getNumSpecies();i++){
-                controller.addFilter(i,infoBox);
-            }
         }
     }
 
     public void closeFile(){
-        canvasPane.getChildren().clear();
         controller=null;
+        canvasPane.getChildren().clear();
+        infoBox.getChildren().clear();
+        miniMap.getChildren().clear();
     }
 
     public void openFilter(){
-        System.out.println("Filter");
+        infoBox.getChildren().clear();
+        if (controller!=null){
+            for(int i=0; i<controller.getNumSpecies();i++){
+                controller.addFilter(i,infoBox);
+            }
+        }
     }
 
 }
