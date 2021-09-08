@@ -59,8 +59,8 @@ public class Controller {
 
     public void panning(float mouseX, float mouseY) {
         updateSize();
-        fOffsetX -= (mouseX - fStartPanX)/(scaleX*sizeX);
-        fOffsetY -= (mouseY - fStartPanY)/(scaleY*sizeY);
+        fOffsetX += (mouseX - fStartPanX)/(scaleX*sizeX);
+        fOffsetY += (mouseY - fStartPanY)/(scaleY*sizeY);
         //System.out.println(fOffsetX + " - " + fOffsetY);
         fStartPanX = mouseX;
         fStartPanY = mouseY;
@@ -76,15 +76,15 @@ public class Controller {
         if (event.getDeltaY()>0) {
             scaleX *= 1.1f;
             scaleY *= 1.1f;
-        } else if (scaleX>1){
+        } else if (scaleX>=1){
             scaleX *= 0.9f;
             scaleY *= 0.9f;
         }
         float mouseX1 = (float) event.getX();
         float mouseY1 = (float) event.getY();
         float[] afterZoom = screenToWorld((int) mouseX1, (int) mouseY1);
-        fOffsetX += (beforeZoom[0] - afterZoom[0]);
-        fOffsetY += (beforeZoom[1] - afterZoom[1]);
+        fOffsetX -= (beforeZoom[0] - afterZoom[0]);
+        fOffsetY -= (beforeZoom[1] - afterZoom[1]);
         terrainCanvas.drawCanvas();
         undergrowthCanvas.drawCanvas();
         canopyCanvas.drawCanvas();
@@ -190,28 +190,23 @@ public class Controller {
         return yDimension;
     }
 
-    public int[] worldToScreen(float fWorldX, float fWorldY) {
+    public float[] worldToScreen(float fWorldX, float fWorldY) {
         updateSize();
-        int nScreenX = (int) ((fWorldX - fOffsetX)*(scaleX*sizeX));
-        //int nScreenX = (int) ((fWorldX - fOffsetX)*scaleX);
-        int nScreenY = (int) ((fWorldY - fOffsetY)*(scaleY*sizeY));
-        //int nScreenY = (int) ((fWorldY - fOffsetY)*scaleY);
-        return new int[]{nScreenX,nScreenY};
+        float nScreenX = (fWorldX + fOffsetX)*sizeX*scaleX;
+        float nScreenY = (fWorldY + fOffsetY)*sizeY*scaleY;
+        return new float[]{nScreenX,nScreenY};
     }
 
     public float[] screenToWorld(float nScreenX, float nScreenY) {
         updateSize();
-        float fWorldX = nScreenX/(scaleX*sizeX) + fOffsetX;
-        //float fWorldX = (float) (nScreenX/scaleX + fOffsetX);
-        float fWorldY = nScreenY/(scaleY*sizeY) + fOffsetY;
-        //float fWorldY = (float) (nScreenY/scaleY + fOffsetY);
+        float fWorldX = nScreenX/(scaleX*sizeX) - fOffsetX;
+        float fWorldY = nScreenY/(scaleY*sizeY) - fOffsetY;
         return new float[]{fWorldX,fWorldY};
-
     }
 
     public void updateSize() {
-        sizeX = (float) (terrainCanvas.getWidth()/xDimension)*terrainData.getGridSpacing();
-        sizeY = (float) (terrainCanvas.getHeight()/yDimension)*terrainData.getGridSpacing();
+        sizeX = (float) (terrainCanvas.getWidth()/xDimension);
+        sizeY = (float) (terrainCanvas.getHeight()/yDimension);
     }
 
     public void changeCanopyOpacity(double value){
@@ -251,9 +246,9 @@ public class Controller {
                     // find normalized height value in range
                     float val = (terrainData.getHeight(x, y) - minh) / (maxh - minh);
                     Color color = new Color(val,val,val,1.0f);
-                    int[] pos = worldToScreen(x, y);
+                    float[] pos = worldToScreen(x*terrainData.getGridSpacing(), y*terrainData.getGridSpacing());
                    // pw.setColor((int)(x*getWidth()/xDimension), (int)(y*getHeight()/yDimension), color);
-                    pw.setColor(pos[0], pos[1], color);
+                    pw.setColor((int)pos[0], (int)pos[1], color);
                 }
             }
             //long endTime = System.nanoTime();
@@ -292,24 +287,19 @@ public class Controller {
 
             plantData.generateUnfiltered();
             if (selectedPlant!=null){
-                gc.setFill(Color.BLACK);
-                int[] pos1 = worldToScreen(selectedPlant.getPosition()[0]/terrainData.getGridSpacing(), selectedPlant.getPosition()[1]/terrainData.getGridSpacing());
-                double rad1 = (double) (selectedPlant.getCanopyRadius()*scaleX*getHeight()/yDimension);
-                gc.fillOval((double) pos1[0]-rad1, (double) pos1[1]-rad1, rad1 *2, rad1*2);
-
                 for(int i=0; i<unfilteredPlants.length;i++){
                     gc.setFill(plantData.getColor(i));
                     for (int j=0;j<unfilteredPlants[i].length;j++){
                         if (unfilteredPlants[i][j]==selectedPlant){
                             gc.setFill(Color.BLACK);
-                            int[] pos = worldToScreen(unfilteredPlants[i][j].getPosition()[0]/terrainData.getGridSpacing(), unfilteredPlants[i][j].getPosition()[1]/terrainData.getGridSpacing());
-                            double rad = (double) (unfilteredPlants[i][j].getCanopyRadius()*scaleX*getHeight()/yDimension);
+                            float[] pos = worldToScreen(unfilteredPlants[i][j].getPosition()[0], unfilteredPlants[i][j].getPosition()[1]);
+                            double rad = (double) (unfilteredPlants[i][j].getCanopyRadius()*(sizeX*scaleX));
                             gc.fillOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
                             gc.setFill(plantData.getColor(i));
                         }
                         else{
-                            int[] pos = worldToScreen(unfilteredPlants[i][j].getPosition()[0]/terrainData.getGridSpacing(), unfilteredPlants[i][j].getPosition()[1]/terrainData.getGridSpacing());
-                            double rad = (double) (unfilteredPlants[i][j].getCanopyRadius()*scaleX*getHeight()/yDimension);
+                            float[] pos = worldToScreen(unfilteredPlants[i][j].getPosition()[0], unfilteredPlants[i][j].getPosition()[1]);
+                            double rad = (double) (unfilteredPlants[i][j].getCanopyRadius()*(sizeX*scaleX));
                             gc.fillOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
                         }
                     }
@@ -319,8 +309,8 @@ public class Controller {
                 for(int i=0; i<unfilteredPlants.length;i++){
                     gc.setFill(plantData.getColor(i));
                     for (int j=0;j<unfilteredPlants[i].length;j++){
-                        int[] pos = worldToScreen(unfilteredPlants[i][j].getPosition()[0]/terrainData.getGridSpacing(), unfilteredPlants[i][j].getPosition()[1]/terrainData.getGridSpacing());
-                        double rad = (double) (unfilteredPlants[i][j].getCanopyRadius()*scaleX*getHeight()/yDimension);
+                        float[] pos = worldToScreen(unfilteredPlants[i][j].getPosition()[0]/terrainData.getGridSpacing(), unfilteredPlants[i][j].getPosition()[1]/terrainData.getGridSpacing());
+                        double rad = (double) (unfilteredPlants[i][j].getCanopyRadius()*(sizeX*scaleX));
                         gc.fillOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
                     }
                 }
@@ -335,8 +325,8 @@ public class Controller {
                     if (unfilteredPlants[i][j]==selectedPlant){
                         System.out.println("found.");
                         gc.setFill(Color.BLACK);
-                        int[] pos = worldToScreen(unfilteredPlants[i][j].getPosition()[0]/terrainData.getGridSpacing(), unfilteredPlants[i][j].getPosition()[1]/terrainData.getGridSpacing());
-                        double rad = (double) (unfilteredPlants[i][j].getCanopyRadius()*scaleX*getHeight()/yDimension);
+                        float[] pos = worldToScreen(unfilteredPlants[i][j].getPosition()[0]/terrainData.getGridSpacing(), unfilteredPlants[i][j].getPosition()[1]/terrainData.getGridSpacing());
+                        double rad = (double) (unfilteredPlants[i][j].getCanopyRadius()*(sizeX*scaleX));
                         gc.fillOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
                     }
                 }
@@ -461,11 +451,10 @@ public class Controller {
         return (speciesInfo.length);
     }
     public void getPlant(float x, float y){
-        float[] pos = screenToWorld(256/terrainData.getGridSpacing(),256/terrainData.getGridSpacing());
-        //selectedPlant = plantData.selectPlant(pos[0],pos[1]);
-        selectedPlant = new Plant(0,pos[0],pos[1],0,1,10 );
-        //System.out.println(speciesInfo[selectedPlant.getSpeciesID()].getCommmonName());
-        //System.out.println(speciesInfo[selectedPlant.getSpeciesID()].getLantinName());
+        float[] pos = screenToWorld(x,y);
+        selectedPlant = plantData.selectPlant(pos[0],pos[1]);
+        System.out.println(speciesInfo[selectedPlant.getSpeciesID()].getCommmonName());
+        System.out.println(speciesInfo[selectedPlant.getSpeciesID()].getLantinName());
         System.out.println("clicked position: "+pos[0]+" , "+pos[1]);
         System.out.println("plant position: "+selectedPlant.getPosition()[0]+" , "+selectedPlant.getPosition()[1]);
         //System.out.println(selectedPlant.getCanopyRadius());

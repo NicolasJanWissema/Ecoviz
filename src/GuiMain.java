@@ -131,7 +131,6 @@ public class GuiMain extends Application {
             @Override
             public void handle(MouseEvent event) {
                 if(controller!=null){
-                    System.out.println(event.getX()+", "+event.getY());
                     controller.getPlant((float)event.getX(), (float)event.getY());
                 }
             }
