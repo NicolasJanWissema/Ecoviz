@@ -1,7 +1,8 @@
 public class Plant {
 
     // Global Variables
-    private float[] position;
+    private float xPos, yPos, zPos;
+    private Plant NW, NE, SE, SW;
     private int speciesID;
     private float height;
     private float canopyRadius;
@@ -11,8 +12,10 @@ public class Plant {
     public Plant() {
 
     }
-    public Plant(int speciesID, float[] position,float height, float canopyRadius){
-        this.position=position;
+    public Plant(int speciesID, float xPos, float yPos, float zPos, float height, float canopyRadius){
+        this.xPos = xPos;
+        this.yPos = yPos;
+        this.zPos = zPos;
         this.height = height;
         this.canopyRadius = canopyRadius;
         this.speciesID=speciesID;
@@ -20,7 +23,7 @@ public class Plant {
 
     // Getter & Setters
     public float[] getPosition() {
-        return position;
+        return new float[]{xPos,yPos,zPos};
     }
 
     public int getSpeciesID() {
@@ -42,5 +45,6 @@ public class Plant {
     public void setBurnt(boolean burnt) {
         this.burnt = burnt;
     }
+
 
 }

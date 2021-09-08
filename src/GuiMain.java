@@ -4,6 +4,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.Slider;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -12,12 +13,10 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.stage.Window;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import java.io.File;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import javafx.scene.Cursor;
 
@@ -26,10 +25,13 @@ public class GuiMain extends Application {
     @FXML
     public Menu fileMenu;
     public StackPane canvasPane;
+    public StackPane miniMap;
     public BorderPane borderPane;
     public SplitPane sidePane;
     public AnchorPane bottomPane;
     public MenuBar menuBar;
+    public Slider canopySlider;
+    public Slider undergrowthSlider;
 
     private Controller controller;
 
@@ -74,6 +76,23 @@ public class GuiMain extends Application {
             }
         });
 
+        canopySlider.valueProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                if (controller!=null){
+                    controller.changeCanopyOpacity(newValue.floatValue());
+                }
+            }
+        });
+        undergrowthSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                if (controller!=null){
+                    controller.changeUndergrowthOpacity(newValue.floatValue());
+                }
+            }
+        });
+
 
         canvasPane.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
@@ -90,7 +109,7 @@ public class GuiMain extends Application {
                 controller.panning((float) event.getSceneX(), (float) event.getSceneY());
 
             }
-            
+
         });
 
         canvasPane.setOnScroll(new EventHandler<ScrollEvent>(){
@@ -99,7 +118,7 @@ public class GuiMain extends Application {
                 //System.out.println("Scroll Event Y: " + event.getDeltaY());
                 controller.zooming(event);
             }
-            
+
         });
     }
 
@@ -123,9 +142,11 @@ public class GuiMain extends Application {
             System.out.println("null");
         }
         else {
+            controller = null;
             controller = new Controller(selectedFile);
             canvasPane.getChildren().clear();
             controller.addCanvases(canvasPane);
+            controller.generateMinimap(miniMap);
 
             double newY = borderPane.getHeight()-bottomPane.getHeight()-menuBar.getHeight();
             double newX = borderPane.getWidth()-sidePane.getWidth();
