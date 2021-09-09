@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
@@ -11,6 +11,7 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
@@ -28,6 +29,7 @@
           <Menu mnemonicParsing="false" text="Edit">
             <items>
               <MenuItem mnemonicParsing="false" text="Delete" />
+                  <MenuItem mnemonicParsing="false" onAction="#openFilter" text="Filter" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Help">
@@ -41,35 +43,44 @@
    <bottom>
       <AnchorPane fx:id="bottomPane" prefHeight="20.0" scaleShape="false" BorderPane.alignment="CENTER_LEFT">
          <children>
-            <Label text="0, 0" />
+            <Label fx:id="positionLabel" text="0, 0" />
          </children>
       </AnchorPane>
    </bottom>
    <right>
-      <SplitPane fx:id="sidePane" dividerPositions="0.5" maxHeight="-Infinity" maxWidth="-Infinity" orientation="VERTICAL" scaleShape="false" BorderPane.alignment="CENTER_RIGHT">
-         <items>
-            <Canvas height="200.0" width="200.0" />
-            <ScrollPane prefHeight="512.0" prefWidth="215.0" vbarPolicy="ALWAYS">
-               <content>
-                  <VBox alignment="TOP_CENTER" prefWidth="200.0">
-                     <children>
-                        <Separator prefWidth="200.0" />
-                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Canopy opacity" />
-                        <Slider max="1.0" value="1.0" />
-                        <Separator prefWidth="200.0" />
-                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Undergrowth opacity" />
-                        <Slider max="1.0" prefWidth="1.0" value="1.0" />
-                        <Separator prefWidth="200.0" />
-                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Placeholder slider" />
-                        <Slider max="1.0" prefHeight="14.0" prefWidth="104.0" value="1.0" />
-                        <Separator prefWidth="200.0" />
-                        <VBox prefHeight="200.0" prefWidth="100.0" />
-                     </children>
-                  </VBox>
-               </content>
-            </ScrollPane>
-         </items>
-      </SplitPane>
+      <HBox BorderPane.alignment="CENTER_RIGHT">
+         <children>
+            <Separator orientation="VERTICAL" prefHeight="200.0">
+               <cursor>
+                  <Cursor fx:constant="E_RESIZE" />
+               </cursor>
+            </Separator>
+            <SplitPane fx:id="rightPane" dividerPositions="0.5" maxHeight="-Infinity" maxWidth="-Infinity" orientation="VERTICAL" scaleShape="false">
+               <items>
+                  <StackPane fx:id="miniMap" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0" />
+                  <ScrollPane prefHeight="512.0" prefWidth="215.0" vbarPolicy="ALWAYS">
+                     <content>
+                        <VBox alignment="TOP_CENTER" prefWidth="200.0">
+                           <children>
+                              <Separator prefWidth="200.0" />
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Canopy opacity" />
+                              <Slider fx:id="canopySlider" max="1.0" value="1.0" />
+                              <Separator prefWidth="200.0" />
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Undergrowth opacity" />
+                              <Slider fx:id="undergrowthSlider" max="1.0" prefWidth="1.0" value="1.0" />
+                              <Separator prefWidth="200.0" />
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Placeholder slider" />
+                              <Slider max="1.0" prefHeight="14.0" prefWidth="104.0" value="1.0" />
+                              <Separator prefWidth="200.0" />
+                              <VBox fx:id="infoBox" prefHeight="200.0" prefWidth="100.0" />
+                           </children>
+                        </VBox>
+                     </content>
+                  </ScrollPane>
+               </items>
+            </SplitPane>
+         </children>
+      </HBox>
    </right>
    <center>
       <StackPane fx:id="canvasPane" centerShape="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" BorderPane.alignment="CENTER" />

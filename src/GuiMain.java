@@ -1,35 +1,47 @@
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.Slider;
 import javafx.scene.control.SplitPane;
+import javafx.scene.input.KeyCharacterCombination;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.stage.Window;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+
+import java.awt.*;
 import java.io.File;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import javafx.scene.Cursor;
 
 
 public class GuiMain extends Application {
     @FXML
-    public Menu fileMenu;
+    //public Menu fileMenu;
     public StackPane canvasPane;
+    public StackPane miniMap;
+
     public BorderPane borderPane;
-    public SplitPane sidePane;
-    public AnchorPane bottomPane;
     public MenuBar menuBar;
+    public SplitPane rightPane;
+    public AnchorPane bottomPane;
+    public VBox infoBox;
+    public Label positionLabel;
+
+    public Slider canopySlider;
+    public Slider undergrowthSlider;
 
     private Controller controller;
 
@@ -45,7 +57,7 @@ public class GuiMain extends Application {
                 borderPane.setPrefWidth((double)newValue);
 
                 if (controller!=null){
-                    double newX = (double)newValue-sidePane.getWidth();
+                    double newX = (double)newValue-rightPane.getWidth();
                     double newY = borderPane.getHeight()-bottomPane.getHeight()-menuBar.getHeight();
                     float yDimension = controller.getyDimension();
                     float xDimension = controller.getxDimension();
@@ -63,7 +75,7 @@ public class GuiMain extends Application {
 
                 if (controller!=null){
                     double newY = (double)newValue-bottomPane.getHeight()-menuBar.getHeight();
-                    double newX = borderPane.getWidth()-sidePane.getWidth();
+                    double newX = borderPane.getWidth()-rightPane.getWidth();
                     float yDimension = controller.getyDimension();
                     float xDimension = controller.getxDimension();
                     if ((newY/yDimension) < (newX/xDimension) ){
@@ -74,23 +86,63 @@ public class GuiMain extends Application {
             }
         });
 
+        canopySlider.valueProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                if (controller!=null){
+                    controller.changeCanopyOpacity(newValue.floatValue());
+                }
+            }
+        });
+        undergrowthSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                if (controller!=null){
+                    controller.changeUndergrowthOpacity(newValue.floatValue());
+                }
+            }
+        });
+
 
         canvasPane.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
                 //System.out.println("MOUSE PRESSED");
                 canvasPane.setCursor(Cursor.CLOSED_HAND);
-                controller.setPan((float) event.getSceneX(), (float) event.getSceneY());
+                controller.setPan((float) event.getX(), (float) event.getY());
             }
         });
 
         canvasPane.setOnMouseDragged(new EventHandler<MouseEvent>(){
             @Override
             public void handle(MouseEvent event) {
-                controller.panning((float) event.getSceneX(), (float) event.getSceneY());
+                controller.panning((float) event.getX(), (float) event.getY());
 
             }
-            
+
+        });
+        canvasPane.setOnMouseReleased(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                canvasPane.setCursor(Cursor.OPEN_HAND);
+            }
+        });
+        canvasPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if(controller!=null){
+                    controller.getPlant((float)event.getX(), (float)event.getY());
+                }
+            }
+        });
+        canvasPane.setOnMouseMoved(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if(controller!=null){
+                    float[] pos = controller.screenToWorld((float)event.getX(),(float)event.getY());
+                    positionLabel.setText(pos[0]+" , "+pos[1]);
+                }
+            }
         });
 
         canvasPane.setOnScroll(new EventHandler<ScrollEvent>(){
@@ -99,7 +151,7 @@ public class GuiMain extends Application {
                 //System.out.println("Scroll Event Y: " + event.getDeltaY());
                 controller.zooming(event);
             }
-            
+
         });
     }
 
@@ -123,12 +175,13 @@ public class GuiMain extends Application {
             System.out.println("null");
         }
         else {
+            closeFile();
             controller = new Controller(selectedFile);
-            canvasPane.getChildren().clear();
             controller.addCanvases(canvasPane);
+            controller.generateMinimap(miniMap);
 
             double newY = borderPane.getHeight()-bottomPane.getHeight()-menuBar.getHeight();
-            double newX = borderPane.getWidth()-sidePane.getWidth();
+            double newX = borderPane.getWidth()-rightPane.getWidth();
             float yDimension = controller.getyDimension();
             float xDimension = controller.getxDimension();
             if ((newY/yDimension) < (newX/xDimension) ){
@@ -143,13 +196,23 @@ public class GuiMain extends Application {
                 canvasPane.setPrefWidth(newX);
                 canvasPane.setPrefHeight(newY);
             }
-
         }
     }
 
     public void closeFile(){
-        canvasPane.getChildren().clear();
         controller=null;
+        canvasPane.getChildren().clear();
+        infoBox.getChildren().clear();
+        miniMap.getChildren().clear();
+    }
+
+    public void openFilter(){
+        infoBox.getChildren().clear();
+        if (controller!=null){
+            for(int i=0; i<controller.getNumSpecies();i++){
+                controller.addFilter(i,infoBox);
+            }
+        }
     }
 
 }

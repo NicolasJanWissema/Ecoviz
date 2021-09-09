@@ -1,202 +1,137 @@
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 
-import java.awt.*;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Plants {
 
     // private variables
-    private Plant[][] undergrowth;
-    private Plant[][] canopy;
-    private Plant[][] unfilteredCanopy;
-    private Plant[][] unfilteredUndergrowth;
-    private PlantCanvas canopyCanvas;
-    private PlantCanvas undergrowthCanvas;
+    private Plant[][] tempUndergrowth;
+    private Plant[][] tempCanopy;
+    private Plant[] undergrowth;
+    private Plant[] canopy;
     private Color[] plantColors;
-    private int dimx,dimy;
-    private float xDimension, yDimension;
-
-    class PlantCanvas extends Canvas {
-        private Plant[][] unfilteredPlants;
-
-        public PlantCanvas(Plant[][] unfilteredPlants){
-            this.unfilteredPlants=unfilteredPlants;
-
-            // Redraw canvas when size changes.
-            widthProperty().addListener(evt -> drawCanvas());
-            heightProperty().addListener(evt -> drawCanvas());
-        }
-        public void drawCanvas() {
-            GraphicsContext gc = getGraphicsContext2D();
-            gc.clearRect(0, 0, getWidth(), getHeight());
-
-            if (unfilteredPlants==null){
-                unfilteredPlants=canopy.clone();
-                //filterUndergrowth();
-            }
-            for(int i=0; i<unfilteredPlants.length;i++){
-                gc.setFill(plantColors[i]);
-                for (int j=0;j<unfilteredPlants[i].length;j++){
-                    float x = (float) (unfilteredPlants[i][j].getPosition()[0]*getWidth()/xDimension);
-                    float y = (float)(unfilteredPlants[i][j].getPosition()[1]*getHeight()/yDimension);
-
-                    double rad = (double) (unfilteredPlants[i][j].getCanopyRadius()*getWidth()/xDimension);
-                    gc.fillOval((double) x-rad, (double) y-rad, (double)rad*2, rad*2);
-                }
-            }
-            //long endTime = System.nanoTime();
-            //System.out.println("TIME TO DRAW CIRCLE: " + ((endTime-startTime)/1000000));
-        }
-
-        @Override
-        public boolean isResizable() {
-            return true;
-        }
-
-        @Override
-        public double prefWidth(double height) {
-            return getWidth();
-        }
-
-        @Override
-        public double prefHeight(double width) {
-            return getHeight();
-        }
-    }
+    private boolean completeGeneration;
 
     //Constructors
     Plants(int numSpecies){
-        undergrowth = new Plant[numSpecies][0];
-        canopy = new Plant[numSpecies][0];
+        completeGeneration=false;
+        tempUndergrowth = new Plant[numSpecies][0];
+        tempCanopy = new Plant[numSpecies][0];
         generateColors(numSpecies);
-    }
-    Plants(){}
-
-    public void addPlantCanvas(StackPane stackPane, float xDimension, float yDimension){
-        this.xDimension = xDimension;
-        this.yDimension = yDimension;
-        canopyCanvas = new PlantCanvas(unfilteredCanopy);
-        undergrowthCanvas = new PlantCanvas(unfilteredUndergrowth);
-        canopyCanvas.widthProperty().bind(stackPane.widthProperty());
-        canopyCanvas.heightProperty().bind(stackPane.heightProperty());
-        undergrowthCanvas.widthProperty().bind(stackPane.widthProperty());
-        undergrowthCanvas.heightProperty().bind(stackPane.heightProperty());
-
-        stackPane.getChildren().addAll(undergrowthCanvas,canopyCanvas);
     }
 
     //Data generating methods
     public void addSpeciesNumToCanopy(int speciesID,int speciesNum){
-        canopy[speciesID]=new Plant[speciesNum];
-    }
-    public void addSpeciesNumToUndergrowth(int speciesID,int speciesNum){
-        undergrowth[speciesID]=new Plant[speciesNum];
+        tempCanopy[speciesID]=new Plant[speciesNum];
     }
     public void addPlantToCanopy(int speciesPos, Plant newPlant){
-        canopy[newPlant.getSpeciesID()][speciesPos]=newPlant;
+        tempCanopy[newPlant.getSpeciesID()][speciesPos]=newPlant;
+    }
+
+    public void addSpeciesNumToUndergrowth(int speciesID,int speciesNum){
+        tempUndergrowth[speciesID]=new Plant[speciesNum];
     }
     public void addPlantToUndergrowth(int speciesPos, Plant newPlant){
-        undergrowth[newPlant.getSpeciesID()][speciesPos]=newPlant;
+        tempUndergrowth[newPlant.getSpeciesID()][speciesPos]=newPlant;
     }
 
+    public void completeGeneration(){
+        long startTime = System.nanoTime();
+        int arrayLength=0;
+        int count=0;
+        for (Plant[] plants : tempUndergrowth) {
+            arrayLength+=plants.length;
+        }
+        System.out.println("number of undergrowth plants: "+arrayLength);
+        undergrowth=new Plant[arrayLength];
+        for (Plant[] plants : tempUndergrowth){
+            for (Plant plant : plants){
+                undergrowth[count]=plant;
+                count++;
+            }
+        }
+        Arrays.sort(undergrowth);
 
-    //Filter specific canopy plant. Not currently implemented or useful.
-    public void filterCanopyPlant(float[] position){
-        for(int i=0; i<unfilteredCanopy.length;i++){
-            for (int j=0;j<unfilteredCanopy[i].length;j++){
-                if (unfilteredCanopy[i][j].getPosition()==position){
-                    unfilteredCanopy[i][j]=null;
-                }
+        arrayLength=0;
+        count=0;
+        for (Plant[] plants : tempCanopy) {
+            arrayLength+=plants.length;
+        }
+        System.out.println("number of canopy plants: "+arrayLength);
+        canopy=new Plant[arrayLength];
+        for (Plant[] plants : tempCanopy){
+            for (Plant plant : plants){
+                canopy[count]=plant;
+                count++;
             }
         }
+        Arrays.sort(canopy);
+        tempCanopy=null;
+        tempUndergrowth=null;
+        completeGeneration=true;
+
+        long endTime = System.nanoTime();
+        System.out.println("TIME TO SORT: " + ((endTime-startTime)/1000000));
     }
-    //Filter specific undergrowth plant. Not currently implemented or useful.
-    public void filterUndergrowthPlant(float[] position){
-        for(int i=0; i<unfilteredUndergrowth.length;i++){
-            for (int j=0;j<unfilteredUndergrowth[i].length;j++){
-                if (unfilteredUndergrowth[i][j].getPosition()==position){
-                    unfilteredUndergrowth[i][j]=null;
+
+    public Plant selectPlant(float posX, float posY){
+        if (!completeGeneration){completeGeneration();}
+        Plant selectedPlant = getEnabledPlant();
+        if (selectedPlant!=null){
+            for (Plant plant : undergrowth){
+                if (plant.distanceFromPlant(posX,posY)<selectedPlant.distanceFromPlant(posX,posY) && plant.enabled()){
+                    selectedPlant=plant;
                 }
             }
+            for (Plant plant : canopy){
+                if (plant.distanceFromPlant(posX,posY)<selectedPlant.distanceFromPlant(posX,posY) && plant.enabled()){
+                    selectedPlant=plant;
+                }
+            }
+            return (selectedPlant);
         }
+        return (null);
+    }
+    private Plant getEnabledPlant(){
+        for (Plant plant : undergrowth){
+            if (plant.enabled()){
+                return (plant);
+            }
+        }
+        for (Plant plant : canopy){
+            if (plant.enabled()){
+                return (plant);
+            }
+        }
+        return (null);
     }
 
     //filter specific species from images.
     public void filterSpecies(int speciesID){
-        float[] temp = {dimx,dimy};
-        Plant[] emptyArray = { new Plant(0, temp ,0, 0)};
-        unfilteredUndergrowth[speciesID]= emptyArray;
-        unfilteredCanopy[speciesID]=emptyArray;
+        if (!completeGeneration){completeGeneration();}
+        for (Plant plant : undergrowth){
+            if(plant.getSpeciesID()==speciesID){
+                plant.disableSpecies();
+            }
+        }
+        for (Plant plant : canopy){
+            if(plant.getSpeciesID()==speciesID){
+                plant.disableSpecies();
+            }
+        }
     }
-    //unfilter specific species from images.
+    //unfiltered specific species from images.
     public void unFilterSpecies(int speciesID){
-        unfilteredUndergrowth[speciesID]=undergrowth[speciesID];
-        unfilteredCanopy[speciesID]=canopy[speciesID];
-    }
-
-    public void getCanopyImageCanvas(int dimx, int dimy, float gridSpacing, Canvas canvas) {
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        this.dimx = dimx;
-        this.dimy = dimy;
-        if (unfilteredCanopy==null){
-            unfilteredCanopy=canopy.clone();
-            //filterUndergrowth();
-        }
-        //long startTime = System.nanoTime();
-        for(int i=0; i<unfilteredCanopy.length;i++){
-            for (int j=0;j<unfilteredCanopy[i].length;j++){
-                int x = (int)(unfilteredCanopy[i][j].getPosition()[0]/gridSpacing);
-                int y = (int)(unfilteredCanopy[i][j].getPosition()[1]/gridSpacing);
-                if (x<dimx && y<dimy){
-                    gc.setFill(plantColors[i]);
-                    double rad = (double) (unfilteredCanopy[i][j].getCanopyRadius()/gridSpacing);
-                    gc.fillOval((double) x-rad, (double) y-rad, (double)rad*2, rad*2);
-                }
+        if (!completeGeneration){completeGeneration();}
+        for (Plant plant : undergrowth){
+            if(plant.getSpeciesID()==speciesID){
+                plant.enableSpecies();
             }
         }
-        //long endTime = System.nanoTime();
-        //System.out.println("TIME TO DRAW CIRCLE: " + ((endTime-startTime)/1000000));
-    }
-
-
-    public void getUndergrowthImageCanvas(int dimx, int dimy, float gridSpacing, Canvas canvas) {
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        if (unfilteredUndergrowth==null){
-            unfilteredUndergrowth=undergrowth.clone();
-            //filterUndergrowth();
-        }
-        //long startTime = System.nanoTime();
-        for(int i=0; i<unfilteredUndergrowth.length;i++){
-            for (int j=0;j<unfilteredUndergrowth[i].length;j++){
-                int x = (int)(unfilteredUndergrowth[i][j].getPosition()[0]/gridSpacing);
-                int y = (int)(unfilteredUndergrowth[i][j].getPosition()[1]/gridSpacing);
-                if (x<dimx && y<dimy){
-                    gc.setFill(plantColors[i]);
-                    double rad = (double) (unfilteredUndergrowth[i][j].getCanopyRadius()/gridSpacing);
-                    gc.fillOval((double) x-rad, (double) y-rad, (double)rad*2, rad*2);
-                }
+        for (Plant plant : canopy){
+            if(plant.getSpeciesID()==speciesID){
+                plant.enableSpecies();
             }
-        }
-    }
-
-    public void generateUnfiltered() {
-        if (unfilteredCanopy==null){
-            unfilteredCanopy=canopy.clone();
-            //filterUndergrowth();
-        }
-        if (unfilteredUndergrowth==null){
-            unfilteredUndergrowth=undergrowth.clone();
-            //filterUndergrowth();
         }
     }
 
@@ -207,7 +142,7 @@ public class Plants {
         Random random = new Random();
         double[] gaussian = new double[numSpecies*gaussMultiple];
         for (int i=0; i<gaussian.length;i++){
-            double check = random.nextGaussian();
+            double check = random.nextGaussian()/2;
             if (Math.abs(check)>1){
                 i--;
             }
@@ -226,39 +161,21 @@ public class Plants {
         colorList.toArray(plantColors);
     }
 
-    public Plant[][] getUnfilteredUndergrowth() {
-        return unfilteredUndergrowth;
+    public Plant[] getUndergrowth(){
+        if (!completeGeneration){completeGeneration();}
+        return (undergrowth);
     }
 
-    public Plant[][] getUnfilteredCanopy() {
-        return unfilteredCanopy;
-    }
-
-    public Plant getUnfilteredUndergrowth(int x, int y) {
-        return unfilteredUndergrowth[x][y];
-    }
-
-    public Plant getUnfilteredCanopy(int x, int y) {
-        return unfilteredCanopy[x][y];
-    }
-
-    public int getUndergrowthLength() {
-        return unfilteredUndergrowth.length;
-    }
-
-    public int getCanopyLength() {
-        return unfilteredCanopy.length;
-    }
-
-    public int getUndergrowthLength(int i) {
-        return unfilteredUndergrowth[i].length;
-    }
-
-    public int getCanopyLength(int i) {
-        return unfilteredCanopy[i].length;
+    public Plant[] getCanopy() {
+        if (!completeGeneration){completeGeneration();}
+        return (canopy);
     }
 
     public Color getColor(int i) {
         return plantColors[i];
+    }
+
+    public void setColor(int speciesID, Color newColor){
+        plantColors[speciesID]=newColor;
     }
 }
