@@ -162,8 +162,10 @@ public class Controller {
                     plantData.addPlantToUndergrowth(j, new Plant(speciesID, plantInfo[0], plantInfo[1], plantInfo[2], plantInfo[3], plantInfo[4]));
                 }
             }
-
+            //finished reading files
             bufferedReader.close();
+            //generate sorted arrays of data.
+            plantData.completeGeneration();
         }
         catch (IOException e){
             System.out.println("Unable to open input file");
@@ -272,10 +274,10 @@ public class Controller {
     }
 
     class PlantCanvas extends Canvas {
-        private final Plant[][] unfilteredPlants;
+        private final Plant[] plants;
 
-        public PlantCanvas(Plant[][] unfilteredPlants){
-            this.unfilteredPlants=unfilteredPlants;
+        public PlantCanvas(Plant[] plants){
+            this.plants=plants;
 
             // Redraw canvas when size changes.
             widthProperty().addListener(evt -> drawCanvas());
@@ -285,52 +287,32 @@ public class Controller {
             GraphicsContext gc = getGraphicsContext2D();
             gc.clearRect(0, 0, getWidth(), getHeight());
 
-            plantData.generateUnfiltered();
-            if (selectedPlant!=null){
-                for(int i=0; i<unfilteredPlants.length;i++){
-                    gc.setFill(plantData.getColor(i));
-                    for (int j=0;j<unfilteredPlants[i].length;j++){
-                        if (unfilteredPlants[i][j]==selectedPlant){
-                            gc.setFill(Color.BLACK);
-                            float[] pos = worldToScreen(unfilteredPlants[i][j].getPosition()[0], unfilteredPlants[i][j].getPosition()[1]);
-                            double rad = (double) (unfilteredPlants[i][j].getCanopyRadius()*(sizeX*scaleX));
-                            gc.fillOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
-                            gc.setFill(plantData.getColor(i));
-                        }
-                        else{
-                            float[] pos = worldToScreen(unfilteredPlants[i][j].getPosition()[0], unfilteredPlants[i][j].getPosition()[1]);
-                            double rad = (double) (unfilteredPlants[i][j].getCanopyRadius()*(sizeX*scaleX));
-                            gc.fillOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
-                        }
+            if (selectedPlant!=null && selectedPlant.enabled()){
+                for (Plant plant : plants){
+                    if (plant.enabled() && plant!=selectedPlant){
+                        gc.setFill(plantData.getColor(plant.getSpeciesID()));
+                        float[] pos = worldToScreen(plant.getPosition()[0], plant.getPosition()[1]);
+                        double rad = (double) (plant.getCanopyRadius()*(sizeX*scaleX));
+                        gc.fillOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
                     }
                 }
+                gc.setFill(Color.BLACK);
+                float[] pos = worldToScreen(selectedPlant.getPosition()[0], selectedPlant.getPosition()[1]);
+                double rad = (double) (selectedPlant.getCanopyRadius()*(sizeX*scaleX));
+                gc.fillOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
             }
             else{
-                for(int i=0; i<unfilteredPlants.length;i++){
-                    gc.setFill(plantData.getColor(i));
-                    for (int j=0;j<unfilteredPlants[i].length;j++){
-                        float[] pos = worldToScreen(unfilteredPlants[i][j].getPosition()[0]/terrainData.getGridSpacing(), unfilteredPlants[i][j].getPosition()[1]/terrainData.getGridSpacing());
-                        double rad = (double) (unfilteredPlants[i][j].getCanopyRadius()*(sizeX*scaleX));
+                for (Plant plant : plants){
+                    if (plant.enabled()){
+                        gc.setFill(plantData.getColor(plant.getSpeciesID()));
+                        float[] pos = worldToScreen(plant.getPosition()[0], plant.getPosition()[1]);
+                        double rad = (double) (plant.getCanopyRadius()*(sizeX*scaleX));
                         gc.fillOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
                     }
                 }
             }
             //long endTime = System.nanoTime();
             //System.out.println("TIME TO DRAW CIRCLE: " + ((endTime-startTime)/1000000));
-        }
-        public void highLight(){
-            GraphicsContext gc = getGraphicsContext2D();
-            for(int i=0; i<unfilteredPlants.length;i++){
-                for (int j=0;j<unfilteredPlants[i].length;j++){
-                    if (unfilteredPlants[i][j]==selectedPlant){
-                        System.out.println("found.");
-                        gc.setFill(Color.BLACK);
-                        float[] pos = worldToScreen(unfilteredPlants[i][j].getPosition()[0]/terrainData.getGridSpacing(), unfilteredPlants[i][j].getPosition()[1]/terrainData.getGridSpacing());
-                        double rad = (double) (unfilteredPlants[i][j].getCanopyRadius()*(sizeX*scaleX));
-                        gc.fillOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
-                    }
-                }
-            }
         }
 
         @Override
@@ -357,9 +339,8 @@ public class Controller {
     }
 
     public void addPlantCanvas(StackPane stackPane){
-        plantData.generateUnfiltered();
-        canopyCanvas = new PlantCanvas(plantData.getUnfilteredCanopy());
-        undergrowthCanvas = new PlantCanvas(plantData.getUnfilteredUndergrowth());
+        canopyCanvas = new PlantCanvas(plantData.getCanopy());
+        undergrowthCanvas = new PlantCanvas(plantData.getUndergrowth());
         canopyCanvas.widthProperty().bind(stackPane.widthProperty());
         canopyCanvas.heightProperty().bind(stackPane.heightProperty());
         undergrowthCanvas.widthProperty().bind(stackPane.widthProperty());
@@ -387,27 +368,23 @@ public class Controller {
         }
 
         //Undergrowth Drawing..
-        plantData.generateUnfiltered();
-        for(int i=0; i<plantData.getUnfilteredUndergrowth().length;i++){
-            gc.setFill(plantData.getColor(i));
-            for (int j=0;j<plantData.getUnfilteredUndergrowth()[i].length;j++){
-                float x = (float) (plantData.getUnfilteredUndergrowth()[i][j].getPosition()[0]*minimapCanvas.getWidth()/xDimension);
-                float y = (float)(plantData.getUnfilteredUndergrowth()[i][j].getPosition()[1]*minimapCanvas.getHeight()/yDimension);
-                double rad = (double) (plantData.getUnfilteredUndergrowth()[i][j].getCanopyRadius()*minimapCanvas.getWidth()/xDimension);
-                gc.fillOval((double) x-rad, (double) y-rad, rad *2, rad*2);
-            }
+        for (Plant plant: plantData.getUndergrowth()){
+            gc.setFill(plantData.getColor(plant.getSpeciesID()));
+            float x = (float) (plant.getPosition()[0]*minimapCanvas.getWidth()/xDimension);
+            float y = (float)(plant.getPosition()[1]*minimapCanvas.getHeight()/yDimension);
+            double rad = (double) (plant.getCanopyRadius()*minimapCanvas.getWidth()/xDimension);
+            gc.fillOval((double) x-rad, (double) y-rad, rad *2, rad*2);
         }
         //Canopy Drawing..
-        plantData.generateUnfiltered();
-        for(int i=0; i<plantData.getUnfilteredCanopy().length;i++){
-            gc.setFill(plantData.getColor(i));
-            for (int j=0;j<plantData.getUnfilteredCanopy()[i].length;j++){
-                float x = (float) (plantData.getUnfilteredCanopy()[i][j].getPosition()[0]*minimapCanvas.getWidth()/xDimension);
-                float y = (float)(plantData.getUnfilteredCanopy()[i][j].getPosition()[1]*minimapCanvas.getHeight()/yDimension);
-                double rad = (double) (plantData.getUnfilteredCanopy()[i][j].getCanopyRadius()*minimapCanvas.getWidth()/xDimension);
-                gc.fillOval((double) x-rad, (double) y-rad, rad *2, rad*2);
-            }
+        for (Plant plant: plantData.getCanopy()){
+            gc.setFill(plantData.getColor(plant.getSpeciesID()));
+            float x = (float) (plant.getPosition()[0]*minimapCanvas.getWidth()/xDimension);
+            float y = (float)(plant.getPosition()[1]*minimapCanvas.getHeight()/yDimension);
+            double rad = (double) (plant.getCanopyRadius()*minimapCanvas.getWidth()/xDimension);
+            gc.fillOval((double) x-rad, (double) y-rad, rad *2, rad*2);
         }
+
+
 
 
         miniPane.getChildren().add(minimapCanvas);
@@ -453,11 +430,10 @@ public class Controller {
     public void getPlant(float x, float y){
         float[] pos = screenToWorld(x,y);
         selectedPlant = plantData.selectPlant(pos[0],pos[1]);
-        System.out.println(speciesInfo[selectedPlant.getSpeciesID()].getCommmonName());
-        System.out.println(speciesInfo[selectedPlant.getSpeciesID()].getLantinName());
-        System.out.println("clicked position: "+pos[0]+" , "+pos[1]);
-        System.out.println("plant position: "+selectedPlant.getPosition()[0]+" , "+selectedPlant.getPosition()[1]);
-        //System.out.println(selectedPlant.getCanopyRadius());
+        if (selectedPlant!=null){
+            System.out.println(speciesInfo[selectedPlant.getSpeciesID()].getCommmonName());
+            System.out.println(speciesInfo[selectedPlant.getSpeciesID()].getLantinName());
+        }
         canopyCanvas.drawCanvas();
         undergrowthCanvas.drawCanvas();
     }

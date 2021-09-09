@@ -1,4 +1,4 @@
-public class Plant {
+public class Plant implements Comparable<Plant> {
 
     // Global Variables
     private float xPos, yPos, zPos;
@@ -7,6 +7,7 @@ public class Plant {
     private float height;
     private float canopyRadius;
     private boolean burnt;
+    private boolean speciesEnabled, plantEnabled;
 
     // Constructors
     public Plant() {
@@ -19,9 +20,31 @@ public class Plant {
         this.height = height;
         this.canopyRadius = canopyRadius;
         this.speciesID=speciesID;
+        speciesEnabled=true;
+        plantEnabled=true;
     }
-    public float distanceFrom(float x,float y){
+    public float distanceFromPlant(float x,float y){
         return (float)(Math.sqrt(Math.pow(xPos-x,2)+Math.pow(yPos-y,2)));
+    }
+    public boolean containedIn(float xOffset, float yOffset, float width, float height){
+        if (enabled()){
+            return (xOffset < xPos && xPos - xOffset < width && yOffset < yPos && yPos - yOffset < height);
+        }
+        return (false);
+    }
+    @Override public int compareTo(Plant otherPlant){
+        if (this.height > otherPlant.getHeight()) {
+            // if current object is greater,then return 1
+            return 1;
+        }
+        else if (this.height < otherPlant.getHeight()) {
+            // if current object is greater,then return -1
+            return -1;
+        }
+        else {
+            // if current object is equal to o,then return 0
+            return 0;
+        }
     }
 
     // Getter & Setters
@@ -47,6 +70,22 @@ public class Plant {
 
     public void setBurnt(boolean burnt) {
         this.burnt = burnt;
+    }
+
+    public void disablePlant(){
+        plantEnabled=false;
+    }
+    public void enablePlant(){
+        plantEnabled=true;
+    }
+    public void disableSpecies(){
+        speciesEnabled=false;
+    }
+    public void enableSpecies(){
+        speciesEnabled=true;
+    }
+    public boolean enabled(){
+        return (speciesEnabled && plantEnabled);
     }
 
 

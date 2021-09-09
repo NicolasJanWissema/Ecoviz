@@ -138,8 +138,10 @@ public class GuiMain extends Application {
         canvasPane.setOnMouseMoved(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                float pos[] = controller.screenToWorld((float)event.getX(),(float)event.getY());
-                positionLabel.setText(pos[0]+" , "+pos[1]);
+                if(controller!=null){
+                    float pos[] = controller.screenToWorld((float)event.getX(),(float)event.getY());
+                    positionLabel.setText(pos[0]+" , "+pos[1]);
+                }
             }
         });
 
