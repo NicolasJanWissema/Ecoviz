@@ -35,6 +35,8 @@ public class Controller {
     // Panning and Zooming Variables
     float fOffsetX = 0.0f;
     float fOffsetY = 0.0f;
+    float maxOffsetX = 0.0f;
+    float maxOffsetY = 0.0f;
     float fStartPanX = 0;
     float fStartPanY = 0;
     float scaleX = 1.0f;
@@ -60,9 +62,23 @@ public class Controller {
 
     public void panning(float mouseX, float mouseY) {
         updateSize();
-        fOffsetX += (mouseX - fStartPanX)/(scaleX*sizeX);
-        fOffsetY += (mouseY - fStartPanY)/(scaleY*sizeY);
-        //System.out.println(fOffsetX + " - " + fOffsetY);
+        float[] dimensions = screenToWorld((float)terrainCanvas.getWidth(), (float)terrainCanvas.getHeight());
+        //X offset calculation.
+        if (fOffsetX-(fStartPanX - mouseX)/(scaleX*sizeX)>=0){
+            fOffsetX+=0;
+        }
+        else if(dimensions[0]+(fStartPanX - mouseX)/(scaleX*sizeX) <= xDimension){
+            fOffsetX-=(fStartPanX - mouseX)/(scaleX*sizeX);
+        }
+
+        //Y offset calculation.
+        if (fOffsetY - (fStartPanY - mouseY)/(scaleY*sizeY)>=0){
+            fOffsetY=0;
+        }
+        else if(dimensions[1]+(fStartPanY - mouseY)/(scaleY*sizeY) <= yDimension){
+            fOffsetY-=(fStartPanY - mouseY)/(scaleY*sizeY);
+        }
+
         fStartPanX = mouseX;
         fStartPanY = mouseY;
         terrainCanvas.drawCanvas();
@@ -77,15 +93,41 @@ public class Controller {
         if (event.getDeltaY()>0) {
             scaleX *= 1.1f;
             scaleY *= 1.1f;
-        } else if (scaleX>=1){
+        } else if (scaleX*0.9f>1 && scaleY*0.9f>1){
             scaleX *= 0.9f;
             scaleY *= 0.9f;
+        }
+        else{
+            scaleX=1.0f;
+            scaleY=1.0f;
         }
         float mouseX1 = (float) event.getX();
         float mouseY1 = (float) event.getY();
         float[] afterZoom = screenToWorld((int) mouseX1, (int) mouseY1);
-        fOffsetX -= (beforeZoom[0] - afterZoom[0]);
-        fOffsetY -= (beforeZoom[1] - afterZoom[1]);
+        //fOffsetX += (afterZoom[0] - beforeZoom[0]);
+        float[] dimensions = screenToWorld((float)terrainCanvas.getWidth(), (float)terrainCanvas.getHeight());
+        float[] offsets = screenToWorld(0,0);
+        System.out.println(offsets[0]);
+        System.out.println(offsets[1]);
+        if (fOffsetX+(afterZoom[0] - beforeZoom[0])>=0){
+            fOffsetX=0;
+        }
+        else if(dimensions[0]+(afterZoom[0] - beforeZoom[0]) <= xDimension){
+            fOffsetX+=(afterZoom[0] - beforeZoom[0]);
+        }
+        else{
+            fOffsetX = dimensions[0]-xDimension-offsets[0];
+        }
+        if (fOffsetY+(afterZoom[1] - beforeZoom[1])>=0){
+            fOffsetY=0;
+        }
+        else if(dimensions[1]+(afterZoom[1] - beforeZoom[1]) <= yDimension){
+            fOffsetY+=(afterZoom[1] - beforeZoom[1]);
+        }
+        else {
+            fOffsetY = dimensions[1]-yDimension-offsets[1];
+        }
+        //fOffsetY += (afterZoom[1] - beforeZoom[1]);
         terrainCanvas.drawCanvas();
         undergrowthCanvas.drawCanvas();
         canopyCanvas.drawCanvas();
@@ -300,17 +342,18 @@ public class Controller {
         public synchronized void drawCanvas() {
             GraphicsContext gc = getGraphicsContext2D();
             gc.clearRect(0, 0, getWidth(), getHeight());
+            float width = screenToWorld((float)getWidth(), (float)getHeight())[0]-fOffsetX;
+            float height = screenToWorld((float)getWidth(), (float)getHeight())[1]-fOffsetY;
 
             if (selectedPlant!=null && selectedPlant.enabled()){
                 for (Plant plant : plants){
-                    if (plant.enabled() && plant!=selectedPlant){
-                        Color color= plantData.getColor(plant.getSpeciesID());
-                        gc.setFill(color);
-                        gc.setStroke(color.darker());
+                    if (plant.enabled() && plant!=selectedPlant && plant.containedIn(fOffsetX,fOffsetY,width,height, plantData.getGreatestRadius())){
+                        gc.setFill(plantData.getColor(plant.getSpeciesID()));
+                        //gc.setStroke(plantData.getColor(plant.getSpeciesID()).darker());
                         float[] pos = worldToScreen(plant.getPosition()[0], plant.getPosition()[1]);
                         double rad = (double) (plant.getCanopyRadius()*(sizeX*scaleX));
                         gc.fillOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
-                        gc.strokeOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
+                        //gc.strokeOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
                     }
                 }
                 gc.setFill(Color.BLACK);
@@ -322,9 +365,11 @@ public class Controller {
                 for (Plant plant : plants){
                     if (plant.enabled()){
                         gc.setFill(plantData.getColor(plant.getSpeciesID()));
+                        //gc.setStroke(plantData.getColor(plant.getSpeciesID()).darker());
                         float[] pos = worldToScreen(plant.getPosition()[0], plant.getPosition()[1]);
                         double rad = (double) (plant.getCanopyRadius()*(sizeX*scaleX));
                         gc.fillOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
+                        //gc.strokeOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
                     }
                 }
             }
@@ -385,13 +430,16 @@ public class Controller {
     }
 
     public void addTerrainCanvas(StackPane stackPane){
+        System.out.println("adding terrain");
         terrainCanvas = new TerrainCanvas(DRAWTYPE.Terrain);
         terrainCanvas.widthProperty().bind(stackPane.widthProperty());
         terrainCanvas.heightProperty().bind(stackPane.heightProperty());
         stackPane.getChildren().add(terrainCanvas);
+        System.out.println("done adding terrain");
     }
 
     public void addPlantCanvas(StackPane stackPane){
+        System.out.println("adding canvases");
         canopyCanvas = new PlantCanvas(plantData.getCanopy(), DRAWTYPE.Canopy);
         undergrowthCanvas = new PlantCanvas(plantData.getUndergrowth(), DRAWTYPE.Undergrowth);
         canopyCanvas.widthProperty().bind(stackPane.widthProperty());
@@ -400,6 +448,7 @@ public class Controller {
         undergrowthCanvas.heightProperty().bind(stackPane.heightProperty());
 
         stackPane.getChildren().addAll(undergrowthCanvas,canopyCanvas);
+        System.out.println("done adding canvases");
     }
 
     public void generateMinimap(StackPane miniPane){

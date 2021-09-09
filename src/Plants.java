@@ -10,6 +10,7 @@ public class Plants {
     private Plant[] undergrowth;
     private Plant[] canopy;
     private Color[] plantColors;
+    private float greatestRadius;
     private boolean completeGeneration;
 
     //Constructors
@@ -26,6 +27,9 @@ public class Plants {
     }
     public void addPlantToCanopy(int speciesPos, Plant newPlant){
         tempCanopy[newPlant.getSpeciesID()][speciesPos]=newPlant;
+        if (newPlant.getCanopyRadius()>greatestRadius){
+            greatestRadius= newPlant.getCanopyRadius();
+        }
     }
 
     public void addSpeciesNumToUndergrowth(int speciesID,int speciesNum){
@@ -33,6 +37,9 @@ public class Plants {
     }
     public void addPlantToUndergrowth(int speciesPos, Plant newPlant){
         tempUndergrowth[newPlant.getSpeciesID()][speciesPos]=newPlant;
+        if (newPlant.getCanopyRadius()>greatestRadius){
+            greatestRadius= newPlant.getCanopyRadius();
+        }
     }
 
     public void completeGeneration(){
@@ -154,7 +161,7 @@ public class Plants {
         Arrays.sort(gaussian);
         for (int i=0; i<numSpecies; i++){
             //System.out.println(gaussian[i*gaussMultiple]);
-            plantColors[i] = new Color(Math.max(0,gaussian[i*gaussMultiple]),1-Math.abs(gaussian[i*gaussMultiple]),Math.max(0,-gaussian[i*gaussMultiple]),1);
+            plantColors[i] = new Color(Math.max(0,gaussian[i*gaussMultiple]),1-Math.abs(gaussian[i*gaussMultiple]),Math.max(0,-gaussian[i*gaussMultiple]),0.4);
         }
         List<Color> colorList = Arrays.asList(plantColors);
         Collections.shuffle(colorList);
@@ -177,5 +184,8 @@ public class Plants {
 
     public void setColor(int speciesID, Color newColor){
         plantColors[speciesID]=newColor;
+    }
+    public float getGreatestRadius(){
+        return (greatestRadius);
     }
 }
