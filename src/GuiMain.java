@@ -139,7 +139,7 @@ public class GuiMain extends Application {
             @Override
             public void handle(MouseEvent event) {
                 if(controller!=null){
-                    float pos[] = controller.screenToWorld((float)event.getX(),(float)event.getY());
+                    float[] pos = controller.screenToWorld((float)event.getX(),(float)event.getY());
                     positionLabel.setText(pos[0]+" , "+pos[1]);
                 }
             }

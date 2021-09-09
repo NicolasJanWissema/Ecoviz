@@ -29,6 +29,7 @@ public class Controller {
     PlantCanvas canopyCanvas;
     PlantCanvas undergrowthCanvas;
     private Plant selectedPlant;
+    enum DRAWTYPE{Terrain,Undergrowth,Canopy,Minimap,Fire}
 
 
     // Panning and Zooming Variables
@@ -222,7 +223,10 @@ public class Controller {
     class TerrainCanvas extends Canvas {
         float maxh = -10000.0f, minh = 10000.0f;
         int[] dim = terrainData.getDimensions();
-        public TerrainCanvas(){
+        private final DRAWTYPE drawtype;
+        public TerrainCanvas(DRAWTYPE drawtype){
+            this.drawtype = drawtype;
+
             for(int x=0; x < dim[0]; x++){
                 for(int y=0; y < dim[1]; y++) {
                     float h = terrainData.getHeight(x, y);
@@ -236,8 +240,12 @@ public class Controller {
             widthProperty().addListener(evt -> drawCanvas());
             heightProperty().addListener(evt -> drawCanvas());
         }
+        public void drawThread(){
+            Drawing drawing = new Drawing(drawtype);
+            drawing.start();
+        }
 
-        public void drawCanvas() {
+        public synchronized void drawCanvas() {
             GraphicsContext gc = getGraphicsContext2D();
             gc.clearRect(0, 0, getWidth(), getHeight());
             PixelWriter pw = gc.getPixelWriter();
@@ -275,25 +283,34 @@ public class Controller {
 
     class PlantCanvas extends Canvas {
         private final Plant[] plants;
+        private final DRAWTYPE drawtype;
 
-        public PlantCanvas(Plant[] plants){
+        public PlantCanvas(Plant[] plants, DRAWTYPE drawtype){
             this.plants=plants;
+            this.drawtype=drawtype;
 
             // Redraw canvas when size changes.
             widthProperty().addListener(evt -> drawCanvas());
             heightProperty().addListener(evt -> drawCanvas());
         }
-        public void drawCanvas() {
+        public void drawThread(){
+            Drawing drawing = new Drawing(drawtype);
+            drawing.start();
+        }
+        public synchronized void drawCanvas() {
             GraphicsContext gc = getGraphicsContext2D();
             gc.clearRect(0, 0, getWidth(), getHeight());
 
             if (selectedPlant!=null && selectedPlant.enabled()){
                 for (Plant plant : plants){
                     if (plant.enabled() && plant!=selectedPlant){
-                        gc.setFill(plantData.getColor(plant.getSpeciesID()));
+                        Color color= plantData.getColor(plant.getSpeciesID());
+                        gc.setFill(color);
+                        gc.setStroke(color.darker());
                         float[] pos = worldToScreen(plant.getPosition()[0], plant.getPosition()[1]);
                         double rad = (double) (plant.getCanopyRadius()*(sizeX*scaleX));
                         gc.fillOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
+                        gc.strokeOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
                     }
                 }
                 gc.setFill(Color.BLACK);
@@ -331,16 +348,52 @@ public class Controller {
         }
     }
 
+
+    class Drawing extends Thread{
+        //int drawingType;
+        DRAWTYPE drawingType;
+        public Drawing(DRAWTYPE drawingType){
+            this.drawingType=drawingType;
+        }
+        public void run(){
+            switch (drawingType){
+                case Terrain:{
+                    terrainCanvas.drawCanvas();
+                    break;
+                }
+                case Undergrowth:{
+                    undergrowthCanvas.drawCanvas();
+                    break;
+                }
+                case Canopy:{
+                    canopyCanvas.drawCanvas();
+                    break;
+                }
+                case Minimap:{
+                    System.out.println("minimap");
+                    break;
+                }
+                case Fire:{
+                    System.out.println("Fire");
+                    break;
+                }
+                default:{
+                    System.out.println("Runtime error");
+                }
+            }
+        }
+    }
+
     public void addTerrainCanvas(StackPane stackPane){
-        terrainCanvas = new TerrainCanvas();
+        terrainCanvas = new TerrainCanvas(DRAWTYPE.Terrain);
         terrainCanvas.widthProperty().bind(stackPane.widthProperty());
         terrainCanvas.heightProperty().bind(stackPane.heightProperty());
         stackPane.getChildren().add(terrainCanvas);
     }
 
     public void addPlantCanvas(StackPane stackPane){
-        canopyCanvas = new PlantCanvas(plantData.getCanopy());
-        undergrowthCanvas = new PlantCanvas(plantData.getUndergrowth());
+        canopyCanvas = new PlantCanvas(plantData.getCanopy(), DRAWTYPE.Canopy);
+        undergrowthCanvas = new PlantCanvas(plantData.getUndergrowth(), DRAWTYPE.Undergrowth);
         canopyCanvas.widthProperty().bind(stackPane.widthProperty());
         canopyCanvas.heightProperty().bind(stackPane.heightProperty());
         undergrowthCanvas.widthProperty().bind(stackPane.widthProperty());
@@ -394,8 +447,6 @@ public class Controller {
         HBox hBox = new HBox();
         ColorPicker colorPicker = new ColorPicker(plantData.getColor(speciesID));
         colorPicker.getStyleClass().add("button");
-        //colorPicker.setStyle(ColorPicker.STYLE_CLASS_BUTTON);
-        //colorPicker.styleProperty().setValue(ColorPicker.STYLE_CLASS_BUTTON);
         colorPicker.valueProperty().addListener(new ChangeListener<Color>() {
             @Override
             public void changed(ObservableValue<? extends Color> observable, Color oldValue, Color newValue) {

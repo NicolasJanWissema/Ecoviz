@@ -2,7 +2,6 @@ public class Plant implements Comparable<Plant> {
 
     // Global Variables
     private float xPos, yPos, zPos;
-    private Plant NW, NE, SE, SW;
     private int speciesID;
     private float height;
     private float canopyRadius;
@@ -87,6 +86,4 @@ public class Plant implements Comparable<Plant> {
     public boolean enabled(){
         return (speciesEnabled && plantEnabled);
     }
-
-
 }
