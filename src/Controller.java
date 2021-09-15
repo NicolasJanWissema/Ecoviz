@@ -258,7 +258,9 @@ public class Controller {
                     Color color = new Color(val,val,val,1.0f);
                     float[] pos = worldToScreen(x*terrainData.getGridSpacing(), y*terrainData.getGridSpacing());
                    // pw.setColor((int)(x*getWidth()/xDimension), (int)(y*getHeight()/yDimension), color);
-                    pw.setColor((int)pos[0], (int)pos[1], color);
+                    //pw.setColor((int)pos[0], (int)pos[1], color);
+                    gc.setFill(color);
+                    gc.fillRect(pos[0], pos[1], 1*scaleX+1, 1*scaleX+1);
                 }
             }
             //long endTime = System.nanoTime();
@@ -306,11 +308,11 @@ public class Controller {
                     if (plant.enabled() && plant!=selectedPlant){
                         Color color= plantData.getColor(plant.getSpeciesID());
                         gc.setFill(color);
-                        gc.setStroke(color.darker());
+                        //gc.setStroke(color.darker());
                         float[] pos = worldToScreen(plant.getPosition()[0], plant.getPosition()[1]);
                         double rad = (double) (plant.getCanopyRadius()*(sizeX*scaleX));
                         gc.fillOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
-                        gc.strokeOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
+                        //gc.strokeOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
                     }
                 }
                 gc.setFill(Color.BLACK);
