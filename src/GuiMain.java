@@ -202,6 +202,7 @@ public class GuiMain extends Application {
                 canvasPane.setPrefHeight(newY);
             }
         }
+        openFilter();
     }
 
     public void closeFile(){

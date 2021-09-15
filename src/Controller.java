@@ -18,6 +18,7 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.input.ScrollEvent;
 
 import javax.swing.plaf.ColorChooserUI;
+import javax.swing.plaf.ColorUIResource;
 
 public class Controller {
     //Variables
@@ -449,6 +450,7 @@ public class Controller {
         HBox hBox = new HBox();
         ColorPicker colorPicker = new ColorPicker(plantData.getColor(speciesID));
         colorPicker.getStyleClass().add("button");
+        colorPicker.setStyle("-fx-color-label-visible: false ;");
         colorPicker.valueProperty().addListener(new ChangeListener<Color>() {
             @Override
             public void changed(ObservableValue<? extends Color> observable, Color oldValue, Color newValue) {
@@ -473,7 +475,6 @@ public class Controller {
                 undergrowthCanvas.drawCanvas();
             }
         });
-
         hBox.getChildren().addAll(colorPicker,checkBox);
         filterBox.getChildren().add(hBox);
     }
