@@ -8,9 +8,12 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.Slider;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCharacterCombination;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -20,9 +23,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-
 import java.awt.*;
 import java.io.File;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.util.regex.Pattern;
+import javax.swing.SwingUtilities;
+import javafx.embed.swing.SwingNode;
 
 import javafx.scene.Cursor;
 
@@ -39,6 +46,11 @@ public class GuiMain extends Application {
     public AnchorPane bottomPane;
     public VBox infoBox;
     public Label positionLabel;
+    public HBox hbox;
+    public RangeSlider rangeSlider;
+    public HBox textFieldHbox;
+    TextField tfLow;
+    TextField tfHigh;
 
     public Slider canopySlider;
     public Slider undergrowthSlider;
@@ -53,6 +65,21 @@ public class GuiMain extends Application {
 
     @FXML
     public void initialize(){
+        rangeSlider = new RangeSlider();
+        rangeSlider.setPreferredSize(new Dimension(240, rangeSlider.getPreferredSize().height));
+        rangeSlider.setMinimum(0);
+        rangeSlider.setMaximum(50);
+        rangeSlider.setValue(0);
+        rangeSlider.setUpperValue(50);
+        SwingNode rangeSliderNode = new SwingNode();
+        createSwingContent(rangeSliderNode);
+        tfLow = new TextField();
+        tfHigh = new TextField();
+        Pane spacerPane = new Pane();
+        spacerPane.setPrefHeight(tfLow.getHeight());
+        spacerPane.setPrefWidth(200);
+        hbox.getChildren().addAll(rangeSliderNode);
+        textFieldHbox.getChildren().addAll(tfLow,spacerPane,tfHigh);
         borderPane.widthProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
@@ -87,7 +114,7 @@ public class GuiMain extends Application {
                 }
             }
         });
-
+        
         canopySlider.valueProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
@@ -117,7 +144,11 @@ public class GuiMain extends Application {
         canvasPane.setOnMouseDragged(new EventHandler<MouseEvent>(){
             @Override
             public void handle(MouseEvent event) {
-                canvasPane.setCursor(Cursor.MOVE);
+                if (canvasPane.getCursor() != Cursor.MOVE) {
+                    canvasPane.setCursor(Cursor.MOVE);
+                    //System.out.println("SET COURSER MOVE");
+                }
+                
                 dragging = true;
                 controller.panning((float) event.getX(), (float) event.getY());
 
@@ -128,12 +159,12 @@ public class GuiMain extends Application {
             @Override
             public void handle(MouseEvent event) {
                 canvasPane.setCursor(Cursor.DEFAULT);
+                //System.out.println("SET COURSER DEFFAULT");
             }
         });
         canvasPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                System.out.println("CLICKED");
                 if(controller!=null && !dragging){
                     controller.getPlant((float)event.getX(), (float)event.getY());
                 }
@@ -158,6 +189,7 @@ public class GuiMain extends Application {
             }
 
         });
+        
     }
 
 
@@ -181,7 +213,9 @@ public class GuiMain extends Application {
         }
         else {
             closeFile();
-            controller = new Controller(selectedFile);
+            controller = new Controller(selectedFile, rangeSlider,tfLow,tfHigh);
+            controller.addCanvases(canvasPane);
+            controller.generateMinimap(miniMap);
 
             double newY = borderPane.getHeight()-bottomPane.getHeight()-menuBar.getHeight();
             double newX = borderPane.getWidth()-rightPane.getWidth();
@@ -203,6 +237,9 @@ public class GuiMain extends Application {
             controller.addCanvases(canvasPane);
             controller.generateMinimap(miniMap);
         }
+        openFilter();
+        rangeSlider.setController(controller);
+        rangeSlider.addListener();
     }
 
     public void closeFile(){
@@ -219,6 +256,15 @@ public class GuiMain extends Application {
                 controller.addFilter(i,infoBox);
             }
         }
+    }
+
+    private void createSwingContent(final SwingNode swingNode) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                swingNode.setContent(rangeSlider);
+            }
+        });
     }
 
 }

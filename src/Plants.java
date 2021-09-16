@@ -12,6 +12,7 @@ public class Plants {
     private Color[] plantColors;
     private float greatestRadius;
     private boolean completeGeneration;
+    private float maxHeight;
 
     //Constructors
     Plants(int numSpecies){
@@ -113,6 +114,19 @@ public class Plants {
         return (null);
     }
 
+    //Filter Height
+    public void filterHeight(float min, float max){
+        if (!completeGeneration){completeGeneration();}
+        for (Plant plant : undergrowth){
+            plant.checkHeight(min, max);
+        }
+        for (Plant plant : canopy){
+            plant.checkHeight(min, max);
+        }
+    }
+
+   
+
     //filter specific species from images.
     public void filterSpecies(int speciesID){
         if (!completeGeneration){completeGeneration();}
@@ -161,7 +175,7 @@ public class Plants {
         Arrays.sort(gaussian);
         for (int i=0; i<numSpecies; i++){
             //System.out.println(gaussian[i*gaussMultiple]);
-            plantColors[i] = new Color(Math.max(0,gaussian[i*gaussMultiple]),1-Math.abs(gaussian[i*gaussMultiple]),Math.max(0,-gaussian[i*gaussMultiple]),0.4);
+            plantColors[i] = new Color(Math.max(0,gaussian[i*gaussMultiple]),1-Math.abs(gaussian[i*gaussMultiple]),Math.max(0,-gaussian[i*gaussMultiple]),0.5);
         }
         List<Color> colorList = Arrays.asList(plantColors);
         Collections.shuffle(colorList);
@@ -185,7 +199,8 @@ public class Plants {
     public void setColor(int speciesID, Color newColor){
         plantColors[speciesID]=newColor;
     }
-    public float getGreatestRadius(){
-        return (greatestRadius);
+
+    public float getHeight() {
+        return maxHeight;
     }
 }
