@@ -233,6 +233,9 @@ public class GuiMain extends Application {
                 canvasPane.setPrefWidth(newX);
                 canvasPane.setPrefHeight(newY);
             }
+
+            controller.addCanvases(canvasPane);
+            controller.generateMinimap(miniMap);
         }
         openFilter();
         rangeSlider.setController(controller);

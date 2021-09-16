@@ -1,3 +1,7 @@
+import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
+import javafx.geometry.Point3D;
+
 public class Plant implements Comparable<Plant> {
 
     // Global Variables
@@ -26,7 +30,7 @@ public class Plant implements Comparable<Plant> {
     public float distanceFromPlant(float x,float y){
         return (float)(Math.sqrt(Math.pow(xPos-x,2)+Math.pow(yPos-y,2)));
     }
-    public boolean containedIn(float xOffset, float yOffset, float width, float height){
+    public boolean containedIn(float xOffset, float yOffset, float width, float height, float greatestRadius){
         if (enabled()){
             return (xOffset < xPos && xPos - xOffset < width && yOffset < yPos && yPos - yOffset < height);
         }

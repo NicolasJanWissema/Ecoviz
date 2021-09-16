@@ -10,6 +10,7 @@ public class Plants {
     private Plant[] undergrowth;
     private Plant[] canopy;
     private Color[] plantColors;
+    private float greatestRadius;
     private boolean completeGeneration;
     private float maxHeight;
 
@@ -27,6 +28,9 @@ public class Plants {
     }
     public void addPlantToCanopy(int speciesPos, Plant newPlant){
         tempCanopy[newPlant.getSpeciesID()][speciesPos]=newPlant;
+        if (newPlant.getCanopyRadius()>greatestRadius){
+            greatestRadius= newPlant.getCanopyRadius();
+        }
     }
 
     public void addSpeciesNumToUndergrowth(int speciesID,int speciesNum){
@@ -34,6 +38,9 @@ public class Plants {
     }
     public void addPlantToUndergrowth(int speciesPos, Plant newPlant){
         tempUndergrowth[newPlant.getSpeciesID()][speciesPos]=newPlant;
+        if (newPlant.getCanopyRadius()>greatestRadius){
+            greatestRadius= newPlant.getCanopyRadius();
+        }
     }
 
     public void completeGeneration(){
