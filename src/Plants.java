@@ -203,4 +203,8 @@ public class Plants {
     public float getHeight() {
         return maxHeight;
     }
+
+    public float getGreatestRadius() {
+        return greatestRadius;
+    }
 }
