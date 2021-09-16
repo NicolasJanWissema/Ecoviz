@@ -45,6 +45,8 @@ public class GuiMain extends Application {
 
     private Controller controller;
 
+    private boolean dragging;
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -108,7 +110,6 @@ public class GuiMain extends Application {
             @Override
             public void handle(MouseEvent event) {
                 //System.out.println("MOUSE PRESSED");
-                canvasPane.setCursor(Cursor.CLOSED_HAND);
                 controller.setPan((float) event.getX(), (float) event.getY());
             }
         });
@@ -116,6 +117,8 @@ public class GuiMain extends Application {
         canvasPane.setOnMouseDragged(new EventHandler<MouseEvent>(){
             @Override
             public void handle(MouseEvent event) {
+                canvasPane.setCursor(Cursor.MOVE);
+                dragging = true;
                 controller.panning((float) event.getX(), (float) event.getY());
 
             }
@@ -124,15 +127,17 @@ public class GuiMain extends Application {
         canvasPane.setOnMouseReleased(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                canvasPane.setCursor(Cursor.OPEN_HAND);
+                canvasPane.setCursor(Cursor.DEFAULT);
             }
         });
         canvasPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                if(controller!=null){
+                System.out.println("CLICKED");
+                if(controller!=null && !dragging){
                     controller.getPlant((float)event.getX(), (float)event.getY());
                 }
+                dragging = false;
             }
         });
         canvasPane.setOnMouseMoved(new EventHandler<MouseEvent>() {

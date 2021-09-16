@@ -299,7 +299,9 @@ public class Controller {
                     Color color = new Color(val,val,val,1.0f);
                     float[] pos = worldToScreen(x*terrainData.getGridSpacing(), y*terrainData.getGridSpacing());
                    // pw.setColor((int)(x*getWidth()/xDimension), (int)(y*getHeight()/yDimension), color);
-                    pw.setColor((int)pos[0], (int)pos[1], color);
+                    //pw.setColor((int)pos[0], (int)pos[1], color);
+                    gc.setFill(color);
+                    gc.fillRect(pos[0], pos[1], 1*scaleX*sizeX+1, 1*scaleX*sizeX+1);
                 }
             }
             //long endTime = System.nanoTime();
