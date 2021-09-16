@@ -2,6 +2,8 @@ import javafx.scene.paint.Color;
 
 import java.util.*;
 
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
+
 public class Plants {
 
     // private variables
@@ -18,6 +20,7 @@ public class Plants {
         completeGeneration=false;
         tempUndergrowth = new Plant[numSpecies][0];
         tempCanopy = new Plant[numSpecies][0];
+        System.out.println(numSpecies);
         generateColors(numSpecies);
     }
 
@@ -144,28 +147,43 @@ public class Plants {
 
     //Generate colors with a gaussian distribution around green.
     private void generateColors(int numSpecies){
-        int gaussMultiple=1000;
-        plantColors = new Color[numSpecies];
-        Random random = new Random();
-        double[] gaussian = new double[numSpecies*gaussMultiple];
-        for (int i=0; i<gaussian.length;i++){
-            double check = random.nextGaussian()/2;
-            if (Math.abs(check)>1){
-                i--;
-            }
-            else {
-                //System.out.println(check);
-                gaussian[i]=check;
-            }
+        // int gaussMultiple=1000;
+        Color[] pc = {Color.RED, Color.rgb(255, 128, 0, 1), Color.rgb(153, 153, 0, 1),
+                        Color.rgb(255, 255, 0, 1), Color.rgb(0, 204, 0, 1), Color.rgb(0, 153, 76, 1),
+                        Color.rgb(0, 255, 255, 1), Color.rgb(0, 128, 255, 1), Color.rgb(128, 255, 0, 1),
+                        Color.rgb(127, 0, 255, 1), Color.rgb(255, 0, 255, 1), Color.rgb(255, 0, 127, 1),
+                        Color.rgb(153, 204, 255, 1), Color.rgb(0, 153, 153, 1), Color.rgb(102, 255, 178, 1),
+                        Color.rgb(255, 178, 102, 1)};
+
+        if(pc.length!= numSpecies){
+            System.out.println("Fucked");
         }
-        Arrays.sort(gaussian);
-        for (int i=0; i<numSpecies; i++){
-            //System.out.println(gaussian[i*gaussMultiple]);
-            plantColors[i] = new Color(Math.max(0,gaussian[i*gaussMultiple]),1-Math.abs(gaussian[i*gaussMultiple]),Math.max(0,-gaussian[i*gaussMultiple]),0.4);
-        }
-        List<Color> colorList = Arrays.asList(plantColors);
-        Collections.shuffle(colorList);
-        colorList.toArray(plantColors);
+        plantColors = pc;
+        // for(int i = 0; i<numSpecies; i++){
+        //     plantColors[i] = pc[i];
+        // }
+        
+        // Random random = new Random();
+        // double[] gaussian = new double[numSpecies*gaussMultiple];
+        // for (int i=0; i<gaussian.length;i++){
+        //     double check = random.nextGaussian()/2;
+        //     if (Math.abs(check)>1){
+        //         i--;
+        //     }
+        //     else {
+        //         //System.out.println(check);
+        //         gaussian[i]=check;
+        //     }
+        // }
+        // Arrays.sort(gaussian);
+        // for (int i=0; i<numSpecies; i++){
+        //     //System.out.println(gaussian[i*gaussMultiple]);
+        //     plantColors[i] = new Color(Math.max(0,gaussian[i*gaussMultiple]),1-Math.abs(gaussian[i*gaussMultiple]),Math.max(0,-gaussian[i*gaussMultiple]),0.4);
+        //     plantColors[i] = new Colour();
+        // }
+        // List<Color> colorList = Arrays.asList(plantColors);
+        // Collections.shuffle(colorList);
+        // colorList.toArray(plantColors);
     }
 
     public Plant[] getUndergrowth(){
