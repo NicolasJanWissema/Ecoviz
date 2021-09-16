@@ -177,8 +177,6 @@ public class GuiMain extends Application {
         else {
             closeFile();
             controller = new Controller(selectedFile);
-            controller.addCanvases(canvasPane);
-            controller.generateMinimap(miniMap);
 
             double newY = borderPane.getHeight()-bottomPane.getHeight()-menuBar.getHeight();
             double newX = borderPane.getWidth()-rightPane.getWidth();
@@ -196,6 +194,9 @@ public class GuiMain extends Application {
                 canvasPane.setPrefWidth(newX);
                 canvasPane.setPrefHeight(newY);
             }
+
+            controller.addCanvases(canvasPane);
+            controller.generateMinimap(miniMap);
         }
     }
 

@@ -9,6 +9,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -17,7 +19,6 @@ import java.util.ArrayList;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.input.ScrollEvent;
 
-import javax.swing.plaf.ColorChooserUI;
 
 public class Controller {
     //Variables
@@ -32,11 +33,10 @@ public class Controller {
     enum DRAWTYPE{Terrain,Undergrowth,Canopy,Minimap,Fire}
 
 
+
     // Panning and Zooming Variables
     float fOffsetX = 0.0f;
     float fOffsetY = 0.0f;
-    float maxOffsetX = 0.0f;
-    float maxOffsetY = 0.0f;
     float fStartPanX = 0;
     float fStartPanY = 0;
     float scaleX = 1.0f;
@@ -107,8 +107,6 @@ public class Controller {
         //fOffsetX += (afterZoom[0] - beforeZoom[0]);
         float[] dimensions = screenToWorld((float)terrainCanvas.getWidth(), (float)terrainCanvas.getHeight());
         float[] offsets = screenToWorld(0,0);
-        System.out.println(offsets[0]);
-        System.out.println(offsets[1]);
         if (fOffsetX+(afterZoom[0] - beforeZoom[0])>=0){
             fOffsetX=0;
         }
@@ -264,6 +262,7 @@ public class Controller {
 
     class TerrainCanvas extends Canvas {
         float maxh = -10000.0f, minh = 10000.0f;
+
         int[] dim = terrainData.getDimensions();
         private final DRAWTYPE drawtype;
         public TerrainCanvas(DRAWTYPE drawtype){
