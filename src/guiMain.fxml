@@ -9,9 +9,11 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
@@ -69,8 +71,17 @@
                               <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Undergrowth opacity" />
                               <Slider fx:id="undergrowthSlider" max="1.0" prefWidth="1.0" value="1.0" />
                               <Separator prefWidth="200.0" />
-                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Placeholder slider" />
-                              <Slider max="1.0" prefHeight="14.0" prefWidth="104.0" value="1.0" />
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Max Height" />
+                              <HBox prefHeight="0.0" prefWidth="200.0">
+                                 <children>
+                                    <Slider fx:id="heightSlider" max="1.0" prefHeight="25.0" prefWidth="243.0" value="1.0" />
+                                    <Pane prefHeight="25.0" prefWidth="106.0" />
+                                    <TextField fx:id="heightTextField" />
+                                 </children>
+                              </HBox>
+                              <Separator prefWidth="200.0" />
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Min Height" />
+                              <HBox fx:id="hbox" prefHeight="0.0" prefWidth="200.0" />
                               <Separator prefWidth="200.0" />
                               <VBox fx:id="infoBox" prefHeight="200.0" prefWidth="100.0" />
                            </children>

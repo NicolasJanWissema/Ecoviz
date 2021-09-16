@@ -14,6 +14,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeUnit;
+
 import javafx.scene.image.PixelWriter;
 import javafx.scene.input.ScrollEvent;
 
@@ -30,7 +33,11 @@ public class Controller {
     PlantCanvas canopyCanvas;
     PlantCanvas undergrowthCanvas;
     private Plant selectedPlant;
+    public float maxHeight;
+    public float filterHeightUpper;
+    public float filterHeightLower;
     enum DRAWTYPE{Terrain,Undergrowth,Canopy,Minimap,Fire}
+    RangeSlider rangeSlider;
 
 
     // Panning and Zooming Variables
@@ -52,6 +59,23 @@ public class Controller {
         filename = filename.replaceAll("_canopy.pdb","");
         filename = filename.replaceAll("_undergrowth.pdb","");
         readFiles(filename);
+    }
+
+    public Controller(File file, RangeSlider slider) {
+        String filename = file.getAbsoluteFile().toString();
+        filename = filename.replaceAll(".elv","");
+        filename = filename.replaceAll(".spc.txt","");
+        filename = filename.replaceAll("_canopy.pdb","");
+        filename = filename.replaceAll("_undergrowth.pdb","");
+        readFiles(filename);
+        rangeSlider = slider;
+    }
+
+    public void movedSlider(RangeSlider tempSlider) {
+        System.out.println("Upper: " + sliderToHeight(tempSlider.getUpperValue()));
+        System.out.println("Lower: " + sliderToHeight(tempSlider.getValue()));
+        heightFilter(sliderToHeight(tempSlider.getUpperValue()), sliderToHeight(tempSlider.getValue()));
+
     }
 
     public void setPan(float fStartPanX, float fStartPanY ) {
@@ -88,8 +112,10 @@ public class Controller {
         fOffsetX -= (beforeZoom[0] - afterZoom[0]);
         fOffsetY -= (beforeZoom[1] - afterZoom[1]);
         terrainCanvas.drawCanvas();
+        long temp = System.nanoTime();
         undergrowthCanvas.drawCanvas();
         canopyCanvas.drawCanvas();
+        System.out.println("Time To Draw: " + (System.nanoTime() - temp)/1000000);
     }
 
     private void readFiles(String filename) {
@@ -141,6 +167,9 @@ public class Controller {
                     for (int x=0;x<5;x++){
                         plantInfo[x] = Float.parseFloat(plantLine[x]);
                     }
+                    if (maxHeight < plantInfo[3]) {
+                        maxHeight = plantInfo[3];
+                    }
                     plantData.addPlantToCanopy(j, new Plant(speciesID, plantInfo[0], plantInfo[1], plantInfo[2], plantInfo[3], plantInfo[4]));
                 }
             }
@@ -160,6 +189,9 @@ public class Controller {
                     float[] plantInfo = new float[5];
                     for (int x=0;x<5;x++){
                         plantInfo[x] = Float.parseFloat(plantLine[x]);
+                    }
+                    if (maxHeight < plantInfo[3]) {
+                        maxHeight = plantInfo[3];
                     }
                     plantData.addPlantToUndergrowth(j, new Plant(speciesID, plantInfo[0], plantInfo[1], plantInfo[2], plantInfo[3], plantInfo[4]));
                 }
@@ -444,6 +476,38 @@ public class Controller {
 
 
         miniPane.getChildren().add(minimapCanvas);
+    }
+
+    public float sliderToHeight(float sliderNum) {
+        float temp = ((sliderNum)/50)*maxHeight;
+        if (temp > maxHeight) {
+            temp = maxHeight;
+        }
+        return temp;
+    }
+
+    public float heightToSlider(float height) {
+        float temp = (height/maxHeight)*50;
+        if (temp > maxHeight) {
+            temp = maxHeight;
+        }
+        return temp;
+    }
+
+    public void heightFilter(float upper, float lower) {
+        filterHeightUpper = upper;
+        filterHeightLower = lower;
+        plantData.filterHeight(filterHeightLower, filterHeightUpper);
+        // try {
+        //     TimeUnit.MILLISECONDS.sleep(500);
+        // } catch (Exception e) {
+        //     System.out.println("OH OH");
+        // }
+        
+        //undergrowthCanvas.drawCanvas();
+        canopyCanvas.drawCanvas();
+        
+        
     }
 
     public void addFilter(int speciesID, VBox filterBox){
