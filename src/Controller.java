@@ -4,6 +4,9 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.effect.Blend;
+import javafx.scene.effect.BlendMode;
+import javafx.scene.effect.Effect;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -341,7 +344,7 @@ public class Controller {
                     if (plant.enabled() && plant!=selectedPlant){
                         Color color= plantData.getColor(plant.getSpeciesID());
                         gc.setFill(color);
-                        //gc.setStroke(color.darker());
+                       // gc.setStroke(color.darker());
                         float[] pos = worldToScreen(plant.getPosition()[0], plant.getPosition()[1]);
                         double rad = (double) (plant.getCanopyRadius()*(sizeX*scaleX));
                         gc.fillOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);

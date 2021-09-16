@@ -168,7 +168,7 @@ public class Plants {
         Arrays.sort(gaussian);
         for (int i=0; i<numSpecies; i++){
             //System.out.println(gaussian[i*gaussMultiple]);
-            plantColors[i] = new Color(Math.max(0,gaussian[i*gaussMultiple]),1-Math.abs(gaussian[i*gaussMultiple]),Math.max(0,-gaussian[i*gaussMultiple]),1);
+            plantColors[i] = new Color(Math.max(0,gaussian[i*gaussMultiple]),1-Math.abs(gaussian[i*gaussMultiple]),Math.max(0,-gaussian[i*gaussMultiple]),0.5);
         }
         List<Color> colorList = Arrays.asList(plantColors);
         Collections.shuffle(colorList);
