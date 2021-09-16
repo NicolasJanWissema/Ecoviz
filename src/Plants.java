@@ -14,6 +14,7 @@ public class Plants {
     private Color[] plantColors;
     private float greatestRadius;
     private boolean completeGeneration;
+    private double opacity;
 
     //Constructors
     Plants(int numSpecies){
@@ -21,7 +22,9 @@ public class Plants {
         tempUndergrowth = new Plant[numSpecies][0];
         tempCanopy = new Plant[numSpecies][0];
         System.out.println(numSpecies);
+        opacity = 0.7;
         generateColors(numSpecies);
+
     }
 
     //Data generating methods
@@ -148,12 +151,13 @@ public class Plants {
     //Generate colors with a gaussian distribution around green.
     private void generateColors(int numSpecies){
         // int gaussMultiple=1000;
-        Color[] pc = {Color.RED, Color.rgb(255, 128, 0, 1), Color.rgb(153, 153, 0, 1),
-                        Color.rgb(255, 255, 0, 1), Color.rgb(0, 204, 0, 1), Color.rgb(0, 153, 76, 1),
-                        Color.rgb(0, 255, 255, 1), Color.rgb(0, 128, 255, 1), Color.rgb(128, 255, 0, 1),
-                        Color.rgb(127, 0, 255, 1), Color.rgb(255, 0, 255, 1), Color.rgb(255, 0, 127, 1),
-                        Color.rgb(153, 204, 255, 1), Color.rgb(0, 153, 153, 1), Color.rgb(102, 255, 178, 1),
-                        Color.rgb(255, 178, 102, 1)};
+        System.out.println("Opacity: "+opacity);
+        Color[] pc = {Color.RED, Color.rgb(255, 128, 0, opacity), Color.rgb(153, 153, 0, opacity),
+                        Color.rgb(255, 255, 0, opacity), Color.rgb(0, 204, 0, opacity), Color.rgb(0, 153, 76, opacity),
+                        Color.rgb(0, 255, 255, opacity), Color.rgb(0, 128, 255, opacity), Color.rgb(128, 255, 0, opacity),
+                        Color.rgb(127, 0, 255, opacity), Color.rgb(255, 0, 255, opacity), Color.rgb(255, 0, 127, opacity),
+                        Color.rgb(153, 204, 255, opacity), Color.rgb(0, 153, 153, opacity), Color.rgb(102, 255, 178, opacity),
+                        Color.rgb(255, 178, 102, opacity)};
 
         if(pc.length!= numSpecies){
             System.out.println("Fucked");
@@ -205,5 +209,8 @@ public class Plants {
     }
     public float getGreatestRadius(){
         return (greatestRadius);
+    }
+    public void setOpacity(Double o){
+        opacity=o;
     }
 }
