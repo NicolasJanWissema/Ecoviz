@@ -13,6 +13,7 @@ import javafx.scene.input.KeyCharacterCombination;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -45,10 +46,11 @@ public class GuiMain extends Application {
     public AnchorPane bottomPane;
     public VBox infoBox;
     public Label positionLabel;
-    public TextField heightTextField;
-    public Slider heightSlider;
     public HBox hbox;
     public RangeSlider rangeSlider;
+    public HBox textFieldHbox;
+    TextField tfLow;
+    TextField tfHigh;
 
     public Slider canopySlider;
     public Slider undergrowthSlider;
@@ -71,7 +73,13 @@ public class GuiMain extends Application {
         rangeSlider.setUpperValue(50);
         SwingNode rangeSliderNode = new SwingNode();
         createSwingContent(rangeSliderNode);
-        hbox.getChildren().add(rangeSliderNode);
+        tfLow = new TextField();
+        tfHigh = new TextField();
+        Pane spacerPane = new Pane();
+        spacerPane.setPrefHeight(tfLow.getHeight());
+        spacerPane.setPrefWidth(200);
+        hbox.getChildren().addAll(rangeSliderNode);
+        textFieldHbox.getChildren().addAll(tfLow,spacerPane,tfHigh);
         borderPane.widthProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
@@ -106,39 +114,13 @@ public class GuiMain extends Application {
                 }
             }
         });
-
+        
         canopySlider.valueProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                 if (controller!=null){
                     controller.changeCanopyOpacity(newValue.floatValue());
                 }
-            }
-        });
-        heightSlider.valueProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                if (controller!=null){
-                    // float temp = controller.sliderToHeight(newValue.floatValue());
-                    // System.out.println(newValue.floatValue());
-                    // controller.heightFilter(temp);
-                    // //DecimalFormat df = new DecimalFormat("#.##");
-                    // heightTextField.setText(Float.toString(temp));
-                    // // df.format(temp)
-                }
-            }
-        });
-        heightTextField.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                //if (Pattern.matches("[0-9]*.[0-9]*", newValue)) {
-                    //float temp = controller.heightToSlider(Float.parseFloat(newValue));
-                    //controller.heightFilter(Float.parseFloat(newValue));
-                    //heightSlider.setValue(temp);
-               // }
-            
-                    
-                
             }
         });
         undergrowthSlider.valueProperty().addListener(new ChangeListener<Number>() {
@@ -162,7 +144,11 @@ public class GuiMain extends Application {
         canvasPane.setOnMouseDragged(new EventHandler<MouseEvent>(){
             @Override
             public void handle(MouseEvent event) {
-                canvasPane.setCursor(Cursor.MOVE);
+                if (canvasPane.getCursor() != Cursor.MOVE) {
+                    canvasPane.setCursor(Cursor.MOVE);
+                    //System.out.println("SET COURSER MOVE");
+                }
+                
                 dragging = true;
                 controller.panning((float) event.getX(), (float) event.getY());
 
@@ -173,6 +159,7 @@ public class GuiMain extends Application {
             @Override
             public void handle(MouseEvent event) {
                 canvasPane.setCursor(Cursor.DEFAULT);
+                //System.out.println("SET COURSER DEFFAULT");
             }
         });
         canvasPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -226,7 +213,7 @@ public class GuiMain extends Application {
         }
         else {
             closeFile();
-            controller = new Controller(selectedFile, rangeSlider);
+            controller = new Controller(selectedFile, rangeSlider,tfLow,tfHigh);
             controller.addCanvases(canvasPane);
             controller.generateMinimap(miniMap);
 

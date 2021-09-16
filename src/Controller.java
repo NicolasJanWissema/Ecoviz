@@ -1,9 +1,12 @@
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Task;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.TextField;
 import javafx.scene.effect.Blend;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.effect.Effect;
@@ -41,6 +44,9 @@ public class Controller {
     public float filterHeightLower;
     enum DRAWTYPE{Terrain,Undergrowth,Canopy,Minimap,Fire}
     RangeSlider rangeSlider;
+    TextField tfLow;
+    TextField tfHigh;
+
 
 
     // Panning and Zooming Variables
@@ -62,9 +68,11 @@ public class Controller {
         filename = filename.replaceAll("_canopy.pdb","");
         filename = filename.replaceAll("_undergrowth.pdb","");
         readFiles(filename);
+
+        
     }
 
-    public Controller(File file, RangeSlider slider) {
+    public Controller(File file, RangeSlider slider, TextField tfLow, TextField tfHigh) {
         String filename = file.getAbsoluteFile().toString();
         filename = filename.replaceAll(".elv","");
         filename = filename.replaceAll(".spc.txt","");
@@ -72,11 +80,13 @@ public class Controller {
         filename = filename.replaceAll("_undergrowth.pdb","");
         readFiles(filename);
         rangeSlider = slider;
+        this.tfLow = tfLow;
+        this.tfHigh = tfHigh;
     }
 
     public void movedSlider(RangeSlider tempSlider) {
-        System.out.println("Upper: " + sliderToHeight(tempSlider.getUpperValue()));
-        System.out.println("Lower: " + sliderToHeight(tempSlider.getValue()));
+        //System.out.println("Upper: " + sliderToHeight(tempSlider.getUpperValue()));
+        //System.out.println("Lower: " + sliderToHeight(tempSlider.getValue()));
         heightFilter(sliderToHeight(tempSlider.getUpperValue()), sliderToHeight(tempSlider.getValue()));
 
     }
@@ -118,7 +128,7 @@ public class Controller {
         long temp = System.nanoTime();
         undergrowthCanvas.drawCanvas();
         canopyCanvas.drawCanvas();
-        System.out.println("Time To Draw: " + (System.nanoTime() - temp)/1000000);
+        //System.out.println("Time To Draw: " + (System.nanoTime() - temp)/1000000);
     }
 
     private void readFiles(String filename) {
@@ -500,17 +510,48 @@ public class Controller {
     public void heightFilter(float upper, float lower) {
         filterHeightUpper = upper;
         filterHeightLower = lower;
+        Platform.runLater(()->{
+            tfLow.setText(Float.toString(lower));
+            tfHigh.setText(Float.toString(upper));
+        });
+        
         plantData.filterHeight(filterHeightLower, filterHeightUpper);
         // try {
         //     TimeUnit.MILLISECONDS.sleep(500);
         // } catch (Exception e) {
         //     System.out.println("OH OH");
         // }
-        
-        //undergrowthCanvas.drawCanvas();
-        canopyCanvas.drawCanvas();
-        
-        
+        redrawPlants(); 
+    }
+
+    private void redrawUndergrowth() {
+        Platform.runLater(()->{
+            undergrowthCanvas.drawCanvas();
+        });
+
+    }
+
+    private void redrawCanopy() {
+        Platform.runLater(()->{
+            canopyCanvas.drawCanvas();
+        });
+    }
+
+    private void redrawTerrain() {
+        Platform.runLater(()->{
+            terrainCanvas.drawCanvas();
+        });
+    }
+
+    private void redrawPlants() {
+        redrawUndergrowth();
+        redrawCanopy();
+    }
+
+    private void redraw() {
+        redrawUndergrowth();
+        redrawCanopy();
+        redrawTerrain();
     }
 
     public void addFilter(int speciesID, VBox filterBox){
