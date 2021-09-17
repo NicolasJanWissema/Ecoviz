@@ -10,8 +10,7 @@ public class Plant implements Comparable<Plant> {
     private float height;
     private float canopyRadius;
     private boolean burnt;
-    private boolean speciesEnabled, plantEnabled;
-    private Bounds plantBounds;
+    private boolean speciesEnabled, plantEnabled, heightEnabled;
 
     // Constructors
     public Plant() {
@@ -26,6 +25,7 @@ public class Plant implements Comparable<Plant> {
         this.speciesID=speciesID;
         speciesEnabled=true;
         plantEnabled=true;
+        heightEnabled = true;
     }
     public float distanceFromPlant(float x,float y){
         return (float)(Math.sqrt(Math.pow(xPos-x,2)+Math.pow(yPos-y,2)));
@@ -88,7 +88,21 @@ public class Plant implements Comparable<Plant> {
     public void enableSpecies(){
         speciesEnabled=true;
     }
+    public void enableHeight() {
+        heightEnabled = true;
+    }
+    public void disableHeight() {
+        heightEnabled = false;
+    }
     public boolean enabled(){
-        return (speciesEnabled && plantEnabled);
+        return (speciesEnabled && plantEnabled && heightEnabled);
+    }
+
+    public void checkHeight(float min, float max){
+        if(height > min && height < max) {
+            enableHeight();
+        } else {
+            disableHeight();
+        }
     }
 }

@@ -119,6 +119,19 @@ public class Plants {
         return (null);
     }
 
+    //Filter Height
+    public void filterHeight(float min, float max){
+        if (!completeGeneration){completeGeneration();}
+        for (Plant plant : undergrowth){
+            plant.checkHeight(min, max);
+        }
+        for (Plant plant : canopy){
+            plant.checkHeight(min, max);
+        }
+    }
+
+   
+
     //filter specific species from images.
     public void filterSpecies(int speciesID){
         if (!completeGeneration){completeGeneration();}
@@ -207,8 +220,13 @@ public class Plants {
     public void setColor(int speciesID, Color newColor){
         plantColors[speciesID]=newColor;
     }
-    public float getGreatestRadius(){
-        return (greatestRadius);
+
+    public float getHeight() {
+        return maxHeight;
+    }
+
+    public float getGreatestRadius() {
+        return greatestRadius;
     }
     public void setOpacity(Double o){
         opacity=o;

@@ -1,9 +1,15 @@
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Task;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.TextField;
+import javafx.scene.effect.Blend;
+import javafx.scene.effect.BlendMode;
+import javafx.scene.effect.Effect;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -16,9 +22,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeUnit;
+
 import javafx.scene.image.PixelWriter;
 import javafx.scene.input.ScrollEvent;
 
+import javax.swing.plaf.ColorChooserUI;
+import javax.swing.plaf.ColorUIResource;
 
 public class Controller {
     //Variables
@@ -30,7 +41,14 @@ public class Controller {
     PlantCanvas canopyCanvas;
     PlantCanvas undergrowthCanvas;
     private Plant selectedPlant;
+    public float maxHeight;
+    public float filterHeightUpper;
+    public float filterHeightLower;
     enum DRAWTYPE{Terrain,Undergrowth,Canopy,Minimap,Fire}
+    RangeSlider rangeSlider;
+    TextField tfLow;
+    TextField tfHigh;
+
 
 
 
@@ -53,6 +71,27 @@ public class Controller {
         filename = filename.replaceAll("_canopy.pdb","");
         filename = filename.replaceAll("_undergrowth.pdb","");
         readFiles(filename);
+
+        
+    }
+
+    public Controller(File file, RangeSlider slider, TextField tfLow, TextField tfHigh) {
+        String filename = file.getAbsoluteFile().toString();
+        filename = filename.replaceAll(".elv","");
+        filename = filename.replaceAll(".spc.txt","");
+        filename = filename.replaceAll("_canopy.pdb","");
+        filename = filename.replaceAll("_undergrowth.pdb","");
+        readFiles(filename);
+        rangeSlider = slider;
+        this.tfLow = tfLow;
+        this.tfHigh = tfHigh;
+    }
+
+    public void movedSlider(RangeSlider tempSlider) {
+        //System.out.println("Upper: " + sliderToHeight(tempSlider.getUpperValue()));
+        //System.out.println("Lower: " + sliderToHeight(tempSlider.getValue()));
+        heightFilter(sliderToHeight(tempSlider.getUpperValue()), sliderToHeight(tempSlider.getValue()));
+
     }
 
     public void setPan(float fStartPanX, float fStartPanY ) {
@@ -127,8 +166,10 @@ public class Controller {
         }
         //fOffsetY += (afterZoom[1] - beforeZoom[1]);
         terrainCanvas.drawCanvas();
+        long temp = System.nanoTime();
         undergrowthCanvas.drawCanvas();
         canopyCanvas.drawCanvas();
+        //System.out.println("Time To Draw: " + (System.nanoTime() - temp)/1000000);
     }
 
     private void readFiles(String filename) {
@@ -180,6 +221,9 @@ public class Controller {
                     for (int x=0;x<5;x++){
                         plantInfo[x] = Float.parseFloat(plantLine[x]);
                     }
+                    if (maxHeight < plantInfo[3]) {
+                        maxHeight = plantInfo[3];
+                    }
                     plantData.addPlantToCanopy(j, new Plant(speciesID, plantInfo[0], plantInfo[1], plantInfo[2], plantInfo[3], plantInfo[4]));
                 }
             }
@@ -199,6 +243,9 @@ public class Controller {
                     float[] plantInfo = new float[5];
                     for (int x=0;x<5;x++){
                         plantInfo[x] = Float.parseFloat(plantLine[x]);
+                    }
+                    if (maxHeight < plantInfo[3]) {
+                        maxHeight = plantInfo[3];
                     }
                     plantData.addPlantToUndergrowth(j, new Plant(speciesID, plantInfo[0], plantInfo[1], plantInfo[2], plantInfo[3], plantInfo[4]));
                 }
@@ -493,10 +540,74 @@ public class Controller {
         miniPane.getChildren().add(minimapCanvas);
     }
 
+    public float sliderToHeight(float sliderNum) {
+        float temp = ((sliderNum)/50)*maxHeight;
+        if (temp > maxHeight) {
+            temp = maxHeight;
+        }
+        return temp;
+    }
+
+    public float heightToSlider(float height) {
+        float temp = (height/maxHeight)*50;
+        if (temp > maxHeight) {
+            temp = maxHeight;
+        }
+        return temp;
+    }
+
+    public void heightFilter(float upper, float lower) {
+        filterHeightUpper = upper;
+        filterHeightLower = lower;
+        Platform.runLater(()->{
+            tfLow.setText(Float.toString(lower));
+            tfHigh.setText(Float.toString(upper));
+        });
+        
+        plantData.filterHeight(filterHeightLower, filterHeightUpper);
+        // try {
+        //     TimeUnit.MILLISECONDS.sleep(500);
+        // } catch (Exception e) {
+        //     System.out.println("OH OH");
+        // }
+        redrawPlants(); 
+    }
+
+    private void redrawUndergrowth() {
+        Platform.runLater(()->{
+            undergrowthCanvas.drawCanvas();
+        });
+
+    }
+
+    private void redrawCanopy() {
+        Platform.runLater(()->{
+            canopyCanvas.drawCanvas();
+        });
+    }
+
+    private void redrawTerrain() {
+        Platform.runLater(()->{
+            terrainCanvas.drawCanvas();
+        });
+    }
+
+    private void redrawPlants() {
+        redrawUndergrowth();
+        redrawCanopy();
+    }
+
+    private void redraw() {
+        redrawUndergrowth();
+        redrawCanopy();
+        redrawTerrain();
+    }
+
     public void addFilter(int speciesID, VBox filterBox){
         HBox hBox = new HBox();
         ColorPicker colorPicker = new ColorPicker(plantData.getColor(speciesID));
         colorPicker.getStyleClass().add("button");
+        colorPicker.setStyle("-fx-color-label-visible: false ;");
         colorPicker.valueProperty().addListener(new ChangeListener<Color>() {
             @Override
             public void changed(ObservableValue<? extends Color> observable, Color oldValue, Color newValue) {
@@ -521,7 +632,6 @@ public class Controller {
                 undergrowthCanvas.drawCanvas();
             }
         });
-
         hBox.getChildren().addAll(colorPicker,checkBox);
         filterBox.getChildren().add(hBox);
     }

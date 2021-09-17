@@ -69,8 +69,9 @@
                               <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Undergrowth opacity" />
                               <Slider fx:id="undergrowthSlider" max="1.0" prefWidth="1.0" value="1.0" />
                               <Separator prefWidth="200.0" />
-                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Placeholder slider" />
-                              <Slider max="1.0" prefHeight="14.0" prefWidth="104.0" value="1.0" />
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Height" />
+                              <HBox fx:id="textFieldHbox" prefHeight="0.0" prefWidth="200.0" />
+                              <HBox fx:id="hbox" prefHeight="0.0" prefWidth="200.0" />
                               <Separator prefWidth="200.0" />
                               <VBox fx:id="infoBox" prefHeight="200.0" prefWidth="100.0" />
                            </children>
