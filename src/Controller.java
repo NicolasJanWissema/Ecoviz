@@ -399,7 +399,7 @@ public class Controller {
 
             if (selectedPlant!=null && selectedPlant.enabled()){
                 for (Plant plant : plants){
-                    if (plant.enabled() && plant!=selectedPlant && plant.containedIn(fOffsetX,fOffsetY,width,height, plantData.getGreatestRadius())){
+                    if (plant.enabled() && plant!=selectedPlant /*&& plant.containedIn(fOffsetX,fOffsetY,width,height, plantData.getGreatestRadius())*/){
                         gc.setFill(plantData.getColor(plant.getSpeciesID()));
                         //gc.setStroke(plantData.getColor(plant.getSpeciesID()).darker());
                         float[] pos = worldToScreen(plant.getPosition()[0], plant.getPosition()[1]);
@@ -646,6 +646,7 @@ public class Controller {
         float[] pos = screenToWorld(x,y);
         selectedPlant = plantData.selectPlant(pos[0],pos[1]);
         if (selectedPlant!=null){
+            System.out.println("CLICKED PLANT:");
             System.out.println(speciesInfo[selectedPlant.getSpeciesID()].getCommmonName());
             System.out.println(speciesInfo[selectedPlant.getSpeciesID()].getLantinName());
         }
