@@ -15,6 +15,7 @@ public class Plants {
     private float greatestRadius;
     private boolean completeGeneration;
     private double opacity;
+    private float maxHeight;
 
     //Constructors
     Plants(int numSpecies){

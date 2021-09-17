@@ -85,6 +85,10 @@ public class Controller {
         rangeSlider = slider;
         this.tfLow = tfLow;
         this.tfHigh = tfHigh;
+        Platform.runLater(()->{
+            tfLow.setText(Float.toString(0));
+            tfHigh.setText(Float.toString(maxHeight));
+        });
     }
 
     public void movedSlider(RangeSlider tempSlider) {
