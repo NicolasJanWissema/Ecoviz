@@ -8,6 +8,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.Slider;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCharacterCombination;
 import javafx.scene.layout.AnchorPane;
@@ -42,13 +43,16 @@ public class GuiMain extends Application {
 
     public BorderPane borderPane;
     public MenuBar menuBar;
-    public SplitPane rightPane;
+    public HBox rightPane;
     public AnchorPane bottomPane;
+    public AnchorPane leftPane;
+    public TextArea plantText;
     public VBox infoBox;
     public Label positionLabel;
     public HBox hbox;
     public RangeSlider rangeSlider;
     public HBox textFieldHbox;
+    public Menu fileMenu;
     TextField tfLow;
     TextField tfHigh;
 
@@ -80,114 +84,83 @@ public class GuiMain extends Application {
         spacerPane.setPrefWidth(200);
         hbox.getChildren().addAll(rangeSliderNode);
         textFieldHbox.getChildren().addAll(tfLow,spacerPane,tfHigh);
-        borderPane.widthProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                borderPane.setPrefWidth((double)newValue);
 
-                if (controller!=null){
-                    double newX = (double)newValue-rightPane.getWidth();
-                    double newY = borderPane.getHeight()-bottomPane.getHeight()-menuBar.getHeight();
-                    float yDimension = controller.getyDimension();
-                    float xDimension = controller.getxDimension();
-                    if ((newX/xDimension) <  (newY/yDimension) ){
-                        canvasPane.setPrefWidth(newX);
-                        canvasPane.setPrefHeight((yDimension*newX)/xDimension);
-                    }
+        borderPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+            borderPane.setPrefWidth((double)newValue);
+
+            if (controller!=null){
+                double newX = (double)newValue-rightPane.getWidth()-leftPane.getWidth();
+                double newY = borderPane.getHeight()-bottomPane.getHeight()-menuBar.getHeight();
+                float yDimension = controller.getyDimension();
+                float xDimension = controller.getxDimension();
+                if ((newX/xDimension) <  (newY/yDimension) ){
+                    canvasPane.setPrefWidth(newX);
+                    canvasPane.setPrefHeight((yDimension*newX)/xDimension);
                 }
             }
         });
-        borderPane.heightProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                borderPane.setPrefHeight((double) newValue);
 
-                if (controller!=null){
-                    double newY = (double)newValue-bottomPane.getHeight()-menuBar.getHeight();
-                    double newX = borderPane.getWidth()-rightPane.getWidth();
-                    float yDimension = controller.getyDimension();
-                    float xDimension = controller.getxDimension();
-                    if ((newY/yDimension) < (newX/xDimension) ){
-                        canvasPane.setPrefHeight(newY);
-                        canvasPane.setPrefWidth((xDimension*newY)/yDimension);
-                    }
+        borderPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+            borderPane.setPrefHeight((double) newValue);
+
+            if (controller!=null){
+                double newY = (double)newValue-bottomPane.getHeight()-menuBar.getHeight();
+                double newX = borderPane.getWidth()-rightPane.getWidth()-leftPane.getWidth();
+                float yDimension = controller.getyDimension();
+                float xDimension = controller.getxDimension();
+                if ((newY/yDimension) < (newX/xDimension) ){
+                    canvasPane.setPrefHeight(newY);
+                    canvasPane.setPrefWidth((xDimension*newY)/yDimension);
                 }
             }
         });
         
-        canopySlider.valueProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                if (controller!=null){
-                    controller.changeCanopyOpacity(newValue.floatValue());
-                }
+        canopySlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (controller!=null){
+                controller.changeCanopyOpacity(newValue.floatValue());
             }
         });
-        undergrowthSlider.valueProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                if (controller!=null){
-                    controller.changeUndergrowthOpacity(newValue.floatValue());
-                }
+        undergrowthSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (controller!=null){
+                controller.changeUndergrowthOpacity(newValue.floatValue());
             }
         });
 
 
-        canvasPane.setOnMousePressed(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                //System.out.println("MOUSE PRESSED");
-                controller.setPan((float) event.getX(), (float) event.getY());
-            }
+        canvasPane.setOnMousePressed(event -> {
+            //System.out.println("MOUSE PRESSED");
+            controller.setPan((float) event.getX(), (float) event.getY());
         });
-
-        canvasPane.setOnMouseDragged(new EventHandler<MouseEvent>(){
-            @Override
-            public void handle(MouseEvent event) {
-                if (canvasPane.getCursor() != Cursor.MOVE) {
-                    canvasPane.setCursor(Cursor.MOVE);
-                    //System.out.println("SET COURSER MOVE");
-                }
-                
-                dragging = true;
-                controller.panning((float) event.getX(), (float) event.getY());
-
+        canvasPane.setOnMouseDragged(event -> {
+            if (canvasPane.getCursor() != Cursor.MOVE) {
+                canvasPane.setCursor(Cursor.MOVE);
+                //System.out.println("SET COURSER MOVE");
             }
 
-        });
-        canvasPane.setOnMouseReleased(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                canvasPane.setCursor(Cursor.DEFAULT);
-                //System.out.println("SET COURSER DEFFAULT");
-            }
-        });
-        canvasPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if(controller!=null && !dragging){
-                    controller.getPlant((float)event.getX(), (float)event.getY());
-                }
-                dragging = false;
-            }
-        });
-        canvasPane.setOnMouseMoved(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if(controller!=null){
-                    float[] pos = controller.screenToWorld((float)event.getX(),(float)event.getY());
-                    positionLabel.setText(pos[0]+" , "+pos[1]);
-                }
-            }
-        });
+            dragging = true;
+            controller.panning((float) event.getX(), (float) event.getY());
 
-        canvasPane.setOnScroll(new EventHandler<ScrollEvent>(){
-            @Override
-            public void handle(ScrollEvent event) {
-                //System.out.println("Scroll Event Y: " + event.getDeltaY());
-                controller.zooming(event);
+        });
+        canvasPane.setOnMouseReleased(event -> {
+            canvasPane.setCursor(Cursor.DEFAULT);
+            //System.out.println("SET COURSER DEFFAULT");
+        });
+        canvasPane.setOnMouseClicked(event -> {
+            if(controller!=null && !dragging){
+                controller.getPlant((float)event.getX(), (float)event.getY());
+                plantText.setText(controller.getSelectedPlantText());
             }
-
+            dragging = false;
+        });
+        canvasPane.setOnMouseMoved(event -> {
+            if(controller!=null){
+                float[] pos = controller.screenToWorld((float)event.getX(),(float)event.getY());
+                positionLabel.setText(pos[0]+" , "+pos[1]);
+            }
+        });
+        canvasPane.setOnScroll(event -> {
+            //System.out.println("Scroll Event Y: " + event.getDeltaY());
+            controller.zooming(event);
         });
         
     }
@@ -217,23 +190,7 @@ public class GuiMain extends Application {
             controller.addCanvases(canvasPane);
             controller.generateMinimap(miniMap);
 
-            double newY = borderPane.getHeight()-bottomPane.getHeight()-menuBar.getHeight();
-            double newX = borderPane.getWidth()-rightPane.getWidth();
-            float yDimension = controller.getyDimension();
-            float xDimension = controller.getxDimension();
-            if ((newY/yDimension) < (newX/xDimension) ){
-                canvasPane.setPrefHeight(newY);
-                canvasPane.setPrefWidth((xDimension*newY)/yDimension);
-            }
-            else if ((newX/xDimension) <  (newY/yDimension) ){
-                canvasPane.setPrefWidth(newX);
-                canvasPane.setPrefHeight((yDimension*newX)/xDimension);
-            }
-            else{
-                canvasPane.setPrefWidth(newX);
-                canvasPane.setPrefHeight(newY);
-            }
-
+            setCanvasPane();
             controller.addCanvases(canvasPane);
             controller.generateMinimap(miniMap);
         }
@@ -249,6 +206,25 @@ public class GuiMain extends Application {
         miniMap.getChildren().clear();
     }
 
+    private void setCanvasPane(){
+        double newY = borderPane.getHeight()-bottomPane.getHeight()-menuBar.getHeight();
+        double newX = borderPane.getWidth()-rightPane.getWidth()-leftPane.getWidth();
+        float yDimension = controller.getyDimension();
+        float xDimension = controller.getxDimension();
+        if ((newY/yDimension) < (newX/xDimension) ){
+            canvasPane.setPrefHeight(newY);
+            canvasPane.setPrefWidth((xDimension*newY)/yDimension);
+        }
+        else if ((newX/xDimension) <  (newY/yDimension) ){
+            canvasPane.setPrefWidth(newX);
+            canvasPane.setPrefHeight((yDimension*newX)/xDimension);
+        }
+        else{
+            canvasPane.setPrefWidth(newX);
+            canvasPane.setPrefHeight(newY);
+        }
+    }
+
     public void openFilter(){
         infoBox.getChildren().clear();
         if (controller!=null){
@@ -259,12 +235,7 @@ public class GuiMain extends Application {
     }
 
     private void createSwingContent(final SwingNode swingNode) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                swingNode.setContent(rangeSlider);
-            }
-        });
+        SwingUtilities.invokeLater(() -> swingNode.setContent(rangeSlider));
     }
 
 }
