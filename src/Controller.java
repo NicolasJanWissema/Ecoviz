@@ -399,7 +399,7 @@ public class Controller {
 
             if (selectedPlant!=null && selectedPlant.enabled()){
                 for (Plant plant : plants){
-                    if (plant.enabled() && plant!=selectedPlant /*&& plant.containedIn(fOffsetX,fOffsetY,width,height, plantData.getGreatestRadius())*/){
+                    if (plant.enabled() && plant!=selectedPlant && plant.containedIn(fOffsetX,fOffsetY,width,height, plantData.getGreatestRadius())){
                         gc.setFill(plantData.getColor(plant.getSpeciesID()));
                         //gc.setStroke(plantData.getColor(plant.getSpeciesID()).darker());
                         float[] pos = worldToScreen(plant.getPosition()[0], plant.getPosition()[1]);
@@ -415,7 +415,7 @@ public class Controller {
             }
             else{
                 for (Plant plant : plants){
-                    if (plant.enabled()){
+                    if (plant.enabled() && plant.containedIn(fOffsetX,fOffsetY,width,height, plantData.getGreatestRadius())){
                         gc.setFill(plantData.getColor(plant.getSpeciesID()));
                         //gc.setStroke(plantData.getColor(plant.getSpeciesID()).darker());
                         float[] pos = worldToScreen(plant.getPosition()[0], plant.getPosition()[1]);

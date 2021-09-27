@@ -32,7 +32,7 @@ public class Plant implements Comparable<Plant> {
     }
     public boolean containedIn(float xOffset, float yOffset, float width, float height, float greatestRadius){
         if (enabled()){
-            return (xOffset < xPos && xPos - xOffset < width && yOffset < yPos && yPos - yOffset < height);
+            return (xOffset-greatestRadius < xPos && xPos-greatestRadius-xOffset < width && yOffset-greatestRadius < yPos && yPos-greatestRadius-yOffset < height);
         }
         return (false);
     }
