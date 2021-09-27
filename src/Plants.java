@@ -22,6 +22,7 @@ public class Plants {
         completeGeneration=false;
         tempUndergrowth = new Plant[numSpecies][0];
         tempCanopy = new Plant[numSpecies][0];
+        greatestRadius=0;
         System.out.println(numSpecies);
         opacity = 0.7;
         generateColors(numSpecies);
