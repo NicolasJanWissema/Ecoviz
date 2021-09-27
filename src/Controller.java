@@ -40,6 +40,7 @@ public class Controller {
     TerrainCanvas terrainCanvas;
     PlantCanvas canopyCanvas;
     PlantCanvas undergrowthCanvas;
+    MiniMapCanvas miniMapSquare;
     private Plant selectedPlant;
     public float maxHeight;
     public float filterHeightUpper;
@@ -127,6 +128,7 @@ public class Controller {
         terrainCanvas.drawCanvas();
         undergrowthCanvas.drawCanvas();
         canopyCanvas.drawCanvas();
+        miniMapSquare.drawSquare();
     }
 
     public void zooming(ScrollEvent event) {
@@ -173,6 +175,7 @@ public class Controller {
         long temp = System.nanoTime();
         undergrowthCanvas.drawCanvas();
         canopyCanvas.drawCanvas();
+        miniMapSquare.drawSquare();
         //System.out.println("Time To Draw: " + (System.nanoTime() - temp)/1000000);
     }
 
@@ -403,14 +406,14 @@ public class Controller {
                         gc.setFill(plantData.getColor(plant.getSpeciesID()));
                         //gc.setStroke(plantData.getColor(plant.getSpeciesID()).darker());
                         float[] pos = worldToScreen(plant.getPosition()[0], plant.getPosition()[1]);
-                        double rad = (double) (plant.getCanopyRadius()*(sizeX*scaleX));
+                        double rad = plant.getCanopyRadius()*(sizeX*scaleX);
                         gc.fillOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
                         //gc.strokeOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
                     }
                 }
                 gc.setFill(Color.BLACK);
                 float[] pos = worldToScreen(selectedPlant.getPosition()[0], selectedPlant.getPosition()[1]);
-                double rad = (double) (selectedPlant.getCanopyRadius()*(sizeX*scaleX));
+                double rad = selectedPlant.getCanopyRadius()*(sizeX*scaleX);
                 gc.fillOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
             }
             else{
@@ -419,7 +422,7 @@ public class Controller {
                         gc.setFill(plantData.getColor(plant.getSpeciesID()));
                         //gc.setStroke(plantData.getColor(plant.getSpeciesID()).darker());
                         float[] pos = worldToScreen(plant.getPosition()[0], plant.getPosition()[1]);
-                        double rad = (double) (plant.getCanopyRadius()*(sizeX*scaleX));
+                        double rad = plant.getCanopyRadius()*(sizeX*scaleX);
                         gc.fillOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
                         //gc.strokeOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
                     }
@@ -427,6 +430,82 @@ public class Controller {
             }
             //long endTime = System.nanoTime();
             //System.out.println("TIME TO DRAW CIRCLE: " + ((endTime-startTime)/1000000));
+        }
+
+        @Override
+        public boolean isResizable() {
+            return true;
+        }
+
+        @Override
+        public double prefWidth(double height) {
+            return getWidth();
+        }
+
+        @Override
+        public double prefHeight(double width) {
+            return getHeight();
+        }
+    }
+
+    class MiniMapCanvas extends Canvas{
+        private DRAWTYPE drawtype;
+
+        public MiniMapCanvas(DRAWTYPE drawtype){
+            this.drawtype=drawtype;
+
+            // Redraw canvas when size changes.
+            widthProperty().addListener(evt -> drawCanvas());
+            heightProperty().addListener(evt -> drawCanvas());
+        }
+        public MiniMapCanvas(){
+            // Redraw canvas when size changes.
+            widthProperty().addListener(evt -> drawSquare());
+            heightProperty().addListener(evt -> drawSquare());
+        }
+        public void drawCanvas() {
+            GraphicsContext gc = getGraphicsContext2D();
+            gc.clearRect(0, 0, getWidth(), getHeight());
+
+            //Terrain drawing..
+            float minh = terrainCanvas.minh;
+            float maxh = terrainCanvas.maxh;
+            gc.clearRect(0, 0, getWidth(), getHeight());
+            PixelWriter pw = gc.getPixelWriter();
+            for(int x=0; x < terrainData.dimx; x++){
+                for(int y=0; y < terrainData.dimy; y++) {
+                    // find normalized height value in range
+                    float val = (terrainData.getHeight(x, y) - minh) / (maxh - minh);
+                    Color color = new Color(val,val,val,1.0f);
+                    pw.setColor((int)(x*getWidth()/xDimension), (int)(y*getHeight()/yDimension), color);
+                }
+            }
+
+            //Undergrowth Drawing..
+            for (Plant plant: plantData.getUndergrowth()){
+                gc.setFill(plantData.getColor(plant.getSpeciesID()));
+                float x = (float) (plant.getPosition()[0]*getWidth()/xDimension);
+                float y = (float)(plant.getPosition()[1]*getHeight()/yDimension);
+                double rad = plant.getCanopyRadius()*getWidth()/xDimension;
+                gc.fillOval((double) x-rad, (double) y-rad, rad *2, rad*2);
+            }
+            //Canopy Drawing..
+            for (Plant plant: plantData.getCanopy()){
+                gc.setFill(plantData.getColor(plant.getSpeciesID()));
+                float x = (float) (plant.getPosition()[0]*getWidth()/xDimension);
+                float y = (float)(plant.getPosition()[1]*getHeight()/yDimension);
+                double rad = plant.getCanopyRadius()*getWidth()/xDimension;
+                gc.fillOval((double) x-rad, (double) y-rad, rad *2, rad*2);
+            }
+        }
+
+        public void drawSquare(){
+            GraphicsContext gc = getGraphicsContext2D();
+            gc.clearRect(0, 0, getWidth(), getHeight());
+
+            gc.setStroke(Color.BLACK);
+            float[] dimensions = screenToWorld((float)terrainCanvas.getWidth(), (float)terrainCanvas.getHeight());
+            gc.strokeRect(-fOffsetX*getWidth()/xDimension, -fOffsetY*getHeight()/yDimension, (dimensions[0]+fOffsetX)*getWidth()/xDimension,(dimensions[1]+fOffsetY)*getHeight()/yDimension);
         }
 
         @Override
@@ -504,44 +583,25 @@ public class Controller {
     }
 
     public void generateMinimap(StackPane miniPane){
-        Canvas minimapCanvas = new Canvas(200,200);
-        GraphicsContext gc = minimapCanvas.getGraphicsContext2D();
+        //TerrainCanvas miniMapTerrainCanvas = new TerrainCanvas(DRAWTYPE.Terrain);
+        //PlantCanvas miniMapUndergrowthCanvas = new PlantCanvas(plantData.getUndergrowth(),DRAWTYPE.Undergrowth);
+        //PlantCanvas miniMapCanopyCanvas = new PlantCanvas(plantData.getCanopy(), DRAWTYPE.Canopy);
+        //miniMapTerrainCanvas.widthProperty().bind(miniPane.widthProperty());
+        //miniMapTerrainCanvas.heightProperty().bind(miniPane.heightProperty());
+        //miniMapUndergrowthCanvas.widthProperty().bind(miniPane.widthProperty());
+        //miniMapUndergrowthCanvas.heightProperty().bind(miniPane.heightProperty());
+        //miniMapCanopyCanvas.widthProperty().bind(miniPane.widthProperty());
+        //miniMapCanopyCanvas.heightProperty().bind(miniPane.heightProperty());
 
-        //Terrain drawing..
-        float minh = terrainCanvas.minh;
-        float maxh = terrainCanvas.maxh;
-        gc.clearRect(0, 0, minimapCanvas.getWidth(), minimapCanvas.getHeight());
-        PixelWriter pw = gc.getPixelWriter();
-        for(int x=0; x < terrainData.dimx; x++){
-            for(int y=0; y < terrainData.dimy; y++) {
-                // find normalized height value in range
-                float val = (terrainData.getHeight(x, y) - minh) / (maxh - minh);
-                Color color = new Color(val,val,val,1.0f);
-                pw.setColor((int)(x*minimapCanvas.getWidth()/xDimension), (int)(y*minimapCanvas.getHeight()/yDimension), color);
-            }
-        }
+        MiniMapCanvas minimapCanvas = new MiniMapCanvas(DRAWTYPE.Minimap);
+        minimapCanvas.widthProperty().bind(miniPane.widthProperty());
+        minimapCanvas.heightProperty().bind(miniPane.heightProperty());
 
-        //Undergrowth Drawing..
-        for (Plant plant: plantData.getUndergrowth()){
-            gc.setFill(plantData.getColor(plant.getSpeciesID()));
-            float x = (float) (plant.getPosition()[0]*minimapCanvas.getWidth()/xDimension);
-            float y = (float)(plant.getPosition()[1]*minimapCanvas.getHeight()/yDimension);
-            double rad = (double) (plant.getCanopyRadius()*minimapCanvas.getWidth()/xDimension);
-            gc.fillOval((double) x-rad, (double) y-rad, rad *2, rad*2);
-        }
-        //Canopy Drawing..
-        for (Plant plant: plantData.getCanopy()){
-            gc.setFill(plantData.getColor(plant.getSpeciesID()));
-            float x = (float) (plant.getPosition()[0]*minimapCanvas.getWidth()/xDimension);
-            float y = (float)(plant.getPosition()[1]*minimapCanvas.getHeight()/yDimension);
-            double rad = (double) (plant.getCanopyRadius()*minimapCanvas.getWidth()/xDimension);
-            gc.fillOval((double) x-rad, (double) y-rad, rad *2, rad*2);
-        }
+        miniMapSquare = new MiniMapCanvas();
+        miniMapSquare.widthProperty().bind(miniPane.widthProperty());
+        miniMapSquare.heightProperty().bind(miniPane.heightProperty());
 
-
-
-
-        miniPane.getChildren().add(minimapCanvas);
+        miniPane.getChildren().addAll(minimapCanvas, miniMapSquare);
     }
 
     public float sliderToHeight(float sliderNum) {
@@ -578,22 +638,16 @@ public class Controller {
     }
 
     private void redrawUndergrowth() {
-        Platform.runLater(()->{
-            undergrowthCanvas.drawCanvas();
-        });
+        Platform.runLater(()-> undergrowthCanvas.drawCanvas());
 
     }
 
     private void redrawCanopy() {
-        Platform.runLater(()->{
-            canopyCanvas.drawCanvas();
-        });
+        Platform.runLater(()-> canopyCanvas.drawCanvas());
     }
 
     private void redrawTerrain() {
-        Platform.runLater(()->{
-            terrainCanvas.drawCanvas();
-        });
+        Platform.runLater(()-> terrainCanvas.drawCanvas());
     }
 
     private void redrawPlants() {
@@ -612,29 +666,23 @@ public class Controller {
         ColorPicker colorPicker = new ColorPicker(plantData.getColor(speciesID));
         colorPicker.getStyleClass().add("button");
         colorPicker.setStyle("-fx-color-label-visible: false ;");
-        colorPicker.valueProperty().addListener(new ChangeListener<Color>() {
-            @Override
-            public void changed(ObservableValue<? extends Color> observable, Color oldValue, Color newValue) {
-                plantData.setColor(speciesID,observable.getValue());
-                canopyCanvas.drawCanvas();
-                undergrowthCanvas.drawCanvas();
-            }
+        colorPicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+            plantData.setColor(speciesID,observable.getValue());
+            canopyCanvas.drawCanvas();
+            undergrowthCanvas.drawCanvas();
         });
 
         CheckBox checkBox = new CheckBox(speciesInfo[speciesID].getCommmonName());
         checkBox.setSelected(true);
-        checkBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if (observable.getValue()){
-                    plantData.unFilterSpecies(speciesID);
-                }
-                else {
-                    plantData.filterSpecies(speciesID);
-                }
-                canopyCanvas.drawCanvas();
-                undergrowthCanvas.drawCanvas();
+        checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (observable.getValue()){
+                plantData.unFilterSpecies(speciesID);
             }
+            else {
+                plantData.filterSpecies(speciesID);
+            }
+            canopyCanvas.drawCanvas();
+            undergrowthCanvas.drawCanvas();
         });
         hBox.getChildren().addAll(colorPicker,checkBox);
         filterBox.getChildren().add(hBox);
@@ -642,16 +690,26 @@ public class Controller {
     public int getNumSpecies(){
         return (speciesInfo.length);
     }
+
     public void getPlant(float x, float y){
         float[] pos = screenToWorld(x,y);
         selectedPlant = plantData.selectPlant(pos[0],pos[1]);
+        canopyCanvas.drawCanvas();
+        undergrowthCanvas.drawCanvas();
+    }
+    public String getSelectedPlantText(){
+        String text = "";
         if (selectedPlant!=null){
             System.out.println("CLICKED PLANT:");
+            text += speciesInfo[selectedPlant.getSpeciesID()].getCommmonName()+"\n";
+            text += speciesInfo[selectedPlant.getSpeciesID()].getLantinName()+"\n";
+            text += "Height: "+ selectedPlant.getHeight()+"m\n";
+            text += "Canopy radius: "+ selectedPlant.getCanopyRadius()+"m\n";
+
             System.out.println(speciesInfo[selectedPlant.getSpeciesID()].getCommmonName());
             System.out.println(speciesInfo[selectedPlant.getSpeciesID()].getLantinName());
         }
-        canopyCanvas.drawCanvas();
-        undergrowthCanvas.drawCanvas();
+        return (text);
     }
 
 }
