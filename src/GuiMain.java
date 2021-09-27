@@ -45,7 +45,7 @@ public class GuiMain extends Application {
     public MenuBar menuBar;
     public HBox rightPane;
     public AnchorPane bottomPane;
-    public AnchorPane leftPane;
+    //public AnchorPane leftPane;
     public TextArea plantText;
     public VBox infoBox;
     public Label positionLabel;
@@ -89,7 +89,7 @@ public class GuiMain extends Application {
             borderPane.setPrefWidth((double)newValue);
 
             if (controller!=null){
-                double newX = (double)newValue-rightPane.getWidth()-leftPane.getWidth();
+                double newX = (double)newValue-rightPane.getWidth();
                 double newY = borderPane.getHeight()-bottomPane.getHeight()-menuBar.getHeight();
                 float yDimension = controller.getyDimension();
                 float xDimension = controller.getxDimension();
@@ -105,7 +105,7 @@ public class GuiMain extends Application {
 
             if (controller!=null){
                 double newY = (double)newValue-bottomPane.getHeight()-menuBar.getHeight();
-                double newX = borderPane.getWidth()-rightPane.getWidth()-leftPane.getWidth();
+                double newX = borderPane.getWidth()-rightPane.getWidth();
                 float yDimension = controller.getyDimension();
                 float xDimension = controller.getxDimension();
                 if ((newY/yDimension) < (newX/xDimension) ){
@@ -208,7 +208,7 @@ public class GuiMain extends Application {
 
     private void setCanvasPane(){
         double newY = borderPane.getHeight()-bottomPane.getHeight()-menuBar.getHeight();
-        double newX = borderPane.getWidth()-rightPane.getWidth()-leftPane.getWidth();
+        double newX = borderPane.getWidth()-rightPane.getWidth();
         float yDimension = controller.getyDimension();
         float xDimension = controller.getxDimension();
         if ((newY/yDimension) < (newX/xDimension) ){

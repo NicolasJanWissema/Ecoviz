@@ -9,7 +9,6 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -21,48 +20,46 @@
    <top>
        <MenuBar fx:id="menuBar" scaleShape="false" BorderPane.alignment="CENTER">
            <Menu fx:id="fileMenu" mnemonicParsing="false" text="File">
-               <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open"/>
-               <MenuItem mnemonicParsing="false" onAction="#closeFile" text="Close"/>
+               <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open" />
+               <MenuItem mnemonicParsing="false" onAction="#closeFile" text="Close" />
            </Menu>
            <Menu mnemonicParsing="false" text="Edit">
-               <MenuItem mnemonicParsing="false" text="Delete"/>
-               <MenuItem mnemonicParsing="false" onAction="#openFilter" text="Filter"/>
+               <MenuItem mnemonicParsing="false" text="Delete" />
+               <MenuItem mnemonicParsing="false" onAction="#openFilter" text="Filter" />
            </Menu>
            <Menu mnemonicParsing="false" text="Help">
-               <MenuItem mnemonicParsing="false" text="About"/>
+               <MenuItem mnemonicParsing="false" text="About" />
            </Menu>
        </MenuBar>
    </top>
    <bottom>
        <AnchorPane fx:id="bottomPane" prefHeight="20.0" scaleShape="false" BorderPane.alignment="CENTER_LEFT">
-           <Label fx:id="positionLabel" text="0, 0"/>
+           <Label fx:id="positionLabel" text="0, 0" />
        </AnchorPane>
    </bottom>
    <right>
        <HBox fx:id="rightPane" BorderPane.alignment="CENTER_RIGHT">
            <Separator orientation="VERTICAL" prefHeight="200.0">
               <cursor>
-                  <Cursor fx:constant="E_RESIZE"/>
+                  <Cursor fx:constant="E_RESIZE" />
               </cursor>
            </Separator>
-           <SplitPane dividerPositions="0.5" maxHeight="-Infinity" maxWidth="-Infinity" orientation="VERTICAL"
-                      scaleShape="false">
-               <StackPane fx:id="miniMap" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-                          minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0"/>
+           <SplitPane dividerPositions="0.5" maxHeight="-Infinity" maxWidth="-Infinity" orientation="VERTICAL" scaleShape="false">
+               <StackPane fx:id="miniMap" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0" />
                <ScrollPane prefHeight="512.0" prefWidth="215.0" vbarPolicy="ALWAYS">
                    <VBox alignment="TOP_CENTER" prefWidth="200.0">
-                       <Separator prefWidth="200.0"/>
-                       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Canopy opacity"/>
-                       <Slider fx:id="canopySlider" max="1.0" value="1.0"/>
-                       <Separator prefWidth="200.0"/>
-                       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Undergrowth opacity"/>
-                       <Slider fx:id="undergrowthSlider" max="1.0" prefWidth="1.0" value="1.0"/>
-                       <Separator prefWidth="200.0"/>
-                       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Height"/>
-                       <HBox fx:id="textFieldHbox" prefHeight="0.0" prefWidth="200.0"/>
-                       <HBox fx:id="hbox" prefHeight="0.0" prefWidth="200.0"/>
-                       <Separator prefWidth="200.0"/>
-                       <VBox fx:id="infoBox" prefHeight="200.0" prefWidth="100.0"/>
+                       <Separator prefWidth="200.0" />
+                       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Canopy opacity" />
+                       <Slider fx:id="canopySlider" max="1.0" value="1.0" />
+                       <Separator prefWidth="200.0" />
+                       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Undergrowth opacity" />
+                       <Slider fx:id="undergrowthSlider" max="1.0" prefWidth="1.0" value="1.0" />
+                       <Separator prefWidth="200.0" />
+                       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Height" />
+                       <HBox fx:id="textFieldHbox" prefHeight="0.0" prefWidth="200.0" />
+                       <HBox fx:id="hbox" prefHeight="0.0" prefWidth="200.0" />
+                       <Separator prefWidth="200.0" />
+                       <VBox fx:id="infoBox" prefHeight="200.0" prefWidth="100.0" />
                    </VBox>
                </ScrollPane>
            </SplitPane>
@@ -71,9 +68,4 @@
    <center>
       <StackPane fx:id="canvasPane" centerShape="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" BorderPane.alignment="CENTER" />
    </center>
-   <left>
-       <AnchorPane fx:id="leftPane" prefHeight="540.0" prefWidth="112.0" BorderPane.alignment="CENTER">
-           <TextArea fx:id="plantText" editable="false" prefHeight="200.0" prefWidth="200.0" text="test"/>
-       </AnchorPane>
-   </left>
 </BorderPane>
