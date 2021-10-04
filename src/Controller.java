@@ -36,6 +36,7 @@ public class Controller {
     Plants plantData;
     SpeciesInfo[] speciesInfo;
     Terrain terrainData;
+    FireSim firesim;
     private float xDimension, yDimension;
     TerrainCanvas terrainCanvas;
     PlantCanvas canopyCanvas;
