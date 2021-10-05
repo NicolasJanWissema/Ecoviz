@@ -39,7 +39,6 @@ public class GuiMain extends Application {
     public AnchorPane bottomPane;
     public Separator leftSeparator;
     public Separator rightSeparator;
-    //public AnchorPane leftPane;
     public TextArea plantText;
     public VBox infoBox;
     public Label positionLabel;
@@ -82,7 +81,6 @@ public class GuiMain extends Application {
 
         borderPane.widthProperty().addListener((observable, oldValue, newValue) -> {
             borderPane.setPrefWidth((double)newValue);
-
 
             if (controller!=null){
                 canvasPane.setPrefWidth((double)newValue-rightPane.getWidth()-leftPane.getWidth());
@@ -138,7 +136,7 @@ public class GuiMain extends Application {
         canvasPane.setOnMouseClicked(event -> {
             if(controller!=null && !dragging){
                 controller.getPlant((float)event.getX(), (float)event.getY());
-                //plantText.setText(controller.getSelectedPlantText());
+                plantText.setText(controller.getSelectedPlantText());
             }
             dragging = false;
         });
@@ -229,6 +227,13 @@ public class GuiMain extends Application {
             for(int i=0; i<controller.getNumSpecies();i++){
                 controller.addFilter(i,infoBox);
             }
+        }
+    }
+
+    public void deleteSelectedPlant(){
+        if (controller!=null){
+            controller.deleteSelectedPlant();
+            plantText.setText("");
         }
     }
 

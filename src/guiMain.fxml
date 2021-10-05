@@ -73,7 +73,7 @@
       <StackPane fx:id="canvasPane" centerShape="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" BorderPane.alignment="CENTER" />
    </center>
    <left>
-      <HBox fx:id="leftPane" alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minWidth="-Infinity" nodeOrientation="RIGHT_TO_LEFT" BorderPane.alignment="CENTER_LEFT">
+      <HBox fx:id="leftPane" alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" nodeOrientation="RIGHT_TO_LEFT" BorderPane.alignment="CENTER_LEFT">
          <children>
             <Separator fx:id="leftSeparator" orientation="VERTICAL">
                <cursor>
@@ -82,11 +82,11 @@
             </Separator>
             <VBox alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308">
                <children>
-                  <TextArea prefHeight="200.0" prefWidth="200.0" />
+                  <TextArea fx:id="plantText" prefHeight="200.0" prefWidth="200.0" />
                   <ButtonBar>
                     <buttons>
                         <Button mnemonicParsing="false" text="Edit" />
-                      <Button mnemonicParsing="false" text="Delete" />
+                      <Button mnemonicParsing="false" onAction="#deleteSelectedPlant" text="Delete" />
                     </buttons>
                   </ButtonBar>
                </children></VBox>

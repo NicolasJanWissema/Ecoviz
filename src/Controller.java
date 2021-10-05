@@ -736,6 +736,13 @@ public class Controller {
         }
         return (text);
     }
+    public void deleteSelectedPlant(){
+        if(selectedPlant!=null){
+            selectedPlant.delete();
+        }
+        undergrowthCanvas.drawCanvas();
+        canopyCanvas.drawCanvas();
+    }
 
 }
 
