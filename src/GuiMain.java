@@ -1,16 +1,11 @@
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.Slider;
-import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCharacterCombination;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -23,12 +18,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 import java.awt.*;
 import java.io.File;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.util.regex.Pattern;
 import javax.swing.SwingUtilities;
 import javafx.embed.swing.SwingNode;
 
@@ -46,6 +37,8 @@ public class GuiMain extends Application {
     public HBox rightPane;
     public HBox leftPane;
     public AnchorPane bottomPane;
+    public Separator leftSeparator;
+    public Separator rightSeparator;
     //public AnchorPane leftPane;
     public TextArea plantText;
     public VBox infoBox;
@@ -86,8 +79,10 @@ public class GuiMain extends Application {
         hbox.getChildren().addAll(rangeSliderNode);
         textFieldHbox.getChildren().addAll(tfLow,spacerPane,tfHigh);
 
+
         borderPane.widthProperty().addListener((observable, oldValue, newValue) -> {
             borderPane.setPrefWidth((double)newValue);
+
 
             if (controller!=null){
                 canvasPane.setPrefWidth((double)newValue-rightPane.getWidth()-leftPane.getWidth());
@@ -99,6 +94,8 @@ public class GuiMain extends Application {
 
         borderPane.heightProperty().addListener((observable, oldValue, newValue) -> {
             borderPane.setPrefHeight((double) newValue);
+            rightPane.setPrefHeight(borderPane.getHeight()-bottomPane.getHeight()-menuBar.getHeight());
+            leftPane.setPrefHeight(borderPane.getHeight()-bottomPane.getHeight()-menuBar.getHeight());
 
             if (controller!=null){
                 canvasPane.setPrefWidth(borderPane.getWidth()-rightPane.getWidth()-leftPane.getWidth());
@@ -155,7 +152,27 @@ public class GuiMain extends Application {
             //System.out.println("Scroll Event Y: " + event.getDeltaY());
             controller.zooming(event);
         });
-        
+
+        leftSeparator.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                leftPane.setPrefWidth(event.getSceneX());
+                if (controller!=null){
+                    setCanvasPane();
+                }
+            }
+        });
+
+        rightSeparator.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                double newWidth = borderPane.getWidth()-event.getSceneX();
+                rightPane.setPrefWidth(newWidth);
+                if (controller!=null){
+                    setCanvasPane();
+                }
+            }
+        });
     }
 
 
