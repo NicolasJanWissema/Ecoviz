@@ -90,14 +90,10 @@ public class GuiMain extends Application {
             borderPane.setPrefWidth((double)newValue);
 
             if (controller!=null){
-                double newX = (double)newValue-rightPane.getWidth()-leftPane.getWidth();
-                double newY = borderPane.getHeight()-bottomPane.getHeight()-menuBar.getHeight();
-                float yDimension = controller.getyDimension();
-                float xDimension = controller.getxDimension();
-                if ((newX/xDimension) <  (newY/yDimension) ){
-                    canvasPane.setPrefWidth(newX);
-                    canvasPane.setPrefHeight((yDimension*newX)/xDimension);
-                }
+                canvasPane.setPrefWidth((double)newValue-rightPane.getWidth()-leftPane.getWidth());
+                canvasPane.setPrefHeight(borderPane.getHeight()-bottomPane.getHeight()-menuBar.getHeight());
+
+                controller.updateZoom();
             }
         });
 
@@ -105,14 +101,10 @@ public class GuiMain extends Application {
             borderPane.setPrefHeight((double) newValue);
 
             if (controller!=null){
-                double newY = (double)newValue-bottomPane.getHeight()-menuBar.getHeight();
-                double newX = borderPane.getWidth()-rightPane.getWidth()-leftPane.getWidth();
-                float yDimension = controller.getyDimension();
-                float xDimension = controller.getxDimension();
-                if ((newY/yDimension) < (newX/xDimension) ){
-                    canvasPane.setPrefHeight(newY);
-                    canvasPane.setPrefWidth((xDimension*newY)/yDimension);
-                }
+                canvasPane.setPrefWidth(borderPane.getWidth()-rightPane.getWidth()-leftPane.getWidth());
+                canvasPane.setPrefHeight((double)newValue-bottomPane.getHeight()-menuBar.getHeight());
+
+                controller.updateZoom();
             }
         });
         
@@ -149,7 +141,7 @@ public class GuiMain extends Application {
         canvasPane.setOnMouseClicked(event -> {
             if(controller!=null && !dragging){
                 controller.getPlant((float)event.getX(), (float)event.getY());
-                plantText.setText(controller.getSelectedPlantText());
+                //plantText.setText(controller.getSelectedPlantText());
             }
             dragging = false;
         });
@@ -208,22 +200,10 @@ public class GuiMain extends Application {
     }
 
     private void setCanvasPane(){
-        double newY = borderPane.getHeight()-bottomPane.getHeight()-menuBar.getHeight();
-        double newX = borderPane.getWidth()-rightPane.getWidth()-leftPane.getWidth();
-        float yDimension = controller.getyDimension();
-        float xDimension = controller.getxDimension();
-        if ((newY/yDimension) < (newX/xDimension) ){
-            canvasPane.setPrefHeight(newY);
-            canvasPane.setPrefWidth((xDimension*newY)/yDimension);
-        }
-        else if ((newX/xDimension) <  (newY/yDimension) ){
-            canvasPane.setPrefWidth(newX);
-            canvasPane.setPrefHeight((yDimension*newX)/xDimension);
-        }
-        else{
-            canvasPane.setPrefWidth(newX);
-            canvasPane.setPrefHeight(newY);
-        }
+        canvasPane.setPrefWidth(borderPane.getWidth()-rightPane.getWidth()-leftPane.getWidth());
+        canvasPane.setPrefHeight(borderPane.getHeight()-bottomPane.getHeight()-menuBar.getHeight());
+
+        controller.updateZoom();
     }
 
     public void openFilter(){

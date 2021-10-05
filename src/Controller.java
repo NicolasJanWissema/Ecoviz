@@ -58,8 +58,7 @@ public class Controller {
     float fOffsetY = 0.0f;
     float fStartPanX = 0;
     float fStartPanY = 0;
-    float scaleX = 1.0f;
-    float scaleY = 1.0f;
+    float scale = 1.0f;
     float sizeX = 0;
     float sizeY = 0;
 
@@ -72,8 +71,6 @@ public class Controller {
         filename = filename.replaceAll("_canopy.pdb","");
         filename = filename.replaceAll("_undergrowth.pdb","");
         readFiles(filename);
-
-        
     }
 
     public Controller(File file, RangeSlider slider, TextField tfLow, TextField tfHigh) {
@@ -108,19 +105,19 @@ public class Controller {
         updateSize();
         float[] dimensions = screenToWorld((float)terrainCanvas.getWidth(), (float)terrainCanvas.getHeight());
         //X offset calculation.
-        if (fOffsetX-(fStartPanX - mouseX)/(scaleX*sizeX)>=0){
+        if (fOffsetX-(fStartPanX - mouseX)/(scale*sizeX)>=0){
             fOffsetX+=0;
         }
-        else if(dimensions[0]+(fStartPanX - mouseX)/(scaleX*sizeX) <= xDimension){
-            fOffsetX-=(fStartPanX - mouseX)/(scaleX*sizeX);
+        else if(dimensions[0]+(fStartPanX - mouseX)/(scale*sizeX) <= xDimension){
+            fOffsetX-=(fStartPanX - mouseX)/(scale*sizeX);
         }
 
         //Y offset calculation.
-        if (fOffsetY - (fStartPanY - mouseY)/(scaleY*sizeY)>=0){
+        if (fOffsetY - (fStartPanY - mouseY)/(scale*sizeY)>=0){
             fOffsetY=0;
         }
-        else if(dimensions[1]+(fStartPanY - mouseY)/(scaleY*sizeY) <= yDimension){
-            fOffsetY-=(fStartPanY - mouseY)/(scaleY*sizeY);
+        else if(dimensions[1]+(fStartPanY - mouseY)/(scale*sizeY) <= yDimension){
+            fOffsetY-=(fStartPanY - mouseY)/(scale*sizeY);
         }
 
         fStartPanX = mouseX;
@@ -136,15 +133,12 @@ public class Controller {
         float mouseY = (float) event.getY();
         float[] beforeZoom = screenToWorld((int) mouseX, (int) mouseY);
         if (event.getDeltaY()>0) {
-            scaleX *= 1.1f;
-            scaleY *= 1.1f;
-        } else if (scaleX*0.9f>1 && scaleY*0.9f>1){
-            scaleX *= 0.9f;
-            scaleY *= 0.9f;
+            scale *= 1.1f;
+        } else if (scale*0.9f>1){
+            scale *= 0.9f;
         }
         else{
-            scaleX=1.0f;
-            scaleY=1.0f;
+            scale=1.0f;
         }
         float mouseX1 = (float) event.getX();
         float mouseY1 = (float) event.getY();
@@ -171,12 +165,33 @@ public class Controller {
             fOffsetY = dimensions[1]-yDimension-offsets[1];
         }
         //fOffsetY += (afterZoom[1] - beforeZoom[1]);
+
+        miniMapSquare.drawSquare();
         terrainCanvas.drawCanvas();
         long temp = System.nanoTime();
         undergrowthCanvas.drawCanvas();
         canopyCanvas.drawCanvas();
-        miniMapSquare.drawSquare();
         //System.out.println("Time To Draw: " + (System.nanoTime() - temp)/1000000);
+    }
+    public  void updateZoom(){
+        float[] dimensions = screenToWorld((float)terrainCanvas.getWidth(), (float)terrainCanvas.getHeight());
+        float[] offsets = screenToWorld(0,0);
+        if (fOffsetX>=0){
+            fOffsetX=0;
+        }
+        else if(dimensions[0] >= xDimension){
+            fOffsetX = dimensions[0]-xDimension-offsets[0];
+        }
+        if (fOffsetY>=0){
+            fOffsetY=0;
+        }
+        else if(dimensions[1] >= yDimension){
+            fOffsetY = dimensions[1]-yDimension-offsets[1];
+        }
+        miniMapSquare.drawSquare();
+        terrainCanvas.drawCanvas();
+        undergrowthCanvas.drawCanvas();
+        canopyCanvas.drawCanvas();
     }
 
     private void readFiles(String filename) {
@@ -289,21 +304,31 @@ public class Controller {
 
     public float[] worldToScreen(float fWorldX, float fWorldY) {
         updateSize();
-        float nScreenX = (fWorldX + fOffsetX)*sizeX*scaleX;
-        float nScreenY = (fWorldY + fOffsetY)*sizeY*scaleY;
+        float nScreenX = (fWorldX + fOffsetX)*sizeX*scale;
+        float nScreenY = (fWorldY + fOffsetY)*sizeY*scale;
         return new float[]{nScreenX,nScreenY};
     }
 
     public float[] screenToWorld(float nScreenX, float nScreenY) {
         updateSize();
-        float fWorldX = nScreenX/(scaleX*sizeX) - fOffsetX;
-        float fWorldY = nScreenY/(scaleY*sizeY) - fOffsetY;
+        float fWorldX = nScreenX/(scale*sizeX) - fOffsetX;
+        float fWorldY = nScreenY/(scale*sizeY) - fOffsetY;
         return new float[]{fWorldX,fWorldY};
     }
 
     public void updateSize() {
-        sizeX = (float) (terrainCanvas.getWidth()/xDimension);
-        sizeY = (float) (terrainCanvas.getHeight()/yDimension);
+        if (terrainCanvas.getWidth() < terrainCanvas.getHeight()){
+            sizeX = (float) (terrainCanvas.getHeight()/xDimension);
+            sizeY = (float) (terrainCanvas.getHeight()/yDimension);
+        }
+        else if (terrainCanvas.getWidth() > terrainCanvas.getHeight()){
+            sizeX = (float) (terrainCanvas.getWidth()/xDimension);
+            sizeY = (float) (terrainCanvas.getWidth()/yDimension);
+        }
+        else{
+            sizeX = (float) (terrainCanvas.getWidth()/xDimension);
+            sizeY = (float) (terrainCanvas.getHeight()/yDimension);
+        }
     }
 
     public void changeCanopyOpacity(double value){
@@ -355,7 +380,7 @@ public class Controller {
                    // pw.setColor((int)(x*getWidth()/xDimension), (int)(y*getHeight()/yDimension), color);
                     //pw.setColor((int)pos[0], (int)pos[1], color);
                     gc.setFill(color);
-                    gc.fillRect(pos[0], pos[1], 1*scaleX*sizeX+1, 1*scaleX*sizeX+1);
+                    gc.fillRect(pos[0], pos[1], 1*scale*sizeX+1, 1*scale*sizeX+1);
                 }
             }
             //long endTime = System.nanoTime();
@@ -406,14 +431,14 @@ public class Controller {
                         gc.setFill(plantData.getColor(plant.getSpeciesID()));
                         //gc.setStroke(plantData.getColor(plant.getSpeciesID()).darker());
                         float[] pos = worldToScreen(plant.getPosition()[0], plant.getPosition()[1]);
-                        double rad = plant.getCanopyRadius()*(sizeX*scaleX);
+                        double rad = plant.getCanopyRadius()*(sizeX*scale);
                         gc.fillOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
                         //gc.strokeOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
                     }
                 }
                 gc.setFill(Color.BLACK);
                 float[] pos = worldToScreen(selectedPlant.getPosition()[0], selectedPlant.getPosition()[1]);
-                double rad = selectedPlant.getCanopyRadius()*(sizeX*scaleX);
+                double rad = selectedPlant.getCanopyRadius()*(sizeX*scale);
                 gc.fillOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
             }
             else{
@@ -422,7 +447,7 @@ public class Controller {
                         gc.setFill(plantData.getColor(plant.getSpeciesID()));
                         //gc.setStroke(plantData.getColor(plant.getSpeciesID()).darker());
                         float[] pos = worldToScreen(plant.getPosition()[0], plant.getPosition()[1]);
-                        double rad = plant.getCanopyRadius()*(sizeX*scaleX);
+                        double rad = plant.getCanopyRadius()*(sizeX*scale);
                         gc.fillOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
                         //gc.strokeOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
                     }
