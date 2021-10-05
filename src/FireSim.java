@@ -26,38 +26,34 @@ public class FireSim {
         for(Plant p : ug){
             fillInPlant(p);
         }
-        for(Plant p : can){
-            fillInPlant(p);
+        for(int p = 0; p<can.length; p++){
+            fillInPlant(can[p]);
         }
     }
-    // public synchronized void drawCanvas() {
-    //     GraphicsContext gc = getGraphicsContext2D();
-    //     gc.clearRect(0, 0, getWidth(), getHeight());
-    //     float width = screenToWorld((float)getWidth(), (float)getHeight())[0]-fOffsetX;
-    //     float height = screenToWorld((float)getWidth(), (float)getHeight())[1]-fOffsetY;
-
-    //     if (selectedPlant!=null && selectedPlant.enabled()){
-    //         for (Plant plant : plants){
-    //             if (plant.enabled() && plant!=selectedPlant && plant.containedIn(fOffsetX,fOffsetY,width,height, plantData.getGreatestRadius())){
-    //                 gc.setFill(plantData.getColor(plant.getSpeciesID()));
-    //                 //gc.setStroke(plantData.getColor(plant.getSpeciesID()).darker());
-    //                 float[] pos = worldToScreen(plant.getPosition()[0], plant.getPosition()[1]);
-    //                 double rad = plant.getCanopyRadius()*(sizeX*scaleX);
-    //                 gc.fillOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
-    //                 //gc.strokeOval((double) pos[0]-rad, (double) pos[1]-rad, rad *2, rad*2);
-    //             }
-    //         }
+ 
     public void fillInPlant(Plant p){
-        int r = Math.round(p.getCanopyRadius());
-        int x = Math.round(p.getPosition()[0]);
-        int y = Math.round(p.getPosition()[1]);
-        int xstart = x - r;
-        int ystart = y - r;
-        int yend = y+r;
-        int xend = x+r;
-        for (int i = ystart; i<yend+1 ; i++){
+        int r = Math.round(p.getCanopyRadius()); // gets canopy radius and rounds it as int
+        int x = Math.round(p.getPosition()[0]); // gets x position and rounds it as int
+        int y = Math.round(p.getPosition()[1]); // gets y position and rounds it as int
+        int xstart = x - r; // calculates xstart for the plant canopy
+        if(xstart < 0){ // edge case checking incase plant is on border
+            xstart = 0;
+        }
+        int ystart = y - r; // calculates ystart for the plant canopy
+        if(ystart < 0){ // edge case checking incase plant is on border
+            ystart = 0;
+        }
+        int yend = y+r; // calculates yend for the plant canopy
+        if(yend > size-1){ // edge case checking incase plant is on border
+            yend = size-1;
+        }
+        int xend = x+r; // calculates xend for the plant canopy
+        if(xend > size-1){ // edge case checking incase plant is on border
+            xend = size-1;
+        }
+        for (int i = ystart; i<yend+1 ; i++){ // loops through square of canopy size surrounding plant 
             for(int j = xstart; j<xend+1; j++){
-                grid[i][j].add(p.getPlantID());
+                grid[i][j].add(p.getPlantID()); // appends arraylist with the plantID of plant occupying space
             }
         }
     }
