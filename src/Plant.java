@@ -66,6 +66,10 @@ public class Plant implements Comparable<Plant> {
         return height;
     }
 
+    public int getPlantID() {
+        return plantID;
+    }
+
     public float getCanopyRadius() {
         return canopyRadius;
     }
