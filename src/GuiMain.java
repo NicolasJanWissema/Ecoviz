@@ -6,12 +6,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.fxml.FXML;
@@ -34,8 +29,8 @@ public class GuiMain extends Application {
 
     public BorderPane borderPane;
     public MenuBar menuBar;
-    public HBox rightPane;
-    public HBox leftPane;
+    public AnchorPane rightPane;
+    public AnchorPane leftPane;
     public AnchorPane bottomPane;
     public Separator leftSeparator;
     public Separator rightSeparator;
