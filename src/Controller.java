@@ -725,16 +725,22 @@ public class Controller {
     public String getSelectedPlantText(){
         String text = "";
         if (selectedPlant!=null){
-            System.out.println("CLICKED PLANT:");
+            //System.out.println("CLICKED PLANT:");
             text += speciesInfo[selectedPlant.getSpeciesID()].getCommmonName()+"\n";
             text += speciesInfo[selectedPlant.getSpeciesID()].getLantinName()+"\n";
             text += "Height: "+ selectedPlant.getHeight()+"m\n";
             text += "Canopy radius: "+ selectedPlant.getCanopyRadius()+"m\n";
-
-            System.out.println(speciesInfo[selectedPlant.getSpeciesID()].getCommmonName());
-            System.out.println(speciesInfo[selectedPlant.getSpeciesID()].getLantinName());
+            //System.out.println(speciesInfo[selectedPlant.getSpeciesID()].getCommmonName());
+            //System.out.println(speciesInfo[selectedPlant.getSpeciesID()].getLantinName());
         }
         return (text);
+    }
+    public void deleteSelectedPlant(){
+        if(selectedPlant!=null){
+            selectedPlant.delete();
+        }
+        undergrowthCanvas.drawCanvas();
+        canopyCanvas.drawCanvas();
     }
 
 }

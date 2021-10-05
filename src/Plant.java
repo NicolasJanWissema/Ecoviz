@@ -105,4 +105,7 @@ public class Plant implements Comparable<Plant> {
             disableHeight();
         }
     }
+    public void delete(){
+        plantEnabled=false;
+    }
 }
