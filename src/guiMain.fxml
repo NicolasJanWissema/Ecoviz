@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="585.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GuiMain">
+<BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="628.0" prefWidth="980.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GuiMain">
    <top>
        <MenuBar fx:id="menuBar" scaleShape="false" BorderPane.alignment="CENTER">
            <Menu fx:id="fileMenu" mnemonicParsing="false" text="File">
@@ -68,4 +68,20 @@
    <center>
       <StackPane fx:id="canvasPane" centerShape="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" BorderPane.alignment="CENTER" />
    </center>
+   <left>
+      <HBox fx:id="leftPane" BorderPane.alignment="CENTER">
+         <children>
+            <SplitPane maxHeight="-Infinity" maxWidth="-Infinity" orientation="VERTICAL" scaleShape="false">
+               <items>
+                  <ScrollPane prefHeight="512.0" prefWidth="215.0" vbarPolicy="ALWAYS" />
+               </items>
+            </SplitPane>
+            <Separator orientation="VERTICAL" prefHeight="200.0">
+               <cursor>
+                  <Cursor fx:constant="E_RESIZE" />
+               </cursor>
+            </Separator>
+         </children>
+      </HBox>
+   </left>
 </BorderPane>
