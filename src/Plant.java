@@ -11,12 +11,13 @@ public class Plant implements Comparable<Plant> {
     private float canopyRadius;
     private boolean burnt;
     private boolean speciesEnabled, plantEnabled, heightEnabled;
+    private int plantID;
 
     // Constructors
     public Plant() {
 
     }
-    public Plant(int speciesID, float xPos, float yPos, float zPos, float height, float canopyRadius){
+    public Plant(int speciesID, float xPos, float yPos, float zPos, float height, float canopyRadius, int ID){
         this.xPos = xPos;
         this.yPos = yPos;
         this.zPos = zPos;
@@ -26,6 +27,7 @@ public class Plant implements Comparable<Plant> {
         speciesEnabled=true;
         plantEnabled=true;
         heightEnabled = true;
+        plantID = ID;
     }
     public float distanceFromPlant(float x,float y){
         return (float)(Math.sqrt(Math.pow(xPos-x,2)+Math.pow(yPos-y,2)));

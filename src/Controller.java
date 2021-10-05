@@ -216,6 +216,7 @@ public class Controller {
             //reading canopy plant file
             bufferedReader = new BufferedReader(new FileReader(filename+"_canopy.pdb"));
             int speciesNum = Integer.parseInt(bufferedReader.readLine());
+            int plantCount = 1;
             for(int i=0; i<speciesNum; i++){
                 String[] speciesData = bufferedReader.readLine().split(" ");
                 int speciesID = Integer.parseInt(speciesData[0]);
@@ -232,8 +233,10 @@ public class Controller {
                     if (maxHeight < plantInfo[3]) {
                         maxHeight = plantInfo[3];
                     }
-                    plantData.addPlantToCanopy(j, new Plant(speciesID, plantInfo[0], plantInfo[1], plantInfo[2], plantInfo[3], plantInfo[4]));
+                    plantData.addPlantToCanopy(j, new Plant(speciesID, plantInfo[0], plantInfo[1], plantInfo[2], plantInfo[3], plantInfo[4], plantCount));
+                    plantCount++;
                 }
+                
             }
 
             //reading undergrowth plant file
@@ -255,7 +258,7 @@ public class Controller {
                     if (maxHeight < plantInfo[3]) {
                         maxHeight = plantInfo[3];
                     }
-                    plantData.addPlantToUndergrowth(j, new Plant(speciesID, plantInfo[0], plantInfo[1], plantInfo[2], plantInfo[3], plantInfo[4]));
+                    plantData.addPlantToUndergrowth(j, new Plant(speciesID, plantInfo[0], plantInfo[1], plantInfo[2], plantInfo[3], plantInfo[4], plantCount));
                 }
             }
             //finished reading files
