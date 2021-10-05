@@ -216,7 +216,7 @@ public class Controller {
             //reading canopy plant file
             bufferedReader = new BufferedReader(new FileReader(filename+"_canopy.pdb"));
             int speciesNum = Integer.parseInt(bufferedReader.readLine());
-            int plantCount = 1;
+            int plantCount = 0;
             for(int i=0; i<speciesNum; i++){
                 String[] speciesData = bufferedReader.readLine().split(" ");
                 int speciesID = Integer.parseInt(speciesData[0]);
