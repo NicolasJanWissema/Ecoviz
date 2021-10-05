@@ -9,12 +9,12 @@ public class FireSim {
     private int windDirection;
     private int[] seedPoint;
     private int size;
+    private float gspc;
 
-    public FireSim(int size, Plants plantData){
+    public FireSim(int size, float gridSpacing, Plants plantData){
+        gspc = gridSpacing;
         this.size = size;
-        grid = new ArrayList[size][size];
-        float [] tempPos;
-        float rad;
+        grid = new ArrayList [size][size];
         Plant [] ug, can;
         ug = plantData.getUndergrowth();
         can = plantData.getCanopy();
@@ -32,9 +32,9 @@ public class FireSim {
     }
  
     public void fillInPlant(Plant p){
-        int r = Math.round(p.getCanopyRadius()); // gets canopy radius and rounds it as int
-        int x = Math.round(p.getPosition()[0]); // gets x position and rounds it as int
-        int y = Math.round(p.getPosition()[1]); // gets y position and rounds it as int
+        int r = Math.round(p.getCanopyRadius()/gspc); // gets canopy radius and rounds it as int
+        int x = Math.round(p.getPosition()[0]/gspc); // gets x position and rounds it as int
+        int y = Math.round(p.getPosition()[1]/gspc); // gets y position and rounds it as int
         int xstart = x - r; // calculates xstart for the plant canopy
         if(xstart < 0){ // edge case checking incase plant is on border
             xstart = 0;
