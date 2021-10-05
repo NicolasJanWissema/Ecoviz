@@ -6,6 +6,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.Blend;
 import javafx.scene.effect.BlendMode;
@@ -17,10 +18,7 @@ import javafx.scene.paint.Color;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeUnit;
@@ -41,6 +39,7 @@ public class Controller {
     PlantCanvas canopyCanvas;
     PlantCanvas undergrowthCanvas;
     MiniMapCanvas miniMapSquare;
+    ProgressBar loadingBar;
     private Plant selectedPlant;
     public float maxHeight;
     public float filterHeightUpper;
@@ -64,7 +63,7 @@ public class Controller {
 
 
     //Constructor
-    public Controller(File file){
+    public Controller(File file) throws FileNotFoundException {
         String filename = file.getAbsoluteFile().toString();
         filename = filename.replaceAll(".elv","");
         filename = filename.replaceAll(".spc.txt","");
@@ -73,7 +72,8 @@ public class Controller {
         readFiles(filename);
     }
 
-    public Controller(File file, RangeSlider slider, TextField tfLow, TextField tfHigh) {
+    public Controller(File file, ProgressBar loadingBar, RangeSlider slider, TextField tfLow, TextField tfHigh) throws FileNotFoundException {
+        this.loadingBar = loadingBar;
         String filename = file.getAbsoluteFile().toString();
         filename = filename.replaceAll(".elv","");
         filename = filename.replaceAll(".spc.txt","");
@@ -87,6 +87,7 @@ public class Controller {
             tfLow.setText(Float.toString(0));
             tfHigh.setText(Float.toString(maxHeight));
         });
+        //loadingBar.progressProperty().set(0);
     }
 
     public void movedSlider(RangeSlider tempSlider) {
@@ -193,15 +194,12 @@ public class Controller {
         undergrowthCanvas.drawCanvas();
         canopyCanvas.drawCanvas();
     }
-
-    private void readFiles(String filename) {
+    private void readFiles(String filename) throws FileNotFoundException {
         long startTime = System.nanoTime();
+        //Reading species file.
         try{
-            BufferedReader bufferedReader;
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(filename+".spc.txt"));
             String line;
-
-            //Reading species file.
-            bufferedReader = new BufferedReader(new FileReader(filename+".spc.txt"));
             ArrayList<SpeciesInfo> speciesInfoArrayList = new ArrayList<>();
             while((line=bufferedReader.readLine())!=null){
                 speciesInfoArrayList.add(new SpeciesInfo(line));
@@ -209,9 +207,16 @@ public class Controller {
             speciesInfo=new SpeciesInfo[speciesInfoArrayList.size()];
             speciesInfoArrayList.toArray(speciesInfo);
             plantData = new Plants(speciesInfo.length);
-
-            //read elevation file
-            bufferedReader = new BufferedReader(new FileReader(filename+".elv"));
+            //finished reading files
+            bufferedReader.close();
+            loadingBar.progressProperty().set(0.25);
+        } catch (IOException e) {
+            //e.printStackTrace();
+            throw new FileNotFoundException("species file not found or incorrectly formatted.");
+        }
+        //read elevation file
+        try{
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(filename+".elv"));
             String[] elevationInfo = bufferedReader.readLine().split(" ");
             int dimX = Integer.parseInt(elevationInfo[0]);
             int dimY = Integer.parseInt(elevationInfo[1]);
@@ -226,9 +231,16 @@ public class Controller {
             }
             xDimension = terrainData.getXDimension();
             yDimension = terrainData.getYDimension();
-
-            //reading canopy plant file
-            bufferedReader = new BufferedReader(new FileReader(filename+"_canopy.pdb"));
+            //finished reading files
+            bufferedReader.close();
+            loadingBar.progressProperty().set(0.5);
+        } catch (IOException e) {
+            //e.printStackTrace();
+            throw new FileNotFoundException("elevation file not found or incorrectly formatted.");
+        }
+        //reading canopy plant file
+        try{
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(filename+"_canopy.pdb"));
             int speciesNum = Integer.parseInt(bufferedReader.readLine());
             for(int i=0; i<speciesNum; i++){
                 String[] speciesData = bufferedReader.readLine().split(" ");
@@ -249,10 +261,17 @@ public class Controller {
                     plantData.addPlantToCanopy(j, new Plant(speciesID, plantInfo[0], plantInfo[1], plantInfo[2], plantInfo[3], plantInfo[4]));
                 }
             }
-
-            //reading undergrowth plant file
-            bufferedReader = new BufferedReader(new FileReader(filename+"_undergrowth.pdb"));
-            speciesNum = Integer.parseInt(bufferedReader.readLine());
+            //finished reading files
+            bufferedReader.close();
+            loadingBar.progressProperty().set(0.75);
+        } catch (IOException e) {
+            //e.printStackTrace();
+            throw new FileNotFoundException("canopy file not found or incorrectly formatted.");
+        }
+        //reading undergrowth plant file
+        try{
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(filename+"_undergrowth.pdb"));
+            int speciesNum = Integer.parseInt(bufferedReader.readLine());
             for(int i=0; i<speciesNum; i++){
                 String[] speciesData = bufferedReader.readLine().split(" ");
                 int speciesID = Integer.parseInt(speciesData[0]);
@@ -274,17 +293,13 @@ public class Controller {
             }
             //finished reading files
             bufferedReader.close();
-            //generate sorted arrays of data.
-            plantData.completeGeneration();
+            loadingBar.progressProperty().set(1);
+
+        } catch (IOException e) {
+            //e.printStackTrace();
+            throw new FileNotFoundException("undergrowth file not found or incorrectly formatted.");
         }
-        catch (IOException e){
-            System.out.println("Unable to open input file");
-            e.printStackTrace();
-        }
-        catch (java.util.InputMismatchException e){
-            System.out.println("Malformed input file");
-            e.printStackTrace();
-        }
+
         long endTime = System.nanoTime();
         System.out.println("TIME TO READ: " + ((endTime-startTime)/1000000));
     }
@@ -608,16 +623,6 @@ public class Controller {
     }
 
     public void generateMinimap(StackPane miniPane){
-        //TerrainCanvas miniMapTerrainCanvas = new TerrainCanvas(DRAWTYPE.Terrain);
-        //PlantCanvas miniMapUndergrowthCanvas = new PlantCanvas(plantData.getUndergrowth(),DRAWTYPE.Undergrowth);
-        //PlantCanvas miniMapCanopyCanvas = new PlantCanvas(plantData.getCanopy(), DRAWTYPE.Canopy);
-        //miniMapTerrainCanvas.widthProperty().bind(miniPane.widthProperty());
-        //miniMapTerrainCanvas.heightProperty().bind(miniPane.heightProperty());
-        //miniMapUndergrowthCanvas.widthProperty().bind(miniPane.widthProperty());
-        //miniMapUndergrowthCanvas.heightProperty().bind(miniPane.heightProperty());
-        //miniMapCanopyCanvas.widthProperty().bind(miniPane.widthProperty());
-        //miniMapCanopyCanvas.heightProperty().bind(miniPane.heightProperty());
-
         MiniMapCanvas minimapCanvas = new MiniMapCanvas(DRAWTYPE.Minimap);
         minimapCanvas.widthProperty().bind(miniPane.widthProperty());
         minimapCanvas.heightProperty().bind(miniPane.heightProperty());
@@ -725,13 +730,10 @@ public class Controller {
     public String getSelectedPlantText(){
         String text = "";
         if (selectedPlant!=null){
-            //System.out.println("CLICKED PLANT:");
             text += speciesInfo[selectedPlant.getSpeciesID()].getCommmonName()+"\n";
             text += speciesInfo[selectedPlant.getSpeciesID()].getLantinName()+"\n";
             text += "Height: "+ selectedPlant.getHeight()+"m\n";
             text += "Canopy radius: "+ selectedPlant.getCanopyRadius()+"m\n";
-            //System.out.println(speciesInfo[selectedPlant.getSpeciesID()].getCommmonName());
-            //System.out.println(speciesInfo[selectedPlant.getSpeciesID()].getLantinName());
         }
         return (text);
     }
