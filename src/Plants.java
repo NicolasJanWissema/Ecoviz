@@ -1,8 +1,5 @@
 import javafx.scene.paint.Color;
-
 import java.util.*;
-
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 public class Plants {
 

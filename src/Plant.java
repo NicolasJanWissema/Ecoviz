@@ -1,7 +1,3 @@
-import javafx.geometry.Bounds;
-import javafx.geometry.Point2D;
-import javafx.geometry.Point3D;
-
 /**
  * Stores the data for an individual plant
  * 
