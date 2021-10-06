@@ -377,15 +377,16 @@ public class Controller {
                         minh = h;
                 }
             }
-            // Redraw canvas when size changes.
-            widthProperty().addListener(evt -> drawCanvas());
-            heightProperty().addListener(evt -> drawCanvas());
         }
         public void drawThread(){
             Drawing drawing = new Drawing(drawtype);
             drawing.start();
         }
-
+        public void addListeners(){
+            // Redraw canvas when size changes.
+            widthProperty().addListener(evt -> drawCanvas());
+            heightProperty().addListener(evt -> drawCanvas());
+        }
         public synchronized void drawCanvas() {
             GraphicsContext gc = getGraphicsContext2D();
             gc.clearRect(0, 0, getWidth(), getHeight());
@@ -431,14 +432,15 @@ public class Controller {
         public PlantCanvas(Plant[] plants, DRAWTYPE drawtype){
             this.plants=plants;
             this.drawtype=drawtype;
-
-            // Redraw canvas when size changes.
-            widthProperty().addListener(evt -> drawCanvas());
-            heightProperty().addListener(evt -> drawCanvas());
         }
         public void drawThread(){
             Drawing drawing = new Drawing(drawtype);
             drawing.start();
+        }
+        public void addListeners(){
+            // Redraw canvas when size changes.
+            widthProperty().addListener(evt -> drawCanvas());
+            heightProperty().addListener(evt -> drawCanvas());
         }
         public synchronized void drawCanvas() {
             GraphicsContext gc = getGraphicsContext2D();
@@ -612,6 +614,7 @@ public class Controller {
         terrainCanvas.widthProperty().bind(stackPane.widthProperty());
         terrainCanvas.heightProperty().bind(stackPane.heightProperty());
         stackPane.getChildren().add(terrainCanvas);
+        terrainCanvas.addListeners();
         System.out.println("done adding terrain");
     }
 
@@ -625,6 +628,8 @@ public class Controller {
         undergrowthCanvas.heightProperty().bind(stackPane.heightProperty());
 
         stackPane.getChildren().addAll(undergrowthCanvas,canopyCanvas);
+        canopyCanvas.addListeners();
+        undergrowthCanvas.addListeners();
         System.out.println("done adding canvases");
     }
 
