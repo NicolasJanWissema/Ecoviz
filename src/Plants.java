@@ -1,9 +1,11 @@
 import javafx.scene.paint.Color;
-
 import java.util.*;
 
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
-
+/**
+ * This class stores the bulk of the data for each plant
+ * 
+ * @author WSSNIC008 KRNHAN003 JCBSHA028
+ */
 public class Plants {
 
     // private variables
@@ -17,7 +19,11 @@ public class Plants {
     private double opacity;
     private float maxHeight;
 
-    //Constructors
+    /**
+     * Constructor
+     * 
+     * @param numSpecies takes in the number of diffrent species in a file
+     */
     Plants(int numSpecies){
         completeGeneration=false;
         tempUndergrowth = new Plant[numSpecies][0];
@@ -29,10 +35,22 @@ public class Plants {
 
     }
 
-    //Data generating methods
+    /**
+     * Adds the species number to canopy
+     * 
+     * @param speciesID
+     * @param speciesNum
+     */
     public void addSpeciesNumToCanopy(int speciesID,int speciesNum){
         tempCanopy[speciesID]=new Plant[speciesNum];
     }
+
+    /**
+     * Adds a plant to the canopy array
+     * 
+     * @param speciesPos species ID
+     * @param newPlant plant to be added
+     */
     public void addPlantToCanopy(int speciesPos, Plant newPlant){
         tempCanopy[newPlant.getSpeciesID()][speciesPos]=newPlant;
         if (newPlant.getCanopyRadius()>greatestRadius){
@@ -40,9 +58,22 @@ public class Plants {
         }
     }
 
+    /**
+     * Adds Species Number to Undergrowth
+     * 
+     * @param speciesID
+     * @param speciesNum
+     */
     public void addSpeciesNumToUndergrowth(int speciesID,int speciesNum){
         tempUndergrowth[speciesID]=new Plant[speciesNum];
     }
+
+    /**
+     * Adds a planty to the undergrowth array
+     * 
+     * @param speciesPos species ID
+     * @param newPlant plant to be added
+     */
     public void addPlantToUndergrowth(int speciesPos, Plant newPlant){
         tempUndergrowth[newPlant.getSpeciesID()][speciesPos]=newPlant;
         if (newPlant.getCanopyRadius()>greatestRadius){
@@ -50,6 +81,9 @@ public class Plants {
         }
     }
 
+    /**
+     * Generates and sorts the data
+     */
     public void completeGeneration(){
         long startTime = System.nanoTime();
         int arrayLength=0;
@@ -89,6 +123,13 @@ public class Plants {
         System.out.println("TIME TO SORT: " + ((endTime-startTime)/1000000));
     }
 
+    /**
+     * Selects a plant closest to a certain position relative to a plants centre
+     * 
+     * @param posX x position
+     * @param posY y position
+     * @return
+     */
     public Plant selectPlant(float posX, float posY){
         if (!completeGeneration){completeGeneration();}
         Plant selectedPlant = getEnabledPlant();
@@ -107,6 +148,12 @@ public class Plants {
         }
         return (null);
     }
+
+    /**
+     * Find the selected plant
+     * 
+     * @return returns the selected plant
+     */
     private Plant getEnabledPlant(){
         for (Plant plant : undergrowth){
             if (plant.enabled()){
@@ -121,7 +168,12 @@ public class Plants {
         return (null);
     }
 
-    //Filter Height
+    /**
+     * Filter the plants by height 
+     * 
+     * @param min minimal height
+     * @param max macimum height
+     */
     public void filterHeight(float min, float max){
         if (!completeGeneration){completeGeneration();}
         for (Plant plant : undergrowth){
@@ -132,9 +184,11 @@ public class Plants {
         }
     }
 
-   
-
-    //filter specific species from images.
+    /**
+     * Filters a specices using species ID
+     * 
+     * @param speciesID species ID
+     */
     public void filterSpecies(int speciesID){
         if (!completeGeneration){completeGeneration();}
         for (Plant plant : undergrowth){
@@ -148,7 +202,13 @@ public class Plants {
             }
         }
     }
-    //unfiltered specific species from images.
+
+
+    /**
+     * Unfilter a specices using species ID
+     * 
+     * @param speciesID species ID
+     */
     public void unFilterSpecies(int speciesID){
         if (!completeGeneration){completeGeneration();}
         for (Plant plant : undergrowth){
@@ -163,7 +223,11 @@ public class Plants {
         }
     }
 
-    //Generate colors with a gaussian distribution around green.
+    /**
+     * Generates Unique colours for species
+     * 
+     * @param numSpecies
+     */
     private void generateColors(int numSpecies){
         // int gaussMultiple=1000;
         System.out.println("Opacity: "+opacity);
@@ -205,31 +269,69 @@ public class Plants {
         // colorList.toArray(plantColors);
     }
 
+    /**
+     * Returns the undergrowth and if not generated it will generate it
+     * 
+     * @return returns array of undergrowth plants
+     */
     public Plant[] getUndergrowth(){
         if (!completeGeneration){completeGeneration();}
         return (undergrowth);
     }
 
+    /**
+     * Returns the canopy and if not generated it will generate it
+     * 
+     * @return returns array of undergrowth plants
+     */
     public Plant[] getCanopy() {
         if (!completeGeneration){completeGeneration();}
         return (canopy);
     }
 
+    /**
+     * Get's colour for specific species
+     * 
+     * @param i species ID
+     * @return returns the colour
+     */
     public Color getColor(int i) {
         return plantColors[i];
     }
 
+    /**
+     * Set's the colour for a specific species
+     * 
+     * @param speciesID Species ID
+     * @param newColor New Color
+     */
     public void setColor(int speciesID, Color newColor){
         plantColors[speciesID]=newColor;
     }
 
+    /**
+     * Get the maximum height of all the plants
+     * 
+     * @return gets height in metres
+     */
     public float getHeight() {
         return maxHeight;
     }
 
+    /**
+     * Gets the maximum radius of a plant
+     * 
+     * @return gets radius in metres
+     */
     public float getGreatestRadius() {
         return greatestRadius;
     }
+
+    /**
+     * Sets the opacity of all the plants
+     * 
+     * @param o opacity value
+     */
     public void setOpacity(Double o){
         opacity=o;
     }
