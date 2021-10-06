@@ -10,6 +10,7 @@ public class Plant implements Comparable<Plant> {
     private float height;
     private float canopyRadius;
     private boolean burnt;
+    private boolean burning;
     private boolean speciesEnabled, plantEnabled, heightEnabled;
     private int plantID;
 
@@ -78,9 +79,19 @@ public class Plant implements Comparable<Plant> {
         return burnt;
     }
 
+    public boolean isBurning() {
+        return burning;
+    }
+
     public void setBurnt(boolean burnt) {
         this.burnt = burnt;
     }
+
+    public void setBurning(boolean burning) {
+        this.burning = burning;
+    }
+
+
 
     public void disablePlant(){
         plantEnabled=false;
