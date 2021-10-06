@@ -10,6 +10,8 @@ public class FireSim {
     private int[] seedPoint;
     private int size;
     private float gspc;
+    private ArrayList<Integer> burning;
+    private ArrayList<Integer> burnt;
 
     public FireSim(int size, float gridSpacing, Plants plantData, int[] sp){
         gspc = gridSpacing;
@@ -62,7 +64,7 @@ public class FireSim {
     public void shouldBurn(int x, int y){
         int [][] surrounding = {{x-1, y+1}, {x, y+1}, {x+1, y+1}, {x-1, y}, {x+1, y}, {x-1, y-1}, {x, y-1}, {x+1, y-1}};
         for(int [] s : surrounding){
-            
+
         }
     }
 
@@ -79,6 +81,14 @@ public class FireSim {
     }
     public int[] getSeedPoint() {
         return seedPoint;
+    }
+
+    public ArrayList<Integer> getBurning() {
+        return burning;
+    }
+
+    public ArrayList<Integer> getBurnt() {
+        return burnt;
     }
 
 }
