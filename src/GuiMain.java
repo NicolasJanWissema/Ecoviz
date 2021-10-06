@@ -7,6 +7,7 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.fxml.FXML;
@@ -15,7 +16,9 @@ import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import java.awt.*;
 import java.io.File;
-import javax.swing.SwingUtilities;
+import java.io.FileNotFoundException;
+import javax.swing.*;
+
 import javafx.embed.swing.SwingNode;
 
 import javafx.scene.Cursor;
@@ -28,6 +31,7 @@ public class GuiMain extends Application {
     public StackPane miniMap;
 
     public BorderPane borderPane;
+    public ProgressBar loadingBar;
     public MenuBar menuBar;
     public AnchorPane rightPane;
     public AnchorPane leftPane;
@@ -146,24 +150,18 @@ public class GuiMain extends Application {
             controller.zooming(event);
         });
 
-        leftSeparator.setOnMouseDragged(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                leftPane.setPrefWidth(event.getSceneX());
-                if (controller!=null){
-                    setCanvasPane();
-                }
+        leftSeparator.setOnMouseDragged(event -> {
+            leftPane.setPrefWidth(event.getSceneX());
+            if (controller!=null){
+                setCanvasPane();
             }
         });
 
-        rightSeparator.setOnMouseDragged(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                double newWidth = borderPane.getWidth()-event.getSceneX();
-                rightPane.setPrefWidth(newWidth);
-                if (controller!=null){
-                    setCanvasPane();
-                }
+        rightSeparator.setOnMouseDragged(event -> {
+            double newWidth = borderPane.getWidth()-event.getSceneX();
+            rightPane.setPrefWidth(newWidth);
+            if (controller!=null){
+                setCanvasPane();
             }
         });
     }
@@ -180,7 +178,7 @@ public class GuiMain extends Application {
         primaryStage.show();
     }
 
-    public void openFile(){
+    public void openFile() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Resource File");
         File selectedFile = fileChooser.showOpenDialog(new Stage());
@@ -189,13 +187,29 @@ public class GuiMain extends Application {
         }
         else {
             closeFile();
-            controller = new Controller(selectedFile, rangeSlider,tfLow,tfHigh);
-            controller.addCanvases(canvasPane);
-            controller.generateMinimap(miniMap);
+            try{
+                controller = new Controller(selectedFile,loadingBar, rangeSlider,tfLow,tfHigh);
+                controller.addCanvases(canvasPane);
+                controller.generateMinimap(miniMap);
 
-            setCanvasPane();
-            controller.addCanvases(canvasPane);
-            controller.generateMinimap(miniMap);
+                setCanvasPane();
+                controller.addCanvases(canvasPane);
+                controller.generateMinimap(miniMap);
+            }
+            catch (FileNotFoundException e){
+                AnchorPane anchorPane = new AnchorPane();
+                Text text = new Text(e.getMessage());
+                anchorPane.getChildren().add(text);
+                text.setLayoutY(20);
+                Stage stage =  new Stage();
+                stage.setResizable(false);
+                stage.setAlwaysOnTop(true);
+                stage.centerOnScreen();
+                stage.setScene(new Scene(anchorPane));
+                stage.setTitle("File Error");
+                stage.show();
+            }
+
         }
         openFilter();
         rangeSlider.setController(controller);
@@ -230,6 +244,23 @@ public class GuiMain extends Application {
             controller.deleteSelectedPlant();
             plantText.setText("");
         }
+    }
+
+    public void openEditor() throws Exception {
+        FileEditor fileEditor = new FileEditor();
+        if(controller!=null){
+            fileEditor = new FileEditor(controller);
+        }
+        fileEditor.start(new Stage());
+    }
+    public void openHelpMenu() throws Exception {
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("HelpMenu.fxml"));
+        Scene scene = new Scene(fxmlLoader.load());
+        Stage stage = new Stage();
+
+        stage.setTitle("Help Menu");
+        stage.setScene(scene);
+        stage.show();
     }
 
     private void createSwingContent(final SwingNode swingNode) {
