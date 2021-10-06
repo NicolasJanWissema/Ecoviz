@@ -276,6 +276,7 @@ public class Controller {
         try{
             BufferedReader bufferedReader = new BufferedReader(new FileReader(filename+"_undergrowth.pdb"));
             int speciesNum = Integer.parseInt(bufferedReader.readLine());
+            int plantCount = 0;
             for(int i=0; i<speciesNum; i++){
                 String[] speciesData = bufferedReader.readLine().split(" ");
                 int speciesID = Integer.parseInt(speciesData[0]);
@@ -293,6 +294,7 @@ public class Controller {
                         maxHeight = plantInfo[3];
                     }
                     plantData.addPlantToUndergrowth(j, new Plant(speciesID, plantInfo[0], plantInfo[1], plantInfo[2], plantInfo[3], plantInfo[4], plantCount));
+                    plantCount++;
                 }
             }
             //finished reading files
