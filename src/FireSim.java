@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.lang.Math;
+import java.util.Random;
 
 public class FireSim {
 
@@ -61,11 +62,54 @@ public class FireSim {
         }
     }
 
-    public void shouldBurn(int x, int y){
-        int [][] surrounding = {{x-1, y+1}, {x, y+1}, {x+1, y+1}, {x-1, y}, {x+1, y}, {x-1, y-1}, {x, y-1}, {x+1, y-1}};
-        for(int [] s : surrounding){
+    public void burn(int x, int y){
+        // do something
+    }
 
+    public void shouldBurn(int x, int y){
+
+        if(burning.contains(grid[x][y].get(0))){ // checks if plant is already burning
+            // call another method
         }
+        else{
+            int burningNeighbours = 0;
+            int [][] surrounding = {{x-1, y+1}, {x, y+1}, {x+1, y+1}, {x-1, y}, {x+1, y}, {x-1, y-1}, {x, y-1}, {x+1, y-1}};
+            Random r = new Random();
+            for(int [] s : surrounding){ // for every surrounding point
+                for(int p = 0; p<grid[s[0]][s[1]].size(); p++){ // for every possible plant in arraylist
+                    if(burning.contains(grid[s[0]][s[1]].get(p))){ // check if plant is burning
+                        burningNeighbours++; // increment the number of burning neighbours
+                        if(burningNeighbours>3){ // if plant has more than 3 burning neighbours, burn it
+                            burn(x,y);
+                            break;
+                        }
+                    }
+                    else{
+                        continue;
+                    }
+                }
+            }
+            switch (burningNeighbours) {
+                case 1:
+                    if(r.nextInt(8)==0){ // if has only 1 burning neighbour;
+                        burn(x, y);
+                    }
+                    break;
+                case 2:
+                    if(r.nextInt(4)==0){ // if has only 2 burning neighbours;
+                        burn(x, y);
+                    }
+                    break;
+                case 3:
+                    if(r.nextInt(3)==0){ //if has only 3 burning neighbours;
+                        burn(x, y);
+                    }
+                    break;
+
+            }
+            
+        }
+        
     }
 
     public void setSeedPoint(int[] seedPoint) {
