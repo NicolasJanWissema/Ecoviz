@@ -11,8 +11,9 @@ public class FireSim {
     private int size;
     private float gspc;
 
-    public FireSim(int size, float gridSpacing, Plants plantData){
+    public FireSim(int size, float gridSpacing, Plants plantData, int[] sp){
         gspc = gridSpacing;
+        seedPoint = sp;
         this.size = size;
         grid = new ArrayList [size][size];
         Plant [] ug, can;
@@ -56,6 +57,21 @@ public class FireSim {
                 grid[i][j].add(p.getPlantID()); // appends arraylist with the plantID of plant occupying space
             }
         }
+    }
+
+    public void setSeedPoint(int[] seedPoint) {
+        this.seedPoint = seedPoint;
+    }
+
+    public void setWindDirection(int windDirection) {
+        this.windDirection = windDirection;
+    }
+
+    public int getWindDirection() {
+        return windDirection;
+    }
+    public int[] getSeedPoint() {
+        return seedPoint;
     }
 
 }
