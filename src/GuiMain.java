@@ -189,10 +189,8 @@ public class GuiMain extends Application {
             closeFile();
             try{
                 controller = new Controller(selectedFile,loadingBar, rangeSlider,tfLow,tfHigh);
-                controller.addCanvases(canvasPane);
-                controller.generateMinimap(miniMap);
-
-                setCanvasPane();
+                canvasPane.setPrefWidth(borderPane.getWidth()-rightPane.getWidth()-leftPane.getWidth());
+                canvasPane.setPrefHeight(borderPane.getHeight()-bottomPane.getHeight()-menuBar.getHeight());
                 controller.addCanvases(canvasPane);
                 controller.generateMinimap(miniMap);
             }
