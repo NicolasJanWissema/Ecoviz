@@ -231,13 +231,18 @@ public class GuiMain extends Application {
         miniMap.getChildren().clear();
     }
 
+    /**
+     * Sets the width and height of the canvas
+     */
     private void setCanvasPane(){
         canvasPane.setPrefWidth(borderPane.getWidth()-rightPane.getWidth()-leftPane.getWidth());
         canvasPane.setPrefHeight(borderPane.getHeight()-bottomPane.getHeight()-menuBar.getHeight());
-
         controller.updateZoom();
     }
 
+    /**
+     * Adds filter to gui
+     */
     public void openFilter(){
         infoBox.getChildren().clear();
         if (controller!=null){
@@ -247,6 +252,9 @@ public class GuiMain extends Application {
         }
     }
 
+    /**
+     * This remove the selected plant
+     */
     public void deleteSelectedPlant(){
         if (controller!=null){
             controller.deleteSelectedPlant();
@@ -254,6 +262,11 @@ public class GuiMain extends Application {
         }
     }
 
+    /**
+     * Created swing component. Double thumb slider.
+     * 
+     * @param swingNode
+     */
     private void createSwingContent(final SwingNode swingNode) {
         SwingUtilities.invokeLater(() -> swingNode.setContent(rangeSlider));
     }
