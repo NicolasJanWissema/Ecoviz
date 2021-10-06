@@ -17,16 +17,18 @@ import java.awt.*;
 import java.io.File;
 import javax.swing.SwingUtilities;
 import javafx.embed.swing.SwingNode;
-
 import javafx.scene.Cursor;
 
-
+/**
+ * This class is the main method and controls the GUI
+ * 
+ * @author WSSNIC008 KRNHAN003 JCBSHA028
+ */
 public class GuiMain extends Application {
     @FXML
     //public Menu fileMenu;
     public StackPane canvasPane;
     public StackPane miniMap;
-
     public BorderPane borderPane;
     public MenuBar menuBar;
     public AnchorPane rightPane;
@@ -43,19 +45,28 @@ public class GuiMain extends Application {
     public Menu fileMenu;
     TextField tfLow;
     TextField tfHigh;
-
     public Slider canopySlider;
     public Slider undergrowthSlider;
 
+    // Private Varibles
     private Controller controller;
-
     private boolean dragging;
-
+    
+    /**
+     * Main Method
+     * Launches the GUI
+     * 
+     * @param args default argument
+     */
     public static void main(String[] args) {
         launch(args);
     }
-
+    
     @FXML
+    /**
+     * This method runs right before the GUI is launched
+     * Set the default varibles for the GUI and handles the event listeners
+     */
     public void initialize(){
         rangeSlider = new RangeSlider();
         rangeSlider.setPreferredSize(new Dimension(240, rangeSlider.getPreferredSize().height));
@@ -170,6 +181,11 @@ public class GuiMain extends Application {
 
 
     @Override
+    /**
+     * This method starts the GUI using the fxml file
+     * 
+     * @param primaryStage Main Stage
+     */
     public void start(Stage primaryStage) throws Exception {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("guiMain.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
@@ -180,6 +196,9 @@ public class GuiMain extends Application {
         primaryStage.show();
     }
 
+    /**
+     * Handles the selecting of files
+     */
     public void openFile(){
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Resource File");
@@ -202,6 +221,9 @@ public class GuiMain extends Application {
         rangeSlider.addListener();
     }
 
+    /**
+     * Closes a file
+     */
     public void closeFile(){
         controller=null;
         canvasPane.getChildren().clear();

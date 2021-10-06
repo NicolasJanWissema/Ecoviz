@@ -14,7 +14,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -24,10 +23,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeUnit;
-
 import javafx.scene.image.PixelWriter;
 import javafx.scene.input.ScrollEvent;
-
 import javax.swing.plaf.ColorChooserUI;
 import javax.swing.plaf.ColorUIResource;
 
