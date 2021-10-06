@@ -28,6 +28,12 @@ import javafx.scene.input.ScrollEvent;
 import javax.swing.plaf.ColorChooserUI;
 import javax.swing.plaf.ColorUIResource;
 
+/**
+ * Thic class is the bridge between the data and the GUI
+ * It controls all the logic of the program
+ * 
+ * @author WSSNIC008 KRNHAN003 JCBSHA028
+ */
 public class Controller {
     //Variables
     Plants plantData;
@@ -48,9 +54,6 @@ public class Controller {
     TextField tfLow;
     TextField tfHigh;
 
-
-
-
     // Panning and Zooming Variables
     float fOffsetX = 0.0f;
     float fOffsetY = 0.0f;
@@ -60,17 +63,14 @@ public class Controller {
     float sizeX = 0;
     float sizeY = 0;
 
-
-    //Constructor
-    public Controller(File file){
-        String filename = file.getAbsoluteFile().toString();
-        filename = filename.replaceAll(".elv","");
-        filename = filename.replaceAll(".spc.txt","");
-        filename = filename.replaceAll("_canopy.pdb","");
-        filename = filename.replaceAll("_undergrowth.pdb","");
-        readFiles(filename);
-    }
-
+    /**
+     * Constructor
+     * 
+     * @param file the file that needs to be read in
+     * @param slider the double thumb range slider
+     * @param tfLow lower height textfield
+     * @param tfHigh upper height textfield
+     */
     public Controller(File file, RangeSlider slider, TextField tfLow, TextField tfHigh) {
         String filename = file.getAbsoluteFile().toString();
         filename = filename.replaceAll(".elv","");
@@ -87,6 +87,11 @@ public class Controller {
         });
     }
 
+    /**
+     * This runs the height filter method and sending the upper and lower bounds of the height
+     * 
+     * @param tempSlider 
+     */
     public void movedSlider(RangeSlider tempSlider) {
         //System.out.println("Upper: " + sliderToHeight(tempSlider.getUpperValue()));
         //System.out.println("Lower: " + sliderToHeight(tempSlider.getValue()));
@@ -94,11 +99,23 @@ public class Controller {
 
     }
 
+    /**
+     * Sets the panning positions
+     * 
+     * @param fStartPanX x position
+     * @param fStartPanY y position
+     */
     public void setPan(float fStartPanX, float fStartPanY ) {
         this.fStartPanX = fStartPanX;
         this.fStartPanY = fStartPanY;
     }
 
+    /**
+     * Updates the panning varibles when a user attempts to pan
+     * 
+     * @param mouseX mouse position x
+     * @param mouseY mouse position y
+     */
     public void panning(float mouseX, float mouseY) {
         updateSize();
         float[] dimensions = screenToWorld((float)terrainCanvas.getWidth(), (float)terrainCanvas.getHeight());
@@ -126,6 +143,11 @@ public class Controller {
         miniMapSquare.drawSquare();
     }
 
+    /**
+     * Updates the scrolling variables when the user scolls
+     * 
+     * @param event the mouse event.
+     */
     public void zooming(ScrollEvent event) {
         float mouseX = (float) event.getX();
         float mouseY = (float) event.getY();
@@ -171,6 +193,12 @@ public class Controller {
         canopyCanvas.drawCanvas();
         //System.out.println("Time To Draw: " + (System.nanoTime() - temp)/1000000);
     }
+
+    /**
+     * Updates the zooming variables when the user scolls
+     * 
+     * @param event the mouse event.
+     */
     public  void updateZoom(){
         float[] dimensions = screenToWorld((float)terrainCanvas.getWidth(), (float)terrainCanvas.getHeight());
         float[] offsets = screenToWorld(0,0);
@@ -192,6 +220,11 @@ public class Controller {
         canopyCanvas.drawCanvas();
     }
 
+    /**
+     * Reads from files and saves the data in a logical way
+     * 
+     * @param filename name of file
+     */
     private void readFiles(String filename) {
         long startTime = System.nanoTime();
         try{
@@ -290,19 +323,41 @@ public class Controller {
         System.out.println("TIME TO READ: " + ((endTime-startTime)/1000000));
     }
 
+    /**
+     * Calls the method to add Canvases to stack pane
+     * 
+     * @param stackPane main viewing stackpane
+     */
     public void addCanvases(StackPane stackPane){
         addTerrainCanvas(stackPane);
         addPlantCanvas(stackPane);
     }
 
+    /**
+     * Get x dimension of data
+     * 
+     * @return returns dimention in float
+     */
     public float getxDimension() {
         return xDimension;
     }
 
+    /**
+     * Get y dimension of data
+     * 
+     * @return returns dimention in float
+     */
     public float getyDimension() {
         return yDimension;
     }
 
+    /**
+     * Changes a position from world view to screen view
+     * 
+     * @param fWorldX world view position x
+     * @param fWorldY world view position y
+     * @return
+     */
     public float[] worldToScreen(float fWorldX, float fWorldY) {
         updateSize();
         float nScreenX = (fWorldX + fOffsetX)*sizeX*scale;
@@ -310,6 +365,13 @@ public class Controller {
         return new float[]{nScreenX,nScreenY};
     }
 
+    /**
+     * Changes a position from screen view to world view
+     * 
+     * @param nScreenX screen view position x
+     * @param nScreenY screen view position y
+     * @return
+     */
     public float[] screenToWorld(float nScreenX, float nScreenY) {
         updateSize();
         float fWorldX = nScreenX/(scale*sizeX) - fOffsetX;
@@ -317,6 +379,9 @@ public class Controller {
         return new float[]{fWorldX,fWorldY};
     }
 
+    /**
+     * Updates the scaling of the window size
+     */
     public void updateSize() {
         if (terrainCanvas.getWidth() < terrainCanvas.getHeight()){
             sizeX = (float) (terrainCanvas.getHeight()/xDimension);
@@ -332,22 +397,39 @@ public class Controller {
         }
     }
 
+    /**
+     * Changes canopy Opacity
+     * 
+     * @param value opacity value
+     */
     public void changeCanopyOpacity(double value){
         canopyCanvas.setOpacity(value);
     }
+
+    /**
+     * Changes undergrowth Opacity
+     * 
+     * @param value opacity value
+     */
     public void changeUndergrowthOpacity(double value){
         undergrowthCanvas.setOpacity(value);
     }
 
-
+    /**
+     * Class that define the terrain canvas view
+     */
     class TerrainCanvas extends Canvas {
         float maxh = -10000.0f, minh = 10000.0f;
-
         int[] dim = terrainData.getDimensions();
         private final DRAWTYPE drawtype;
+
+        /**
+         * Constructor
+         * 
+         * @param drawtype Defines what this class will be used for
+         */
         public TerrainCanvas(DRAWTYPE drawtype){
             this.drawtype = drawtype;
-
             for(int x=0; x < dim[0]; x++){
                 for(int y=0; y < dim[1]; y++) {
                     float h = terrainData.getHeight(x, y);
@@ -360,10 +442,6 @@ public class Controller {
             // Redraw canvas when size changes.
             widthProperty().addListener(evt -> drawCanvas());
             heightProperty().addListener(evt -> drawCanvas());
-        }
-        public void drawThread(){
-            Drawing drawing = new Drawing(drawtype);
-            drawing.start();
         }
 
         public synchronized void drawCanvas() {
@@ -481,8 +559,8 @@ public class Controller {
             this.drawtype=drawtype;
 
             // Redraw canvas when size changes.
-            widthProperty().addListener(evt -> drawCanvas());
-            heightProperty().addListener(evt -> drawCanvas());
+            //widthProperty().addListener(evt -> drawCanvas());
+            //heightProperty().addListener(evt -> drawCanvas());
         }
         public MiniMapCanvas(){
             // Redraw canvas when size changes.
@@ -618,7 +696,6 @@ public class Controller {
         //miniMapUndergrowthCanvas.heightProperty().bind(miniPane.heightProperty());
         //miniMapCanopyCanvas.widthProperty().bind(miniPane.widthProperty());
         //miniMapCanopyCanvas.heightProperty().bind(miniPane.heightProperty());
-
         MiniMapCanvas minimapCanvas = new MiniMapCanvas(DRAWTYPE.Minimap);
         minimapCanvas.widthProperty().bind(miniPane.widthProperty());
         minimapCanvas.heightProperty().bind(miniPane.heightProperty());
