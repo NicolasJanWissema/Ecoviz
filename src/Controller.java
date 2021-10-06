@@ -501,15 +501,13 @@ public class Controller {
 
         public MiniMapCanvas(DRAWTYPE drawtype){
             this.drawtype=drawtype;
-
+        }
+        public MiniMapCanvas(){
+        }
+        public void addListeners(){
             // Redraw canvas when size changes.
             widthProperty().addListener(evt -> drawCanvas());
             heightProperty().addListener(evt -> drawCanvas());
-        }
-        public MiniMapCanvas(){
-            // Redraw canvas when size changes.
-            widthProperty().addListener(evt -> drawSquare());
-            heightProperty().addListener(evt -> drawSquare());
         }
         public void drawCanvas() {
             GraphicsContext gc = getGraphicsContext2D();
@@ -637,10 +635,12 @@ public class Controller {
         MiniMapCanvas minimapCanvas = new MiniMapCanvas(DRAWTYPE.Minimap);
         minimapCanvas.widthProperty().bind(miniPane.widthProperty());
         minimapCanvas.heightProperty().bind(miniPane.heightProperty());
+        minimapCanvas.addListeners();
 
         miniMapSquare = new MiniMapCanvas();
         miniMapSquare.widthProperty().bind(miniPane.widthProperty());
         miniMapSquare.heightProperty().bind(miniPane.heightProperty());
+        miniMapSquare.addListeners();
 
         miniPane.getChildren().addAll(minimapCanvas, miniMapSquare);
     }
