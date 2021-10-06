@@ -59,6 +59,13 @@ public class FireSim {
         }
     }
 
+    public void shouldBurn(int x, int y){
+        int [][] surrounding = {{x-1, y+1}, {x, y+1}, {x+1, y+1}, {x-1, y}, {x+1, y}, {x-1, y-1}, {x, y-1}, {x+1, y-1}};
+        for(int [] s : surrounding){
+            
+        }
+    }
+
     public void setSeedPoint(int[] seedPoint) {
         this.seedPoint = seedPoint;
     }
