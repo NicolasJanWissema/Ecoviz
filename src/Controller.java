@@ -833,5 +833,21 @@ public class Controller {
         canopyCanvas.drawCanvas();
     }
 
+    public void startFireSim(){
+
+    }
+    public void addSeedPoint(){
+
+    }
+    public void fTimestep(){
+
+    }
+    public void bTimestep(){
+
+    }
+    public void endFireSim(){
+
+    }
+
 }
 

@@ -287,6 +287,21 @@ public class GuiMain extends Application {
         stage.setScene(scene);
         stage.show();
     }
+    public void startFireSim(){
+        controller.startFireSim();
+    }
+    public void addSeedPoint(){
+        controller.addSeedPoint();
+    }
+    public void fTimestep(){
+        controller.fTimestep();
+    }
+    public void bTimestep(){
+        controller.bTimestep();
+    }
+    public void endFireSim(){
+        controller.endFireSim();
+    }
 
     private void createSwingContent(final SwingNode swingNode) {
         SwingUtilities.invokeLater(() -> swingNode.setContent(rangeSlider));
