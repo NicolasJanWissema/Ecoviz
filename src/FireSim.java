@@ -113,7 +113,7 @@ public class FireSim {
             // }
             // else{
         int burnableNeighbours = 0;
-        
+        burning.add(-1);
         int [][] surrounding = {{x-1, y+1}, {x, y+1}, {x+1, y+1}, {x-1, y}, {x+1, y}, {x-1, y-1}, {x, y-1}, {x+1, y-1}};
         Random r = new Random();
         for(int [] s : surrounding){ // for every surrounding point
