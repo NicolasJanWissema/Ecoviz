@@ -3,12 +3,13 @@ import java.lang.Math;
 import java.util.Random;
 
 public class FireSim {
-    
+
     private ArrayList<Integer>[][] grid;
-    private Plant[][] firePlant;
+    private Plant[][] firePlant; 
     private int windDirection;
     private int[] seedPoint;
     private int size;
+    private Plant [] ug, can;
     private float gspc;
     private ArrayList<Integer> burning;
     private ArrayList<Integer> burnt;
@@ -26,7 +27,7 @@ public class FireSim {
         nextPoint = new ArrayList<Integer>();
         visited = new ArrayList<Integer>();
         grid = new ArrayList [size][size];
-        Plant [] ug, can;
+        // Plant [] ug, can;
         ug = plantData.getUndergrowth();
         can = plantData.getCanopy();
         for(int i = 0; i<size; i++){
@@ -87,9 +88,22 @@ public class FireSim {
                 burning.add(grid[y][x].get(p));
                 visited.add(grid[y][x].get(p));
                 // need to set Plant object burning boolean
+                setPlantOnFire(grid[y][x].get(p));
+
             }
         }
     }
+
+    public void setPlantOnFire(int id){
+        if(id>=ug.length){
+            id=id-ug.length;
+            can[id].setBurning(true);
+        }
+        else{
+            ug[id].setBurning(true);
+        }
+    }
+
 
     public void shouldBurn(int x, int y){
         boolean stop = false;
@@ -170,4 +184,5 @@ public class FireSim {
         int [] p = {x, y};
         return p;
     }
+
 }
