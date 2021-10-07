@@ -6,6 +6,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.Blend;
 import javafx.scene.effect.BlendMode;
@@ -14,23 +15,23 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeUnit;
-
 import javafx.scene.image.PixelWriter;
 import javafx.scene.input.ScrollEvent;
-
 import javax.swing.plaf.ColorChooserUI;
 import javax.swing.plaf.ColorUIResource;
 
+/**
+ * Thic class is the bridge between the data and the GUI
+ * It controls all the logic of the program
+ * 
+ * @author WSSNIC008 KRNHAN003 JCBSHA028
+ */
 public class Controller {
     //Variables
     Plants plantData;
@@ -42,6 +43,7 @@ public class Controller {
     PlantCanvas canopyCanvas;
     PlantCanvas undergrowthCanvas;
     MiniMapCanvas miniMapSquare;
+    ProgressBar loadingBar;
     private Plant selectedPlant;
     public float maxHeight;
     public float filterHeightUpper;
@@ -50,9 +52,6 @@ public class Controller {
     RangeSlider rangeSlider;
     TextField tfLow;
     TextField tfHigh;
-
-
-
 
     // Panning and Zooming Variables
     float fOffsetX = 0.0f;
@@ -65,7 +64,7 @@ public class Controller {
 
 
     //Constructor
-    public Controller(File file){
+    public Controller(File file) throws FileNotFoundException {
         String filename = file.getAbsoluteFile().toString();
         filename = filename.replaceAll(".elv","");
         filename = filename.replaceAll(".spc.txt","");
@@ -74,7 +73,8 @@ public class Controller {
         readFiles(filename);
     }
 
-    public Controller(File file, RangeSlider slider, TextField tfLow, TextField tfHigh) {
+    public Controller(File file, ProgressBar loadingBar, RangeSlider slider, TextField tfLow, TextField tfHigh) throws FileNotFoundException {
+        this.loadingBar = loadingBar;
         String filename = file.getAbsoluteFile().toString();
         filename = filename.replaceAll(".elv","");
         filename = filename.replaceAll(".spc.txt","");
@@ -88,8 +88,14 @@ public class Controller {
             tfLow.setText(Float.toString(0));
             tfHigh.setText(Float.toString(maxHeight));
         });
+        //loadingBar.progressProperty().set(0);
     }
 
+    /**
+     * This runs the height filter method and sending the upper and lower bounds of the height
+     * 
+     * @param tempSlider 
+     */
     public void movedSlider(RangeSlider tempSlider) {
         //System.out.println("Upper: " + sliderToHeight(tempSlider.getUpperValue()));
         //System.out.println("Lower: " + sliderToHeight(tempSlider.getValue()));
@@ -97,11 +103,23 @@ public class Controller {
 
     }
 
+    /**
+     * Sets the panning positions
+     * 
+     * @param fStartPanX x position
+     * @param fStartPanY y position
+     */
     public void setPan(float fStartPanX, float fStartPanY ) {
         this.fStartPanX = fStartPanX;
         this.fStartPanY = fStartPanY;
     }
 
+    /**
+     * Updates the panning varibles when a user attempts to pan
+     * 
+     * @param mouseX mouse position x
+     * @param mouseY mouse position y
+     */
     public void panning(float mouseX, float mouseY) {
         updateSize();
         float[] dimensions = screenToWorld((float)terrainCanvas.getWidth(), (float)terrainCanvas.getHeight());
@@ -129,6 +147,11 @@ public class Controller {
         miniMapSquare.drawSquare();
     }
 
+    /**
+     * Updates the scrolling variables when the user scolls
+     * 
+     * @param event the mouse event.
+     */
     public void zooming(ScrollEvent event) {
         float mouseX = (float) event.getX();
         float mouseY = (float) event.getY();
@@ -174,6 +197,12 @@ public class Controller {
         canopyCanvas.drawCanvas();
         //System.out.println("Time To Draw: " + (System.nanoTime() - temp)/1000000);
     }
+
+    /**
+     * Updates the zooming variables when the user scolls
+     * 
+     * @param event the mouse event.
+     */
     public  void updateZoom(){
         float[] dimensions = screenToWorld((float)terrainCanvas.getWidth(), (float)terrainCanvas.getHeight());
         float[] offsets = screenToWorld(0,0);
@@ -194,15 +223,12 @@ public class Controller {
         undergrowthCanvas.drawCanvas();
         canopyCanvas.drawCanvas();
     }
-
-    private void readFiles(String filename) {
+    private void readFiles(String filename) throws FileNotFoundException {
         long startTime = System.nanoTime();
+        //Reading species file.
         try{
-            BufferedReader bufferedReader;
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(filename+".spc.txt"));
             String line;
-
-            //Reading species file.
-            bufferedReader = new BufferedReader(new FileReader(filename+".spc.txt"));
             ArrayList<SpeciesInfo> speciesInfoArrayList = new ArrayList<>();
             while((line=bufferedReader.readLine())!=null){
                 speciesInfoArrayList.add(new SpeciesInfo(line));
@@ -210,9 +236,16 @@ public class Controller {
             speciesInfo=new SpeciesInfo[speciesInfoArrayList.size()];
             speciesInfoArrayList.toArray(speciesInfo);
             plantData = new Plants(speciesInfo.length);
-
-            //read elevation file
-            bufferedReader = new BufferedReader(new FileReader(filename+".elv"));
+            //finished reading files
+            bufferedReader.close();
+            loadingBar.progressProperty().set(0.25);
+        } catch (IOException e) {
+            //e.printStackTrace();
+            throw new FileNotFoundException("species file not found or incorrectly formatted.");
+        }
+        //read elevation file
+        try{
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(filename+".elv"));
             String[] elevationInfo = bufferedReader.readLine().split(" ");
             int dimX = Integer.parseInt(elevationInfo[0]);
             int dimY = Integer.parseInt(elevationInfo[1]);
@@ -227,9 +260,16 @@ public class Controller {
             }
             xDimension = terrainData.getXDimension();
             yDimension = terrainData.getYDimension();
-
-            //reading canopy plant file
-            bufferedReader = new BufferedReader(new FileReader(filename+"_canopy.pdb"));
+            //finished reading files
+            bufferedReader.close();
+            loadingBar.progressProperty().set(0.5);
+        } catch (IOException e) {
+            //e.printStackTrace();
+            throw new FileNotFoundException("elevation file not found or incorrectly formatted.");
+        }
+        //reading canopy plant file
+        try{
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(filename+"_canopy.pdb"));
             int speciesNum = Integer.parseInt(bufferedReader.readLine());
             int plantCount = 0;
             for(int i=0; i<speciesNum; i++){
@@ -253,10 +293,18 @@ public class Controller {
                 }
                 
             }
-
-            //reading undergrowth plant file
-            bufferedReader = new BufferedReader(new FileReader(filename+"_undergrowth.pdb"));
-            speciesNum = Integer.parseInt(bufferedReader.readLine());
+            //finished reading files
+            bufferedReader.close();
+            loadingBar.progressProperty().set(0.75);
+        } catch (IOException e) {
+            //e.printStackTrace();
+            throw new FileNotFoundException("canopy file not found or incorrectly formatted.");
+        }
+        //reading undergrowth plant file
+        try{
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(filename+"_undergrowth.pdb"));
+            int speciesNum = Integer.parseInt(bufferedReader.readLine());
+            int plantCount = 0;
             for(int i=0; i<speciesNum; i++){
                 String[] speciesData = bufferedReader.readLine().split(" ");
                 int speciesID = Integer.parseInt(speciesData[0]);
@@ -274,38 +322,57 @@ public class Controller {
                         maxHeight = plantInfo[3];
                     }
                     plantData.addPlantToUndergrowth(j, new Plant(speciesID, plantInfo[0], plantInfo[1], plantInfo[2], plantInfo[3], plantInfo[4], plantCount));
+                    plantCount++;
                 }
             }
             //finished reading files
             bufferedReader.close();
-            //generate sorted arrays of data.
-            plantData.completeGeneration();
+            loadingBar.progressProperty().set(1);
+
+        } catch (IOException e) {
+            //e.printStackTrace();
+            throw new FileNotFoundException("undergrowth file not found or incorrectly formatted.");
         }
-        catch (IOException e){
-            System.out.println("Unable to open input file");
-            e.printStackTrace();
-        }
-        catch (java.util.InputMismatchException e){
-            System.out.println("Malformed input file");
-            e.printStackTrace();
-        }
+
         long endTime = System.nanoTime();
         System.out.println("TIME TO READ: " + ((endTime-startTime)/1000000));
     }
 
+    /**
+     * Calls the method to add Canvases to stack pane
+     * 
+     * @param stackPane main viewing stackpane
+     */
     public void addCanvases(StackPane stackPane){
         addTerrainCanvas(stackPane);
         addPlantCanvas(stackPane);
     }
 
+    /**
+     * Get x dimension of data
+     * 
+     * @return returns dimention in float
+     */
     public float getxDimension() {
         return xDimension;
     }
 
+    /**
+     * Get y dimension of data
+     * 
+     * @return returns dimention in float
+     */
     public float getyDimension() {
         return yDimension;
     }
 
+    /**
+     * Changes a position from world view to screen view
+     * 
+     * @param fWorldX world view position x
+     * @param fWorldY world view position y
+     * @return
+     */
     public float[] worldToScreen(float fWorldX, float fWorldY) {
         updateSize();
         float nScreenX = (fWorldX + fOffsetX)*sizeX*scale;
@@ -313,6 +380,13 @@ public class Controller {
         return new float[]{nScreenX,nScreenY};
     }
 
+    /**
+     * Changes a position from screen view to world view
+     * 
+     * @param nScreenX screen view position x
+     * @param nScreenY screen view position y
+     * @return
+     */
     public float[] screenToWorld(float nScreenX, float nScreenY) {
         updateSize();
         float fWorldX = nScreenX/(scale*sizeX) - fOffsetX;
@@ -320,6 +394,9 @@ public class Controller {
         return new float[]{fWorldX,fWorldY};
     }
 
+    /**
+     * Updates the scaling of the window size
+     */
     public void updateSize() {
         if (terrainCanvas.getWidth() < terrainCanvas.getHeight()){
             sizeX = (float) (terrainCanvas.getHeight()/xDimension);
@@ -335,22 +412,39 @@ public class Controller {
         }
     }
 
+    /**
+     * Changes canopy Opacity
+     * 
+     * @param value opacity value
+     */
     public void changeCanopyOpacity(double value){
         canopyCanvas.setOpacity(value);
     }
+
+    /**
+     * Changes undergrowth Opacity
+     * 
+     * @param value opacity value
+     */
     public void changeUndergrowthOpacity(double value){
         undergrowthCanvas.setOpacity(value);
     }
 
-
+    /**
+     * Class that define the terrain canvas view
+     */
     class TerrainCanvas extends Canvas {
         float maxh = -10000.0f, minh = 10000.0f;
-
         int[] dim = terrainData.getDimensions();
         private final DRAWTYPE drawtype;
+
+        /**
+         * Constructor
+         * 
+         * @param drawtype Defines what this class will be used for
+         */
         public TerrainCanvas(DRAWTYPE drawtype){
             this.drawtype = drawtype;
-
             for(int x=0; x < dim[0]; x++){
                 for(int y=0; y < dim[1]; y++) {
                     float h = terrainData.getHeight(x, y);
@@ -360,15 +454,16 @@ public class Controller {
                         minh = h;
                 }
             }
-            // Redraw canvas when size changes.
-            widthProperty().addListener(evt -> drawCanvas());
-            heightProperty().addListener(evt -> drawCanvas());
         }
         public void drawThread(){
             Drawing drawing = new Drawing(drawtype);
             drawing.start();
         }
-
+        public void addListeners(){
+            // Redraw canvas when size changes.
+            widthProperty().addListener(evt -> drawCanvas());
+            heightProperty().addListener(evt -> drawCanvas());
+        }
         public synchronized void drawCanvas() {
             GraphicsContext gc = getGraphicsContext2D();
             gc.clearRect(0, 0, getWidth(), getHeight());
@@ -414,14 +509,15 @@ public class Controller {
         public PlantCanvas(Plant[] plants, DRAWTYPE drawtype){
             this.plants=plants;
             this.drawtype=drawtype;
-
-            // Redraw canvas when size changes.
-            widthProperty().addListener(evt -> drawCanvas());
-            heightProperty().addListener(evt -> drawCanvas());
         }
         public void drawThread(){
             Drawing drawing = new Drawing(drawtype);
             drawing.start();
+        }
+        public void addListeners(){
+            // Redraw canvas when size changes.
+            widthProperty().addListener(evt -> drawCanvas());
+            heightProperty().addListener(evt -> drawCanvas());
         }
         public synchronized void drawCanvas() {
             GraphicsContext gc = getGraphicsContext2D();
@@ -482,15 +578,13 @@ public class Controller {
 
         public MiniMapCanvas(DRAWTYPE drawtype){
             this.drawtype=drawtype;
-
+        }
+        public MiniMapCanvas(){
+        }
+        public void addListeners(){
             // Redraw canvas when size changes.
             widthProperty().addListener(evt -> drawCanvas());
             heightProperty().addListener(evt -> drawCanvas());
-        }
-        public MiniMapCanvas(){
-            // Redraw canvas when size changes.
-            widthProperty().addListener(evt -> drawSquare());
-            heightProperty().addListener(evt -> drawSquare());
         }
         public void drawCanvas() {
             GraphicsContext gc = getGraphicsContext2D();
@@ -595,6 +689,7 @@ public class Controller {
         terrainCanvas.widthProperty().bind(stackPane.widthProperty());
         terrainCanvas.heightProperty().bind(stackPane.heightProperty());
         stackPane.getChildren().add(terrainCanvas);
+        terrainCanvas.addListeners();
         System.out.println("done adding terrain");
     }
 
@@ -608,27 +703,21 @@ public class Controller {
         undergrowthCanvas.heightProperty().bind(stackPane.heightProperty());
 
         stackPane.getChildren().addAll(undergrowthCanvas,canopyCanvas);
+        canopyCanvas.addListeners();
+        undergrowthCanvas.addListeners();
         System.out.println("done adding canvases");
     }
 
     public void generateMinimap(StackPane miniPane){
-        //TerrainCanvas miniMapTerrainCanvas = new TerrainCanvas(DRAWTYPE.Terrain);
-        //PlantCanvas miniMapUndergrowthCanvas = new PlantCanvas(plantData.getUndergrowth(),DRAWTYPE.Undergrowth);
-        //PlantCanvas miniMapCanopyCanvas = new PlantCanvas(plantData.getCanopy(), DRAWTYPE.Canopy);
-        //miniMapTerrainCanvas.widthProperty().bind(miniPane.widthProperty());
-        //miniMapTerrainCanvas.heightProperty().bind(miniPane.heightProperty());
-        //miniMapUndergrowthCanvas.widthProperty().bind(miniPane.widthProperty());
-        //miniMapUndergrowthCanvas.heightProperty().bind(miniPane.heightProperty());
-        //miniMapCanopyCanvas.widthProperty().bind(miniPane.widthProperty());
-        //miniMapCanopyCanvas.heightProperty().bind(miniPane.heightProperty());
-
         MiniMapCanvas minimapCanvas = new MiniMapCanvas(DRAWTYPE.Minimap);
         minimapCanvas.widthProperty().bind(miniPane.widthProperty());
         minimapCanvas.heightProperty().bind(miniPane.heightProperty());
+        minimapCanvas.addListeners();
 
         miniMapSquare = new MiniMapCanvas();
         miniMapSquare.widthProperty().bind(miniPane.widthProperty());
         miniMapSquare.heightProperty().bind(miniPane.heightProperty());
+        miniMapSquare.addListeners();
 
         miniPane.getChildren().addAll(minimapCanvas, miniMapSquare);
     }
@@ -729,13 +818,10 @@ public class Controller {
     public String getSelectedPlantText(){
         String text = "";
         if (selectedPlant!=null){
-            //System.out.println("CLICKED PLANT:");
             text += speciesInfo[selectedPlant.getSpeciesID()].getCommmonName()+"\n";
             text += speciesInfo[selectedPlant.getSpeciesID()].getLantinName()+"\n";
             text += "Height: "+ selectedPlant.getHeight()+"m\n";
             text += "Canopy radius: "+ selectedPlant.getCanopyRadius()+"m\n";
-            //System.out.println(speciesInfo[selectedPlant.getSpeciesID()].getCommmonName());
-            //System.out.println(speciesInfo[selectedPlant.getSpeciesID()].getLantinName());
         }
         return (text);
     }
@@ -745,6 +831,22 @@ public class Controller {
         }
         undergrowthCanvas.drawCanvas();
         canopyCanvas.drawCanvas();
+    }
+
+    public void startFireSim(){
+
+    }
+    public void addSeedPoint(){
+
+    }
+    public void fTimestep(){
+
+    }
+    public void bTimestep(){
+
+    }
+    public void endFireSim(){
+
     }
 
 }
