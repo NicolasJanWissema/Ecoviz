@@ -11,6 +11,7 @@ public class Plant implements Comparable<Plant> {
     private float height;
     private float canopyRadius;
     private boolean burnt;
+    private boolean burning;
     private boolean speciesEnabled, plantEnabled, heightEnabled;
     private int plantID;
 
@@ -149,18 +150,20 @@ public class Plant implements Comparable<Plant> {
         return burnt;
     }
 
-    /**
-     * Sets the status of the tree
-     *
-     * @param burnt either burnt (true) or not burnt (false)
-     */
+    public boolean isBurning() {
+        return burning;
+    }
+
     public void setBurnt(boolean burnt) {
         this.burnt = burnt;
     }
 
-    /**
-     * Disables a plant. If true the plant won't be disabled on the screen
-     */
+    public void setBurning(boolean burning) {
+        this.burning = burning;
+    }
+
+
+
     public void disablePlant(){
         plantEnabled=false;
     }

@@ -46,53 +46,52 @@
    </center>
    <left>
        <AnchorPane fx:id="leftPane" BorderPane.alignment="CENTER">
-           <Separator fx:id="leftSeparator" orientation="VERTICAL" AnchorPane.bottomAnchor="0.0"
-                      AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+               <Button mnemonicParsing="false" onAction="#startFireSim" text="Start Firesim" />
+               <Button mnemonicParsing="false" onAction="#addSeedPoint" text="Add plant as Seedpoint" />
+               <Button mnemonicParsing="false" onAction="#fTimestep" text="next timestep" />
+               <Button mnemonicParsing="false" onAction="#bTimestep" text="back timestep (test)" />
+               <Button mnemonicParsing="false" onAction="#endFireSim" text="End" />
+            </children>
+         </VBox>
+           <Separator fx:id="leftSeparator" orientation="VERTICAL" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
               <cursor>
-                  <Cursor fx:constant="E_RESIZE"/>
+                  <Cursor fx:constant="E_RESIZE" />
               </cursor>
            </Separator>
-           <VBox alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="5.0"
-                 AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="9.0">
-               <TextArea fx:id="plantText" editable="false" maxWidth="1.7976931348623157E308"
-                         nodeOrientation="LEFT_TO_RIGHT" prefHeight="109.0" prefWidth="200.0"/>
+           <VBox alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="9.0">
+               <TextArea fx:id="plantText" editable="false" maxWidth="1.7976931348623157E308" nodeOrientation="LEFT_TO_RIGHT" prefHeight="109.0" prefWidth="200.0" />
                <HBox>
-                   <Button mnemonicParsing="false" text="Edit"/>
-                   <Button mnemonicParsing="false" onAction="#deleteSelectedPlant" text="Delete"/>
+                   <Button mnemonicParsing="false" text="Edit" />
+                   <Button mnemonicParsing="false" onAction="#deleteSelectedPlant" text="Delete" />
                </HBox>
            </VBox>
        </AnchorPane>
    </left>
    <right>
        <AnchorPane fx:id="rightPane" BorderPane.alignment="CENTER">
-           <Separator fx:id="rightSeparator" orientation="VERTICAL" AnchorPane.bottomAnchor="0.0"
-                      AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+           <Separator fx:id="rightSeparator" orientation="VERTICAL" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
                <cursor>
-                   <Cursor fx:constant="E_RESIZE"/>
+                   <Cursor fx:constant="E_RESIZE" />
                </cursor>
            </Separator>
-           <VBox maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="6.0"
-                 AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-               <StackPane fx:id="miniMap" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-                          minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0"/>
-               <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308"
-                           maxWidth="1.7976931348623157E308" minWidth="-Infinity" vbarPolicy="ALWAYS">
-                   <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="1.7976931348623157E308"
-                         minHeight="-Infinity" minWidth="-Infinity">
-                       <Separator prefWidth="200.0"/>
-                       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Canopy opacity"/>
-                       <Slider fx:id="canopySlider" max="1.0" maxHeight="-Infinity"
-                               maxWidth="1.7976931348623157E308" value="1.0"/>
-                       <Separator prefWidth="200.0"/>
-                       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Undergrowth opacity"/>
-                       <Slider fx:id="undergrowthSlider" max="1.0" maxHeight="1.7976931348623157E308"
-                               maxWidth="1.7976931348623157E308" prefWidth="1.0" value="1.0"/>
-                       <Separator prefWidth="200.0"/>
-                       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Height"/>
-                       <HBox fx:id="textFieldHbox" prefHeight="0.0" prefWidth="200.0"/>
-                       <HBox fx:id="hbox" prefHeight="0.0" prefWidth="200.0"/>
-                       <Separator prefWidth="200.0"/>
-                       <VBox fx:id="infoBox" prefHeight="200.0" prefWidth="100.0"/>
+           <VBox maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="6.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <StackPane fx:id="miniMap" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0" />
+               <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="-Infinity" vbarPolicy="ALWAYS">
+                   <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity">
+                       <Separator prefWidth="200.0" />
+                       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Canopy opacity" />
+                       <Slider fx:id="canopySlider" max="1.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" value="1.0" />
+                       <Separator prefWidth="200.0" />
+                       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Undergrowth opacity" />
+                       <Slider fx:id="undergrowthSlider" max="1.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="1.0" value="1.0" />
+                       <Separator prefWidth="200.0" />
+                       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Height" />
+                       <HBox fx:id="textFieldHbox" prefHeight="0.0" prefWidth="200.0" />
+                       <HBox fx:id="hbox" prefHeight="0.0" prefWidth="200.0" />
+                       <Separator prefWidth="200.0" />
+                       <VBox fx:id="infoBox" prefHeight="200.0" prefWidth="100.0" />
                    </VBox>
                </ScrollPane>
            </VBox>

@@ -81,6 +81,9 @@ public class Controller {
         filename = filename.replaceAll("_canopy.pdb","");
         filename = filename.replaceAll("_undergrowth.pdb","");
         readFiles(filename);
+        // int[] sp = {101, 107}; // for firesim testing
+        // firesim = new FireSim(terrainData.getDimensions()[0] , terrainData.getGridSpacing(), plantData, sp); //for firesim testing
+        // firesim.shouldBurn(sp[0], sp[1]);
         rangeSlider = slider;
         this.tfLow = tfLow;
         this.tfHigh = tfHigh;
@@ -713,6 +716,7 @@ public class Controller {
         minimapCanvas.widthProperty().bind(miniPane.widthProperty());
         minimapCanvas.heightProperty().bind(miniPane.heightProperty());
         minimapCanvas.addListeners();
+        minimapCanvas.drawCanvas();
 
         miniMapSquare = new MiniMapCanvas();
         miniMapSquare.widthProperty().bind(miniPane.widthProperty());
@@ -831,6 +835,22 @@ public class Controller {
         }
         undergrowthCanvas.drawCanvas();
         canopyCanvas.drawCanvas();
+    }
+
+    public void startFireSim(){
+
+    }
+    public void addSeedPoint(){
+
+    }
+    public void fTimestep(){
+
+    }
+    public void bTimestep(){
+
+    }
+    public void endFireSim(){
+
     }
 
 }
