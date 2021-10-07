@@ -288,19 +288,29 @@ public class GuiMain extends Application {
         stage.show();
     }
     public void startFireSim(){
-        controller.startFireSim();
+        if (controller!=null){
+            controller.startFireSim();
+        }
     }
     public void addSeedPoint(){
-        controller.addSeedPoint();
+        if (controller!=null){
+            controller.addSeedPoint();
+        }
     }
     public void fTimestep(){
-        controller.fTimestep();
+        if (controller!=null){
+            controller.fTimestep();
+        }
     }
     public void bTimestep(){
-        controller.bTimestep();
+        if (controller!=null){
+            controller.bTimestep();
+        }
     }
     public void endFireSim(){
-        controller.endFireSim();
+        if (controller!=null){
+            controller.endFireSim();
+        }
     }
 
     private void createSwingContent(final SwingNode swingNode) {

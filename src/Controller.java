@@ -716,6 +716,7 @@ public class Controller {
         minimapCanvas.widthProperty().bind(miniPane.widthProperty());
         minimapCanvas.heightProperty().bind(miniPane.heightProperty());
         minimapCanvas.addListeners();
+        minimapCanvas.drawCanvas();
 
         miniMapSquare = new MiniMapCanvas();
         miniMapSquare.widthProperty().bind(miniPane.widthProperty());
