@@ -39,8 +39,12 @@ public class FireSim {
         // for(Plant p : ug){
         //     fillInPlant(p);
         // }
-        grid[seedPoint[1]][seedPoint[0]].add(-1);
-        for(int p = 0; p<can.length; p++){
+        grid[seedPoint[1]][seedPoint[0]].add(-1); // adds seed point to grid
+        for(int p = 0; p<ug.length; p++){ // adds undergrowth plants to simulation
+            fillInPlant(ug[p]);
+        }
+
+        for(int p = 0; p<can.length; p++){ // adds canopy plants to simulation
             fillInPlant(can[p]);
         }
     }
@@ -148,9 +152,11 @@ public class FireSim {
                 nextPoint.remove(0);
             }
             
-            System.out.println("Burning plants: "+burning);
-            System.out.println("Visited plants: "+visited);
+            
         }
+        System.out.println("done");
+        System.out.println("Burning plants: "+burning);
+        System.out.println("Visited plants: "+visited);
 
     }
 
@@ -184,5 +190,27 @@ public class FireSim {
         int [] p = {x, y};
         return p;
     }
+
+
+    // public static void main(String[] args) {
+    //     Plants ps = new Plants();
+    //     //System.out.println(ps.getCanopy());
+    //     float f = 1.0f;
+    //     int []sp = {4, 1};
+    //     FireSim t = new FireSim(15, f, ps, sp);
+ 
+    //     for (int i = 0; i<15 ; i++){
+    //         for(int j = 0; j<15; j++){
+    //             System.out.print(t.grid[i][j]);
+    //         }
+    //         System.out.println("");
+    //     }
+
+
+    //     t.shouldBurn(sp[0], sp[1]);
+    // }
+
+
+
 
 }
